@@ -4,7 +4,7 @@ Rewrite it in rust.
 
 ## Building
 1. Init and pull the WPILib submodule
-2. Building WPILib. Verify you satisfy the [https://github.com/wpilibsuite/allwpilib#building-wpilib](requirements).
+2. Building WPILib. Verify you satisfy the (requirements)[https://github.com/wpilibsuite/allwpilib#building-wpilib].
     `cd HAL`, `make all`.
 3. Generate rust-bindings and build the library. `cargo build`.
 
