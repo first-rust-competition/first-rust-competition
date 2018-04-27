@@ -1,5 +1,5 @@
 # compile libs and assemble a header for rust-bindgen
-all: bindgen_header.h libs
+all: load_headers libs
 
 hal_compile:
 	cd allwpilib; ./gradlew :hal:build -PreleaseBuild
@@ -15,14 +15,20 @@ libs: hal_compile
 	# strip versions tags
 	rename -f 's/.so.*/.so/' ./lib/*
 
-load_headers: hal_compile
-	mkdir -p ./tmp
+load_headers: hal_compile wpilibc_compile
+	# Hal Headers
 	unzip -d ./include/ -u ./allwpilib/hal/build/outputs/hal-headers.zip 
 	rm -rf ./include/MockData
-	rm ./include/LICENSE.txt
+	# NI libs headers
+	cp --recursive ./allwpilib/ni-libraries/include/* ./include/
+	# WPILib Util headers
+	cp --recursive ./allwpilib/build/dependencies/wpiutil-cpp/headers/* ./include/
+	# ntcore headers
+	cp --recursive ./allwpilib/build/dependencies/ntcore-cpp/headers/* ./include/
 
-bindgen_header.h: load_headers
-	find ./include/HAL/ -maxdepth 1 -not -type d | sed 's/\.\/include\/HAL\//#include </' | sed 's/\.h/\.h>/' > ./include/bindgen_header.h
+
+# bindgen_header.h: load_headers
+	# find ./include/HAL/ -maxdepth 1 -not -type d | sed 's/\.\/include\/HAL\//#include "HAL\//' | sed 's/\.h/\.h"/' > ./include/bindgen_header.h
 
 clean: clean_local clean_wpilib
 

@@ -1,40 +1,36 @@
-use std::env;
-
-fn main() {
-    extern crate bindgen;
-
+extern crate bindgen;
 use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    for lib in ["HALAthena",
-                "wpiutil",
+    for lib in [
                 "FRC_NetworkCommunication",
-                "RoboRIO_FRC_ChipObject",
                 "NiFpga",
                 "NiFpgaLv",
+                "niriodevenum",
                 "niriosession",
-                "spi",
-                "i2c",
-                "visa",
                 "NiRioSrv",
-                "niriodevenum"]
-        .iter() {
+                "RoboRIO_FRC_ChipObject",
+                "visa",
+                "wpiHal",
+                "wpiutil"
+                ].iter() {
         println!("cargo:rustc-link-lib=dylib={}", lib);
     }
 
     let path = env::current_dir().unwrap();
+    println!("cargo:rustc-link-search=native={}/HAL/lib", path.display());
 
-    println!("cargo:rustc-link-search=native={}/allwpilib/ni-libraries", path.display());
-    println!("cargo:rustc-link-search=native={}/allwpilib/hal/src/main/native/", path.display());
-
-        // The bindgen::Builder is the main entry point
+    // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
     // the resulting bindings.
     let bindings = bindgen::Builder::default()
         // The input header we would like to generate
         // bindings for.
-        .header("wrapper.h")
+        .header("HAL/include/HAL/HAL.h")
+        .clang_arg("-I./HAL/include")
+        .clang_arg("-x c++")
+        .clang_arg("-std=c++11")
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
