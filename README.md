@@ -34,11 +34,17 @@ cargo install rustfmt-nightly --force
 ```
 `cargo build` should take care of building rust-bindgen for this repo only.
 
-## TODO
-1. update and merge this PR on a fork of wpilib so rust-bindgen can use C-headers
-https://github.com/wpilibsuite/allwpilib/pull/535/commits/27b494baeb8dfbfc68a885644e37e089754e0e45
-2. Verify the HAL works on a test RIO.
-3. Write the lib.
+## Roadmap
+- [x] Make the official HAL headers work with rust-bindgen by making them C-compatible.
+- [x] Automatically generate new bindings from the HAL headers for future proofing.
+- [ ] Test generated HAL bindings on a roboRIO, and adjust the headers/bindings.
+- [ ] PR the new C-compatible headers to the official WPILib, and freeze the rust bindings.
+- [ ] Write abstractions over the HAL.
+    - [ ] A way to run code when a DS packet is recieved.
+    - [ ] Structs for things like solenoids / analog in / etc.
+    - [ ] etc.
+- [ ] Re-write Team 114's 2018 codebase in rust.
+- [ ] Test robustness at an offseason competition.
 
 ## Credits
 While writing this, I got lots of help from looking at KyleStach's [rust-wpilib](https://github.com/robotrs/rust-wpilib).
