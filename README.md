@@ -1,6 +1,6 @@
 # FIRST Rust Competition
 
-Rewrite it in rust.
+Rewrite it in rust. Not ready for any non-dev use.
 
 ## Getting started
 This repository is designed to be compiled for a [RoboRIO](http://sine.ni.com/nips/cds/view/p/lang/en/nid/213308), the
@@ -18,17 +18,6 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     linker = "<path-to-arm-linux-gnueabi-gcc>"
     ```
     Mine is at `/usr/arm-frc-linux-gnueabi/`
-
-## Using this library as a dependency:
-This library is not currently published on [crates.io](https://crates.io). However, you can directly declare it as a
-dependency:
-
-Cargo.toml:
-```toml
-[dependencies]
-wpilib = { git = "https://github.com/robotrs/rust-wpilib" }
-```
-
 
 ## Building
 1. Init and pull the WPILib submodule
