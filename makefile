@@ -2,7 +2,7 @@
 
 all: rust_build
 
-hal: HAL/allwpilib/README.md
+hal:
 	cd HAL; make all
 
 rust_build: hal
