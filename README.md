@@ -17,7 +17,7 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     [target.arm-unknown-linux-gnueabi]
     linker = "<path-to-arm-linux-gnueabi-gcc>"
     ```
-    Mine is at `/usr/arm-frc-linux-gnueabi/`
+    Mine is at `/usr/bin/arm-frc-linux-gnueabi-gcc` on Ubuntu.
 
 ## Building
 1. Init and pull the WPILib submodule
@@ -43,7 +43,8 @@ cargo install rustfmt-nightly --force
     - [ ] A way to run code when a DS packet is recieved.
     - [ ] Structs for things like solenoids / analog in / etc.
     - [ ] etc.
-- [ ] Re-write Team 114's 2018 codebase in rust.
+- [ ] Look into FFI bindings and a abstractions for [CTRE Pheonix](https://github.com/CrossTheRoadElec/Phoenix-frc-lib) and the [NavX](https://github.com/kauailabs/navxmxp).
+- [ ] *Re-write* Team 114's 2018 codebase *in rust.*
 - [ ] Test robustness at an offseason competition.
 
 ## Credits
