@@ -1,5 +1,5 @@
 [package]
-name = "first-rust-competition"
+name = "first_rust_competition"
 version = "0.1.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 build = "build.rs"

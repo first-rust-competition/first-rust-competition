@@ -14,6 +14,7 @@ libs: hal_compile wpilibc_compile
 	cp ./allwpilib/hal/build/libs/halAthena/shared/*.so ./lib/
 	cp ./allwpilib/build/dependencies/ntcore-cpp/linuxathena/linux/athena/shared/*.so ./lib/
 	cp ./allwpilib/build/dependencies/wpiutil-cpp/linuxathena/linux/athena/shared/*.so ./lib/
+	cp ./allwpilib/build/dependencies/cscore-cpp/linuxathena/linux/athena/shared/*.so ./lib/
 	# strip versions tags
 	rename -f 's/.so.*/.so/' ./lib/*
 
