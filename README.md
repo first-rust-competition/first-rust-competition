@@ -49,6 +49,7 @@ Pull-requests to make the build process more cross platform are welcome.
     - [ ] A way to run code when a DS packet is recieved.
     - [ ] Structs for things like solenoids / analog in / etc.
     - [ ] etc.
+- [ ] Integrate with a build system to make bootstrapping a new project easy and deploying to the RIO simple. Probably a fork of GradleRIO, because it seems like all build tools run on the JVM.
 - [ ] Look into FFI bindings and a abstractions for [CTRE Pheonix](https://github.com/CrossTheRoadElec/Phoenix-frc-lib)
     and the [NavX](https://github.com/kauailabs/navxmxp).
 - [ ] *Re-write* Team 114's 2018 codebase *in rust.*

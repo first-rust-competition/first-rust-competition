@@ -33,9 +33,8 @@ fn main() {
         .generate()
         .expect("Unable to generate bindings");
 
-    let out_path = env::current_dir().unwrap().join("src");
+    let out_path = env::current_dir().unwrap().join("src/hal/");
     bindings
         .write_to_file(out_path.join(BINDINGS_FILE_NAME))
         .expect("Couldn't write bindings!");
-
 }
