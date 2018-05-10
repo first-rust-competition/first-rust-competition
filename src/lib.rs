@@ -1,2 +1,3 @@
-pub mod hal;
-pub mod wpilib;
+mod hal;
+mod wpilib;
+pub use wpilib::*;
