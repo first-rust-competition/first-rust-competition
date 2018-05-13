@@ -55,5 +55,13 @@ Pull-requests to make the build process more cross platform are welcome.
 - [ ] *Re-write* Team 114's 2018 codebase *in rust.*
 - [ ] Test robustness at an offseason competition.
 
+## License
+
+This library is released under the GPLv3.
+By contributing, you license your contribution under the GPLv3.
+You also agree to have your contribution included in a future
+version of this library licensed under a future version of the GPL
+as released by the Free Software Foundation.
+
 ## Credits
 While getting the HAL to work, I got lots of help from looking at KyleStach's [rust-wpilib](https://github.com/robotrs/rust-wpilib).
