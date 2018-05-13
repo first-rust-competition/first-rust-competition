@@ -26,42 +26,28 @@ THE MODIFIED FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF T
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
-#![macro_use]
-
-use hal::hal::*;
-use std::{ffi, fmt};
-
-#[derive(Copy, Clone)]
-pub struct HalError(pub i32);
-
-impl From<i32> for HalError {
-    fn from(code: i32) -> Self {
-        HalError(code)
-    }
+/// Handles only doing some task once per set interval.
+pub struct Throttler<T, S> {
+    next_send: T,
+    interval: S,
 }
 
-impl fmt::Debug for HalError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        let error_string = unsafe { ffi::CStr::from_ptr(HAL_GetErrorMessage(self.0)) };
-        write!(f, "HalError {{ {} }}", error_string.to_str().unwrap())
+impl Throttler<u64, u64> {
+    /// Create a new throttler.
+    pub fn new(now: u64, interval: u64) -> Throttler<u64, u64> {
+        Throttler {
+            next_send: now + interval,
+            interval: interval,
+        }
     }
-}
 
-pub type HalResult<T> = Result<T, HalError>;
-
-macro_rules! hal_call {
-    ($function:ident($($arg:expr),*)) => {{
-        let mut status = 0;
-        let result = unsafe { $function($(
-            $arg,
-        )* &mut status as *mut i32) };
-        if status == 0 { Ok(result) } else { Err(HalError::from(status)) }
-    }};
-    ($namespace:path, $function:ident($($arg:expr),*)) => {{
-        let mut status = 0;
-        let result = unsafe { $namespace::$function($(
-            $arg,
-        )* &mut status as *mut i32) };
-        if status == 0 { Ok(result) } else { Err(HalError::from(status)) }
-    }};
+    /// Update the throttler. Returns true if the task should be performed.
+    pub fn update(&mut self, now: u64) -> bool {
+        if now > self.next_send {
+            self.next_send = self.next_send + self.interval;
+            true
+        } else {
+            false
+        }
+    }
 }

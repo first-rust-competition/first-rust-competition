@@ -24,6 +24,7 @@ fn main() {
     println!("cargo:rustc-link-search=native={}/HAL/lib", path.display());
 
     let bindings = bindgen::Builder::default()
+        .derive_default(true)
         .header("HAL/include/HAL/HAL.h")
         .clang_arg("-I./HAL/include")
         .raw_line("#![allow(non_snake_case)]")

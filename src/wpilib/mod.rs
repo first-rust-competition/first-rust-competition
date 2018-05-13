@@ -6,3 +6,9 @@ pub use self::digital_out::*;
 
 mod robot_base;
 pub use self::robot_base::*;
+
+pub mod ds;
+
+pub mod robot_controller;
+
+pub mod time;

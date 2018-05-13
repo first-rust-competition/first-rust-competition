@@ -1,6 +1,10 @@
+use super::ds::*;
 use hal::*;
+use std::sync::*;
 
-pub struct RobotBase {}
+pub struct RobotBase {
+    ds: Arc<RwLock<DriverStation>>,
+}
 
 impl RobotBase {
     /// Create a new robot, initializing hardware in the process.
@@ -14,7 +18,9 @@ impl RobotBase {
             tInstances_kLanguage_CPlusPlus, // one day, we will have our own.
         );
         println!("\n********** Hardware Init **********\n");
-        return Ok(RobotBase {});
+        let mut ds = Arc::new(RwLock::new(DriverStation::new()));
+        DriverStation::spawn_updater(&mut ds);
+        Ok(RobotBase { ds })
     }
 
     /// Call when your robot is ready to be enabled.

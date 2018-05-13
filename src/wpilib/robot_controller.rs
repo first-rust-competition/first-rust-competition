@@ -26,42 +26,48 @@ THE MODIFIED FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF T
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
-#![macro_use]
+use hal::*;
+use std::time::Duration;
 
-use hal::hal::*;
-use std::{ffi, fmt};
-
-#[derive(Copy, Clone)]
-pub struct HalError(pub i32);
-
-impl From<i32> for HalError {
-    fn from(code: i32) -> Self {
-        HalError(code)
-    }
+/// Return the FPGA Version number.
+///
+/// For now, expect this to be competition year.
+#[inline(always)]
+pub fn get_fpga_version() -> HalResult<i32> {
+    hal_call!(HAL_GetFPGAVersion())
 }
 
-impl fmt::Debug for HalError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        let error_string = unsafe { ffi::CStr::from_ptr(HAL_GetErrorMessage(self.0)) };
-        write!(f, "HalError {{ {} }}", error_string.to_str().unwrap())
-    }
+/// Return the FPGA Revision number.
+///
+/// The format of the revision is 3 numbers. The 12 most significant bits are the
+/// Major Revision. The next 8 bits are the Minor Revision. The 12 least
+/// significant bits are the Build Number.
+#[inline(always)]
+pub fn get_fpga_revision() -> HalResult<i64> {
+    hal_call!(HAL_GetFPGARevision())
 }
 
-pub type HalResult<T> = Result<T, HalError>;
+/// Read the microsecond-resolution timer on the FPGA.
+///
+/// Returns The current time in microseconds according to the FPGA (since FPGA
+///         reset).
+#[inline(always)]
+pub fn fpga_time() -> HalResult<u64> {
+    hal_call!(HAL_GetFPGATime())
+}
 
-macro_rules! hal_call {
-    ($function:ident($($arg:expr),*)) => {{
-        let mut status = 0;
-        let result = unsafe { $function($(
-            $arg,
-        )* &mut status as *mut i32) };
-        if status == 0 { Ok(result) } else { Err(HalError::from(status)) }
-    }};
-    ($namespace:path, $function:ident($($arg:expr),*)) => {{
-        let mut status = 0;
-        let result = unsafe { $namespace::$function($(
-            $arg,
-        )* &mut status as *mut i32) };
-        if status == 0 { Ok(result) } else { Err(HalError::from(status)) }
-    }};
+/// Read the microsecond-resolution timer
+/// on the FPGA as a `std::time::Duration`.
+pub fn fpga_time_duration() -> HalResult<Duration> {
+    let usec = fpga_time()?;
+    let sec: u64 = usec / 1_000_000;
+    let nsec: u32 = (usec % 1_000_000) as u32 * 1000;
+    Ok(Duration::new(sec, nsec))
+}
+/// Get the state of the "USER" button on the roboRIO.
+///
+/// True if the button is currently pressed.
+#[inline(always)]
+pub fn user_button() -> HalResult<bool> {
+    Ok(hal_call!(HAL_GetFPGAButton())? != 0)
 }
