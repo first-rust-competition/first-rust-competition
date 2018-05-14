@@ -3,7 +3,7 @@ use hal::*;
 use std::sync::*;
 
 pub struct RobotBase {
-    ds: Arc<RwLock<DriverStation>>,
+    ds: ThreadSafeDs,
 }
 
 impl RobotBase {
@@ -30,5 +30,9 @@ impl RobotBase {
             HAL_ObserveUserProgramStarting();
         }
         println!("\n********** Robot program starting **********\n");
+    }
+
+    pub fn get_ds_instance(&self) -> ThreadSafeDs {
+        self.ds.clone()
     }
 }

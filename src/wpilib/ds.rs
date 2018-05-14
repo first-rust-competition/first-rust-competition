@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-THE MODIFIED FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF THIS REPOSITORY.
+THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF THIS REPOSITORY.
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
@@ -84,6 +84,7 @@ pub enum JoystickError {
     JoystickDNE,
     ChannelUnplugged,
     ChannelDNE,
+    DsUnreachable,
 }
 
 pub struct DriverStation {
@@ -96,6 +97,8 @@ pub struct DriverStation {
     condvar: Arc<(Mutex<bool>, Condvar)>,
     join: Option<thread::JoinHandle<()>>,
 }
+
+pub type ThreadSafeDs = Arc<RwLock<DriverStation>>;
 
 impl DriverStation {
     pub fn new() -> Self {
@@ -203,11 +206,11 @@ impl DriverStation {
         }
     }
 
-    fn report_error(&mut self, error: &str) {
+    pub fn report_error(&mut self, error: &str) {
         self.report(true, 1, error, "", "");
     }
 
-    fn report_warning(&mut self, warning: &str) {
+    pub fn report_warning(&mut self, warning: &str) {
         self.report(false, 1, warning, "", "");
     }
 

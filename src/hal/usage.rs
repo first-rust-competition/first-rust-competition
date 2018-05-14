@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-THE MODIFIED FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF THIS REPOSITORY.
+THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF THIS REPOSITORY.
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
@@ -39,7 +39,8 @@ pub fn report_usage(resource: tResourceType, instance: tInstances) {
     }
 }
 
-/// Just a safe wrapper around HAL_Report
+#[allow(dead_code)]
+/// A safe wrapper around HAL_Report
 pub fn report_usage_extras(
     resource: tResourceType,
     instance: tInstances,
