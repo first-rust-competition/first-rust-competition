@@ -10,7 +10,7 @@ impl RobotBase {
     /// Create a new robot, initializing hardware in the process.
     /// Call before initializing any other wpilib stuff.
     pub fn new() -> Result<RobotBase, &'static str> {
-        if unsafe { HAL_Initialize(500, 0) } != 0 {
+        if unsafe { HAL_Initialize(500, 0) } == 0 {
             return Err("HAL Initialized Failed");
         }
         report_usage(
