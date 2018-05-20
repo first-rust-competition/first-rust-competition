@@ -7,10 +7,17 @@ fn main() {
     let mut out = DigitalOutput::new(1).expect("Could not make digital output");
     RobotBase::start_competition();
 
-    let mut val = false;
+    let mut val;
+    let ds = robot.get_ds_instance();
     loop {
-        val = !val;
+        {
+            val = match ds.read().unwrap().get_state() {
+                ds::RobotState::Disabled => true,
+                _ => false,
+            }
+        }
+        println!("Setting output to {}", val);
         out.set(val).expect("Could not set DIO");
-        thread::sleep(time::Duration::from_millis(500));
+        thread::sleep(time::Duration::from_millis(100));
     }
 }
