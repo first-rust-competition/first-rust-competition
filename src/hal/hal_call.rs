@@ -28,7 +28,7 @@ SEE THE LICENSE FILE FOR FULL TERMS.
 
 #![macro_use]
 
-use hal::hal::*;
+use super::hal::*;
 use std::{ffi, fmt};
 
 #[derive(Copy, Clone)]

@@ -26,9 +26,9 @@ THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF TH
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
-use hal::tInstances;
-use hal::tResourceType;
-use hal::HAL_Report;
+use super::hal::tInstances;
+use super::hal::tResourceType;
+use super::hal::HAL_Report;
 use std::os::raw;
 use std::ptr;
 
