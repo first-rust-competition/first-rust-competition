@@ -1,6 +1,6 @@
-extern crate first_rust_competition;
-use first_rust_competition::*;
+extern crate wpilib;
 use std::{thread, time};
+use wpilib::*;
 
 fn main() {
     let robot = RobotBase::new().expect("HAL FAILED");

@@ -1,13 +1,4 @@
-.PHONY: all wpilib_hal rust_build clean
+.PHONY: all
 
-all: rust_build
-
-hal:
-	cd HAL; make all
-
-rust_build: hal
-	cargo build
-
-clean:
-	cd HAL; make clean
-	cargo clean;
+all:
+	cd wpilib; make all

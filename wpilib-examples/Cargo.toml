@@ -1,0 +1,11 @@
+[package]
+name = "wpilib-examples"
+version = "0.1.0"
+authors = ["Josh Hejna <josh.hejna@gmail.com>"]
+
+[dependencies]
+wpilib = {path = "../wpilib"}
+
+[[bin]]
+name = "digital_out"
+path = "./digital_out.rs"

@@ -1,3 +1,3 @@
-[submodule "HAL/allwpilib"]
-	path = HAL/allwpilib
+[submodule "wpilib/HAL/allwpilib"]
+	path = wpilib/HAL/allwpilib
 	url = https://github.com/Lytigas/allwpilib.git

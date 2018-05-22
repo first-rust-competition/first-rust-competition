@@ -1,0 +1,6 @@
+[package]
+name = "cargo-frc"
+version = "0.1.0"
+authors = ["Josh Hejna <josh.hejna@gmail.com>"]
+
+[dependencies]
