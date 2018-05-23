@@ -19,7 +19,9 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
     };
     let mut executable_path = config.target_dir.clone();
     executable_path.push(DEPLOY_TARGET_TRIPLE);
-    if !matches.is_present("release") {
+    if matches.is_present("release") {
+        executable_path.push("release");
+    } else {
         executable_path.push("debug");
     }
     executable_path.push(&config.executable);

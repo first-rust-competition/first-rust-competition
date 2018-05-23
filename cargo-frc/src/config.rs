@@ -21,7 +21,12 @@ pub fn get_config() -> Result<FrcConfig, String> {
         .map_err(|e| e.to_string())?;
     let err = "FRC Config not found in package manifest.
         Config should be in [package.metadata.frc] in Cargo.toml";
-
+    let mut target_dir = PathBuf::new();
+    target_dir.push(match manifest["manifest_path"] {
+        Value::String(ref x) => Ok(x),
+        _ => Err("Could not read manifest_path from Cargo.toml."),
+    }?);
+    target_dir.pop(); //remove Cargo.toml from the path
     let frc = manifest
         .get("metadata")
         .ok_or(err)?
@@ -37,8 +42,10 @@ pub fn get_config() -> Result<FrcConfig, String> {
         Value::String(x) => Ok(x),
         _ => Err("target-dir must be a string"),
     }?;
-    let mut target_dir = PathBuf::new();
     target_dir.push(target_dir_string);
+    target_dir = target_dir
+        .canonicalize()
+        .map_err(|e| format!("Could not canonicalize target_dir path: {}", e.to_string()))?;
 
     let executable_name = match frc.get("executable-name") {
         Some(Value::String(x)) => Ok(x.clone()),
