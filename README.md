@@ -43,15 +43,15 @@ Pull-requests to make the build process more cross platform are welcome.
 ## Roadmap
 - [x] Make the official HAL headers work with rust-bindgen by making them C-compatible.
 - [x] Automatically generate new bindings from the HAL headers for future proofing.
-- [ ] Test generated HAL bindings on a roboRIO, and adjust the headers/bindings.
+- [x] Test generated HAL bindings on a roboRIO, and adjust the headers/bindings.
 - [ ] PR the new C-compatible headers to the official WPILib, and freeze the rust bindings.
 - [ ] Write abstractions over the HAL.
-    - [ ] A way to run code when a DS packet is recieved.
+    - [x] A way to run code when a DS packet is recieved.
     - [ ] Structs for things like solenoids / analog in / etc.
     - [ ] etc.
-- [ ] Integrate with a build system to make bootstrapping a new project easy and deploying to the RIO simple. Probably a fork of GradleRIO, because it seems like all build tools run on the JVM.
-- [ ] Look into FFI bindings and a abstractions for [CTRE Pheonix](https://github.com/CrossTheRoadElec/Phoenix-frc-lib)
-    and the [NavX](https://github.com/kauailabs/navxmxp).
+- [ ] Integrate with a build system to make bootstrapping a new project easy and deploying to the RIO simple. ~~Probably a fork of GradleRIO, because it seems like all build tools run on the JVM.~~ Work has begun on `cargo-frc`, the third-party cargo subcommand for this project.
+- [ ] ~~Look into~~ FFI bindings and a abstractions for [CTRE Pheonix](https://github.com/CrossTheRoadElec/Phoenix-frc-lib)
+    and the [NavX](https://github.com/kauailabs/navxmxp). Both of these libraries will play very nicely with rust-bindgen's C++ support. Neither is too heavy in inheritance, neither uses templates, and neither throws exceptions. However, the question of how each of them interacts with NI's dynamic libs is yet to be seen. Getting them to behave at link-time and run-time might be hard.
 - [ ] *Re-write* Team 114's 2018 codebase *in rust.*
 - [ ] Test robustness at an offseason competition.
 
