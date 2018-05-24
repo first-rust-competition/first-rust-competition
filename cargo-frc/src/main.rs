@@ -4,12 +4,12 @@ extern crate subprocess;
 extern crate clap;
 #[macro_use]
 extern crate log;
-extern crate pretty_env_logger;
+extern crate fern;
 extern crate serde;
 mod config;
 mod deploy;
 use clap::{App, AppSettings, Arg, SubCommand};
-use std::env;
+use fern::colors::{Color, ColoredLevelConfig};
 
 const COMMAND_NAME: &'static str = "frc";
 const COMMAND_DESCRIPTION: &'static str = "The unufficial cargo extension for FRC.";
@@ -49,9 +49,7 @@ fn cli_app() -> Result<(), String> {
         .subcommand_matches(COMMAND_NAME)
         .ok_or("frc subcommand not specified")?;
 
-    // TODO: add verbosity option
-    env::set_var("RUST_LOG", "error");
-    pretty_env_logger::init();
+    setup_logger().map_err(|e| format!("Could not initialize logging: {}", e.to_string()))?;
 
     let cfg = config::get_config()?;
 
@@ -61,4 +59,21 @@ fn cli_app() -> Result<(), String> {
         }
         _ => Err(String::from("No subcommand specified (!UNREACHABLE!)")),
     }
+}
+
+fn setup_logger() -> Result<(), fern::InitError> {
+    let colors = ColoredLevelConfig::new()
+        .error(Color::Red)
+        .warn(Color::Yellow)
+        .info(Color::Green)
+        .debug(Color::Cyan)
+        .trace(Color::White);
+    fern::Dispatch::new()
+        .format(move |out, message, record| {
+            out.finish(format_args!("{} {}", colors.color(record.level()), message,))
+        })
+        .level(log::LevelFilter::Info)
+        .chain(std::io::stdout())
+        .apply()?;
+    Ok(())
 }

@@ -8,7 +8,7 @@ use subprocess::ExitStatus;
 const DEPLOY_TARGET_TRIPLE: &'static str = "arm-unknown-linux-gnueabi";
 
 pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
-    // println!("{}", test_ssh_address("demo@test.rebex.net")?);
+    println!("{}", test_ssh_address("demo@test.rebex.net")?);
     cargo_build(matches, config)?;
     let addresses = if let Some(addr) = config.rio_address_override.clone() {
         vec![addr]
@@ -25,7 +25,7 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
         executable_path.push("debug");
     }
     executable_path.push(&config.executable);
-    println!("{:?}", executable_path);
+    info!("Deploying executable {:?}", executable_path);
     for addr in addresses.iter() {
         let canonical = &format!("admin@{}", addr);
         if test_ssh_address(canonical)? {
@@ -45,12 +45,10 @@ fn make_addresses(team_number: u64) -> Vec<String> {
 }
 
 fn test_ssh_address(address: &str) -> Result<bool, String> {
-    println!(
-        "ssh -q {} exit\nYOU MAY NEED TO ACCEPT KEYS OR ENTER A PASSWORD",
-        address
-    );
+    info!("ssh -q -oBatchMode=yes {} exit", address);
     let mut process = subprocess::Exec::cmd("ssh")
         .arg("-q")
+        .arg("-oBatchMode=yes")
         .arg(address)
         .arg("exit")
         .popen()
@@ -86,7 +84,13 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
 }
 
 pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
-    let mut args = vec!["build", "--target", DEPLOY_TARGET_TRIPLE, "--bin"];
+    let mut args = vec![
+        "build",
+        "--quiet",
+        "--target",
+        DEPLOY_TARGET_TRIPLE,
+        "--bin",
+    ];
     args.push(config
         .executable
         .to_str()

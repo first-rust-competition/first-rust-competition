@@ -10,10 +10,11 @@ serde_json = "1.0"
 clap = "2.31.2"
 subprocess = "0.1.12"
 log = "0.4.1"
+fern = { version = "0.5", features = ["colored"] }
 pretty_env_logger = "0.2"
 
-# for testing
+# Example config
 [package.metadata.frc]
     team-number = 114
-    rio-address = "10.1.14.2"
+    # rio-address = "10.1.14.2"
     target-dir = "../target"
