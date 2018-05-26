@@ -1,6 +1,6 @@
 [package]
 name = "cargo-frc"
-version = "0.1.0"
+version = "0.1.0-alpha1"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 
 [dependencies]
@@ -12,6 +12,7 @@ subprocess = "0.1.12"
 log = "0.4.1"
 fern = { version = "0.5", features = ["colored"] }
 pretty_env_logger = "0.2"
+tempfile = "3.0.2"
 
 # Example config
 [package.metadata.frc]

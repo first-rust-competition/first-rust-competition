@@ -2,6 +2,7 @@ use serde_json;
 use serde_json::Value;
 use std::path::PathBuf;
 use subprocess;
+use util::str_map;
 
 #[derive(Debug)]
 pub struct FrcConfig {
@@ -13,12 +14,13 @@ pub struct FrcConfig {
 
 pub fn get_config() -> Result<FrcConfig, String> {
     debug!("Reading from `cargo read-manifest`");
-    let manifest: Value = serde_json::from_str(&subprocess::Exec::cmd("cargo")
-        .arg("read-manifest")
-        .capture()
-        .map_err(|e| e.to_string())?
-        .stdout_str())
-        .map_err(|e| e.to_string())?;
+    let manifest: Value =
+        serde_json::from_str(&subprocess::Exec::cmd("cargo")
+            .arg("read-manifest")
+            .capture()
+            .map_err(str_map("Failed to capture cargo read-manifest"))?
+            .stdout_str())
+            .map_err(str_map("Failed to capture cargo read-manifest stdout"))?;
     let err = "FRC Config not found in package manifest.
         Config should be in [package.metadata.frc] in Cargo.toml";
     let mut target_dir = PathBuf::new();
@@ -45,7 +47,7 @@ pub fn get_config() -> Result<FrcConfig, String> {
     target_dir.push(target_dir_string);
     target_dir = target_dir
         .canonicalize()
-        .map_err(|e| format!("Could not canonicalize target_dir path: {}", e.to_string()))?;
+        .map_err(str_map("Could not canonicalize target_dir path"))?;
 
     let executable_name = match frc.get("executable-name") {
         Some(Value::String(x)) => Ok(x.clone()),

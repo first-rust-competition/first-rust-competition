@@ -6,19 +6,28 @@ extern crate clap;
 extern crate log;
 extern crate fern;
 extern crate serde;
+extern crate tempfile;
 mod config;
 mod deploy;
+mod util;
 use clap::{App, AppSettings, Arg, SubCommand};
 use fern::colors::{Color, ColoredLevelConfig};
+use util::*;
 
 const COMMAND_NAME: &'static str = "frc";
 const COMMAND_DESCRIPTION: &'static str = "The unufficial cargo extension for FRC.";
 
 fn main() {
-    match cli_app() {
-        Ok(_) => println!("Finished Successfully."),
-        Err(x) => error!("Fatal: {}", x),
-    }
+    std::process::exit(match cli_app() {
+        Ok(_) => {
+            println!("Finished Successfully.");
+            0
+        }
+        Err(x) => {
+            error!("Fatal: {}", x);
+            1
+        }
+    });
 }
 
 fn cli_app() -> Result<(), String> {
@@ -49,7 +58,7 @@ fn cli_app() -> Result<(), String> {
         .subcommand_matches(COMMAND_NAME)
         .ok_or("frc subcommand not specified")?;
 
-    setup_logger().map_err(|e| format!("Could not initialize logging: {}", e.to_string()))?;
+    setup_logger(log::LevelFilter::Debug).map_err(str_map("Could not initialize logging"))?;
 
     let cfg = config::get_config()?;
 
@@ -61,7 +70,7 @@ fn cli_app() -> Result<(), String> {
     }
 }
 
-fn setup_logger() -> Result<(), fern::InitError> {
+fn setup_logger(level: log::LevelFilter) -> Result<(), fern::InitError> {
     let colors = ColoredLevelConfig::new()
         .error(Color::Red)
         .warn(Color::Yellow)
@@ -72,7 +81,7 @@ fn setup_logger() -> Result<(), fern::InitError> {
         .format(move |out, message, record| {
             out.finish(format_args!("{} {}", colors.color(record.level()), message,))
         })
-        .level(log::LevelFilter::Info)
+        .level(level)
         .chain(std::io::stdout())
         .apply()?;
     Ok(())

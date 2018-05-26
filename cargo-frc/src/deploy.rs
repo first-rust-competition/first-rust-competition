@@ -1,15 +1,18 @@
 use super::config::FrcConfig;
 use clap::ArgMatches;
+use std::ffi::OsStr;
+use std::io::prelude::*;
 use std::path::Path;
 use std::time::Duration;
 use subprocess;
 use subprocess::ExitStatus;
-
-const DEPLOY_TARGET_TRIPLE: &'static str = "arm-unknown-linux-gnueabi";
+use tempfile;
+use util::*;
 
 pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
-    println!("{}", test_ssh_address("demo@test.rebex.net")?);
+    // println!("{}", test_ssh_address("demo@test.rebex.net")?);
     cargo_build(matches, config)?;
+
     let addresses = if let Some(addr) = config.rio_address_override.clone() {
         vec![addr]
     } else {
@@ -25,8 +28,13 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
         executable_path.push("debug");
     }
     executable_path.push(&config.executable);
-    info!("Deploying executable {:?}", executable_path);
+    info!("Attempting to deploy executable {:?}", executable_path);
+
+    //test
+    do_deploy("admin@10.1.14.2", &executable_path)?;
+
     for addr in addresses.iter() {
+        info!("Searching for rio at {}", addr);
         let canonical = &format!("admin@{}", addr);
         if test_ssh_address(canonical)? {
             do_deploy(canonical, &executable_path)?;
@@ -45,43 +53,113 @@ fn make_addresses(team_number: u64) -> Vec<String> {
 }
 
 fn test_ssh_address(address: &str) -> Result<bool, String> {
-    info!("ssh -q -oBatchMode=yes {} exit", address);
+    debug!("ssh -oBatchMode=yes {} \"exit\"", address);
     let mut process = subprocess::Exec::cmd("ssh")
-        .arg("-q")
         .arg("-oBatchMode=yes")
         .arg(address)
-        .arg("exit")
+        .arg("\"exit\"")
         .popen()
-        .map_err(|e| {
-            format!(
-                "'ssh' subprocess failed testing address '{}': {}.",
-                address,
-                e.to_string()
-            )
-        })?;
-    let ret = match process.wait_timeout(Duration::from_secs(2)).map_err(|e| {
-        format!(
-            "'ssh' subprocess testing address '{}' failed to wait: {}.",
-            address,
-            e.to_string()
-        )
-    })? {
+        .map_err(str_map("'ssh' subprocess failed"))?;
+    let ret = match process
+        .wait_timeout(Duration::from_secs(2))
+        .map_err(str_map("'ssh' subprocess failed to wait"))?
+    {
         Some(ExitStatus::Exited(0)) => Ok(true),
         _ => Ok(false),
     };
-    process.kill().map_err(|e| {
-        format!(
-            "'ssh' subprocess testing address '{}' timed out and could not be killed: {}.",
-            address,
-            e.to_string()
-        )
-    })?;
+    process.kill().map_err(str_map(
+        "'ssh' subprocess timed out and could not be killed",
+    ))?;
     ret
 }
 
+const DEPLOY_SCRIPT_CANONICAL_PATH: &'static str = "/home/lvuser/cargo-frc-script.sh";
+
 fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
+    let executable_path = executable_path
+        .canonicalize()
+        .map_err(str_map("Could not canonicalize executable path"))?;
+    let mut script =
+        tempfile::NamedTempFile::new().map_err(str_map("Could not create temporary script file"))?;
+    let executable_name = executable_path
+        .file_name()
+        .ok_or("executable_path does not point to a file")?
+        .to_str()
+        .ok_or("executable path is not valid Unicode; `as_str()` failed.")?;
+    script
+        .as_file_mut()
+        .write_all(
+            format!(
+                "
+    . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t 2> /dev/null\n
+    echo \"/home/lvuser/{}\" > /home/lvuser/robotCommand\n
+    chmod +x /home/lvuser/robotCommand; chown lvuser /home/lvuser/robotCommand\n
+    sync\n
+    ldconfig\n
+    . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null\n
+    ",
+                executable_name
+            ).as_bytes(),
+        )
+        .map_err(str_map("Could not write to temporary deploy script file"))?;
+    script
+        .as_file_mut()
+        .sync_all()
+        .map_err(str_map("'sync_all()' on script file failed"))?;
+    let script_path = script
+        .as_ref()
+        .canonicalize()
+        .map_err(str_map("Could not canonicalize script path"))?;
+    info!("scp-ing deploy script...");
+    scp(&script_path, rio_address, DEPLOY_SCRIPT_CANONICAL_PATH)?;
+
+    info!("scp-ing executable...");
+    scp(
+        &executable_path,
+        rio_address,
+        &format!("/home/lvuser/{}", executable_name),
+    )?;
+
+    info!("ssh-ing to execute deploy script...");
+    ssh(
+        &rio_address,
+        &format!("sh {}", DEPLOY_SCRIPT_CANONICAL_PATH),
+    )?;
     Ok(())
 }
+
+/// Only call this with addresses checked with `test_ssh_address` first
+fn scp<T: AsRef<OsStr>>(
+    local_path: &T,
+    target_address: &str,
+    remote_path: &str,
+) -> Result<(), String> {
+    debug!(
+        "scp -oBatchMode=yes, $local_path {}:{}",
+        target_address, remote_path,
+    );
+    let handle = subprocess::Exec::cmd("scp")
+        .arg("-oBatchMode=yes")
+        .arg(local_path)
+        .arg(format!("{}:{}", target_address, remote_path))
+        .join();
+    handle_subprocess("scp", handle)?;
+    Ok(())
+}
+
+/// Only call this with addresses checked with `test_ssh_address` first
+fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String> {
+    debug!("ssh -oBatchMode=yes, $target_address \"{}\"", command);
+    let handle = subprocess::Exec::cmd("ssh")
+        .arg("-oBatchMode=yes")
+        .arg(target_address)
+        .arg(format!("\"{}\"", command))
+        .join();
+    handle_subprocess("ssh", handle)?;
+    Ok(())
+}
+
+const DEPLOY_TARGET_TRIPLE: &'static str = "arm-unknown-linux-gnueabi";
 
 pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     let mut args = vec![
@@ -101,27 +179,6 @@ pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), Strin
     let exit_code = subprocess::Exec::cmd("cargo")
         .args(&args)
         .join()
-        .map_err(|e| format!("'cargo build' subprocess failed: {}.", e.to_string()))?;
-    match exit_code {
-        ExitStatus::Exited(0) => (),
-        ExitStatus::Signaled(code) => {
-            return Err(format!(
-                "'cargo build' exited from Signal or Other, code {}",
-                code
-            ));
-        }
-        // duplicate because above code is u8 and this one is i32
-        ExitStatus::Other(code) => {
-            return Err(format!(
-                "'cargo build' exited from Signal or Other, code {}",
-                code
-            ));
-        }
-        _ => {
-            return Err(String::from(
-                "'cargo build' exited Undetermined. Did your executable build fail?",
-            ));
-        }
-    }
-    Ok(())
+        .map_err(str_map("'cargo build' subprocess failed"))?;
+    handle_subprocess_exit("cargo build", exit_code)
 }
