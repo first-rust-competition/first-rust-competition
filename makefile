@@ -1,6 +1,11 @@
-.PHONY: all
+.PHONY: all cargo-frc wpilib
 
-all:
-	cd wpilib; make all
+all: cargo-frc wpilib
+	:
+
+cargo-frc:
 	cd cargo-frc; cargo build
+
+wpilib:
+	cd wpilib; make all
 	cd wpilib-examples; cargo build

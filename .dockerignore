@@ -1,0 +1,21 @@
+# use explicit includes, exclude everything to start
+**
+
+!Cargo.toml
+!makefile
+
+# for submodules
+!.git
+!.gitignore
+!.gitmodules
+
+!cargo-frc
+cargo-frc/target
+
+!wpilib-examples
+
+!wpilib
+wpilib/HAL/include/*
+wpilib/HAL/lib/*
+wpilib/HAL/allwpilib/**/build/**/*
+wpilib/HAL/allwpilib/.gradle
