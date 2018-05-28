@@ -31,7 +31,7 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
     info!("Attempting to deploy executable {:?}", executable_path);
 
     //test
-    do_deploy("admin@10.1.14.2", &executable_path)?;
+    // do_deploy("admin@10.1.14.2", &executable_path)?;
 
     for addr in addresses.iter() {
         info!("Searching for rio at {}", addr);
@@ -56,6 +56,7 @@ fn test_ssh_address(address: &str) -> Result<bool, String> {
     debug!("ssh -oBatchMode=yes {} \"exit\"", address);
     let mut process = subprocess::Exec::cmd("ssh")
         .arg("-oBatchMode=yes")
+        .arg("-oStrictHostKeyChecking=no")
         .arg(address)
         .arg("\"exit\"")
         .popen()
@@ -74,6 +75,7 @@ fn test_ssh_address(address: &str) -> Result<bool, String> {
 }
 
 const DEPLOY_SCRIPT_CANONICAL_PATH: &'static str = "/home/lvuser/cargo-frc-script.sh";
+const EXECUTABLE_TEMPORARY_PATH: &'static str = "/home/lvuser/rust-program-temp";
 
 fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     let executable_path = executable_path
@@ -90,15 +92,16 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
         .as_file_mut()
         .write_all(
             format!(
-                "
-    . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t 2> /dev/null\n
-    echo \"/home/lvuser/{}\" > /home/lvuser/robotCommand\n
-    chmod +x /home/lvuser/robotCommand; chown lvuser /home/lvuser/robotCommand\n
-    sync\n
-    ldconfig\n
-    . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null\n
-    ",
-                executable_name
+                r#"#!/bin/bash
+. /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t 2> /dev/null
+mv {} /home/lvuser/{exec_name}
+echo "/home/lvuser/{exec_name}" > /home/lvuser/robotCommand
+chmod +x /home/lvuser/robotCommand; chown lvuser /home/lvuser/robotCommand
+sync
+ldconfig
+. /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null"#,
+                EXECUTABLE_TEMPORARY_PATH,
+                exec_name = executable_name
             ).as_bytes(),
         )
         .map_err(str_map("Could not write to temporary deploy script file"))?;
@@ -114,11 +117,7 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     scp(&script_path, rio_address, DEPLOY_SCRIPT_CANONICAL_PATH)?;
 
     info!("scp-ing executable...");
-    scp(
-        &executable_path,
-        rio_address,
-        &format!("/home/lvuser/{}", executable_name),
-    )?;
+    scp(&executable_path, rio_address, EXECUTABLE_TEMPORARY_PATH)?;
 
     info!("ssh-ing to execute deploy script...");
     ssh(
@@ -140,6 +139,7 @@ fn scp<T: AsRef<OsStr>>(
     );
     let handle = subprocess::Exec::cmd("scp")
         .arg("-oBatchMode=yes")
+        .arg("-oStrictHostKeyChecking=no")
         .arg(local_path)
         .arg(format!("{}:{}", target_address, remote_path))
         .join();
@@ -149,13 +149,20 @@ fn scp<T: AsRef<OsStr>>(
 
 /// Only call this with addresses checked with `test_ssh_address` first
 fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String> {
-    debug!("ssh -oBatchMode=yes, $target_address \"{}\"", command);
+    debug!("ssh -oBatchMode=yes $target_address \"{}\"", command);
     let handle = subprocess::Exec::cmd("ssh")
         .arg("-oBatchMode=yes")
+        .arg("-oStrictHostKeyChecking=no")
         .arg(target_address)
-        .arg(format!("\"{}\"", command))
-        .join();
-    handle_subprocess("ssh", handle)?;
+        .arg(command);
+    // .join();
+    println!("\n{:?}\n", handle);
+    // let handle = subprocess::Exec::shell(format!(
+    //     "ssh -oBatchMode=yes -oStrictHostKeyChecking=no {} \"{}
+    // \"",
+    //     target_address, command
+    // )).join();
+    handle_subprocess("ssh", handle.join())?;
     Ok(())
 }
 

@@ -12,7 +12,6 @@ wpilib = {path = "../wpilib"}
     target-dir = "../target" 
     executable-name = "digital_out"
 
-
 [[bin]]
 name = "digital_out"
 path = "./digital_out.rs"
