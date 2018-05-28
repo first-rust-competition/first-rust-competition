@@ -7,10 +7,10 @@ authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 wpilib = {path = "../wpilib"}
 
 [package.metadata.frc]
-    team-number = 114
-    rio-address = "10.1.14.2"
-    target-dir = "../target" 
-    executable-name = "digital_out"
+team-number = 114
+rio-address = "10.1.14.2"
+target-dir = "../target" 
+executable-name = "digital_out"
 
 [[bin]]
 name = "digital_out"
