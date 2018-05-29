@@ -2,6 +2,7 @@
 name = "wpilib-examples"
 version = "0.1.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
+publish = false
 
 [dependencies]
 wpilib = {path = "../wpilib"}

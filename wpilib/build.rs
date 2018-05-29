@@ -1,7 +1,10 @@
 extern crate bindgen;
 use std::env;
+use std::path::*;
 
-const BINDINGS_FILE_NAME: &str = "hal.rs";
+fn output() -> PathBuf {
+    PathBuf::from(env::var("OUT_DIR").unwrap())
+}
 
 fn main() {
     for lib in [
@@ -21,21 +24,18 @@ fn main() {
     }
 
     let path = env::current_dir().unwrap();
+    // println!("{:?} {:?}", path, env::current_dir().unwrap());
     println!("cargo:rustc-link-search=native={}/HAL/lib", path.display());
 
     let bindings = bindgen::Builder::default()
         .derive_default(true)
+        .rustfmt_bindings(false)
         .header("HAL/include/HAL/HAL.h")
         .clang_arg("-I./HAL/include")
-        .raw_line("#![allow(non_snake_case)]")
-        .raw_line("#![allow(non_camel_case_types)]")
-        .raw_line("#![allow(dead_code)] // prune once the lib is in a good state")
-        .raw_line("#![allow(non_upper_case_globals)]")
         .generate()
         .expect("Unable to generate bindings");
 
-    let out_path = env::current_dir().unwrap().join("src/hal/");
     bindings
-        .write_to_file(out_path.join(BINDINGS_FILE_NAME))
+        .write_to_file(output().join("hal_bindings.rs"))
         .expect("Couldn't write bindings!");
 }

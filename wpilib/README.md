@@ -1,4 +1,4 @@
-# Rust WPIlib bindings
+# WPIlib
 
 Rewrite it in rust. Not ready for any non-dev use.
 
@@ -18,24 +18,20 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     linker = "<path-to-arm-linux-gnueabi-gcc>"
     ```
     Mine is at `/usr/bin/arm-frc-linux-gnueabi-gcc` on Ubuntu.
-
-## Building
-Setup:
-1. Follow the [Getting Started](#getting-started) section.
-2. Rust-bindgen requires both rustc-nightly and rustfmt-nightly. You can configure this with the following:
+5. Rust-bindgen requires rust nightly. You can configure this with the following:
     ```
     rustup toolchain install nightly
-    rustup toolchain default nightly
-    cargo install rustfmt-nightly --force
+    rustup default nightly
     ```
-    The rest of the build process will take care of compiling rust-bindgen.
-3. Verify you satisfy the [WPILib build requirements](https://github.com/wpilibsuite/allwpilib#building-wpilib).
 
-Run `make all`. This will likely take a minute or two.
-The process will
-1. Init and update the WPILib submodule
-2. Build the HAL and WPILibC shared libraries to link against.
-3. Generate the rust-bindings and build the library.
+## Building for Development
+Setup:
+1. Follow the [Getting Started](#getting-started) section. The rest of the build process will take care of compiling rust-bindgen.
+2. Verify you satisfy the [WPILib build requirements](https://github.com/wpilibsuite/allwpilib#building-wpilib).
+3. Run `make all`. This will likely take a minute or two. The process will:
+    1. Init and update the WPILib submodule
+    2. Build the HAL and WPILibC shared libraries to link against.
+    3. Generate the rust-bindings and build the library.
 
 After the initial `make all`, use `cargo` to build as normal. If the WPILib submodule updates, run `make all` again.
 Pull-requests to make the build process more cross platform are welcome.

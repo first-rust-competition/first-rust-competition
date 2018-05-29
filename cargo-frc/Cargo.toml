@@ -1,7 +1,19 @@
 [package]
 name = "cargo-frc"
-version = "0.1.0-alpha1"
+version = "0.1.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
+description = "A cargo extension for deploying rust code to FRC robots."
+# documentation = "..."
+# homepage = "..."
+repository = "https://github.com/Lytigas/first-rust-competition"
+readme = "./README.md"
+keywords = ["frc", "RoboRIO"]
+categories = ["development-tools::cargo-plugins", "embedded", "command-line-interface"]
+license = "GPL-3.0"
+
+[[bin]]
+name = "cargo-frc"
+
 
 [dependencies]
 serde = "1.0"
