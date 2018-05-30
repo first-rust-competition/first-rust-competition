@@ -49,8 +49,8 @@ impl DigitalOutput {
         ))?;
 
         report_usage(
-            tResourceType_kResourceType_DigitalOutput,
-            channel as tInstances,
+            nUsageReporting_tResourceType_kResourceType_DigitalOutput,
+            channel as nUsageReporting_tInstances,
         );
 
         Ok(DigitalOutput {

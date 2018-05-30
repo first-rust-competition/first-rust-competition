@@ -27,7 +27,7 @@ SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
 #![allow(dead_code)] // for now
-use super::hal::*;
+use hal::bindings::*;
 
 /// The number of DIOs on the RoboRIO.
 pub fn num_digital_channels() -> i32 {

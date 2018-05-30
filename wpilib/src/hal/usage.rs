@@ -26,14 +26,14 @@ THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF TH
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
-use super::hal::tInstances;
-use super::hal::tResourceType;
-use super::hal::HAL_Report;
+use super::bindings::nUsageReporting_tInstances;
+use super::bindings::nUsageReporting_tResourceType;
+use super::bindings::HAL_Report;
 use std::os::raw;
 use std::ptr;
 
 /// Report the usage of a specific resource type with an `instance` value attached.
-pub fn report_usage(resource: tResourceType, instance: tInstances) {
+pub fn report_usage(resource: nUsageReporting_tResourceType, instance: nUsageReporting_tInstances) {
     unsafe {
         HAL_Report(resource as i32, instance as i32, 0, ptr::null());
     }
@@ -42,8 +42,8 @@ pub fn report_usage(resource: tResourceType, instance: tInstances) {
 #[allow(dead_code)]
 /// A safe wrapper around HAL_Report
 pub fn report_usage_extras(
-    resource: tResourceType,
-    instance: tInstances,
+    resource: nUsageReporting_tResourceType,
+    instance: nUsageReporting_tInstances,
     context: i32,
     feature: *const raw::c_char,
 ) {

@@ -284,7 +284,7 @@ impl DriverStation {
     /// Get the alliance the robot is on.
     #[allow(non_upper_case_globals)]
     pub fn get_alliance(&self) -> HalResult<Alliance> {
-        match hal_call!(HAL_GetAllianceStation())? as u32 {
+        match hal_call!(HAL_GetAllianceStation())? {
             HAL_AllianceStationID_HAL_AllianceStationID_kRed1
             | HAL_AllianceStationID_HAL_AllianceStationID_kRed2
             | HAL_AllianceStationID_HAL_AllianceStationID_kRed3 => Ok(Alliance::Red),
@@ -298,7 +298,7 @@ impl DriverStation {
     /// Get the id for the station the driver station is at, as an integer.
     #[allow(non_upper_case_globals)]
     pub fn get_station(&self) -> HalResult<u32> {
-        match hal_call!(HAL_GetAllianceStation())? as u32 {
+        match hal_call!(HAL_GetAllianceStation())? {
             HAL_AllianceStationID_HAL_AllianceStationID_kRed1
             | HAL_AllianceStationID_HAL_AllianceStationID_kBlue1 => Ok(1),
             HAL_AllianceStationID_HAL_AllianceStationID_kRed2
