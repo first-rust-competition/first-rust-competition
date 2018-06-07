@@ -2,6 +2,11 @@
 # * Rust nightly
 # * g++ > 5.0
 # * arm-frc-linux-gnueabi-gcc > 5.0
+# * libclang
+# * gcc-multilib
+# * JDK
+#
+# Check the apt-get commands for the canonical list
 
 # Begin with rust-nightly image but based on ubuntu xenial
 FROM ubuntu:xenial
@@ -65,6 +70,3 @@ RUN rustup target add arm-unknown-linux-gnueabi
 ENV CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER arm-frc-linux-gnueabi-gcc
 
 COPY . ./first-rust-competition
-
-
-# TODO: rebase for proper build testing
