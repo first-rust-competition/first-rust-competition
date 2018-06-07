@@ -1,5 +1,7 @@
 # FIRST Rust Competition
 
+[![Build Status](https://travis-ci.org/Lytigas/first-rust-competition.svg?branch=master)](https://travis-ci.org/Lytigas/first-rust-competition)
+
 A monorepo for `wpilib` for programming FRC robots and `cargo-frc` for deploying said code. Currently a pre-alpha WIP.
 
 ## Getting started
@@ -15,6 +17,8 @@ To deploy code you write using `wpilib`, use [cargo-frc](cargo-frc).
 
 Verify you can build `wpilib`, then run `make all`. `cargo-frc` should build out of the box, but you should `cargo install` it 
 to [use it properly](cargo-frc/README.md).
+
+For a full list of requirements, see the [Dockerfile](Dockerfile) used for Travis CI.
 
 ## License
 
