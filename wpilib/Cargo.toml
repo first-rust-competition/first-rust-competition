@@ -26,9 +26,12 @@ path = "src/lib.rs"
 # Test can only be run on ARM
 test = false
 
+[features]
+dev = []
 
 [dependencies]
 
 
 [build-dependencies]
 bindgen = "0.37.0"
+# fs_extra = "1.1.0"

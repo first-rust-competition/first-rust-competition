@@ -6,6 +6,7 @@ publish = false
 
 [dependencies]
 wpilib = {path = "../wpilib"}
+# wpilib = { git = "https://github.com/Lytigas/first-rust-competition/", branch = "testing" }
 
 [package.metadata.frc]
 team-number = 114
