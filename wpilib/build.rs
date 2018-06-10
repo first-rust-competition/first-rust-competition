@@ -30,6 +30,7 @@ fn output() -> PathBuf {
 //     copy(input, out_path, &options).expect("Couldn't copy libs.");
 // }
 
+/// anounce our lib dir to cargo-frc
 fn announce_lib() {
     #![allow(unreachable_code)] // compile-dependent panic for not windows or unix platform
     let mut lib_path = PathBuf::new();
@@ -59,7 +60,19 @@ fn announce_lib() {
 }
 
 const LIB_DIR: &'static str = "HAL/lib";
-
+const LIB_LIST: &'static [&'static str] = &[
+    "FRC_NetworkCommunication",
+    "NiFpga",
+    "NiFpgaLv",
+    "niriodevenum",
+    "niriosession",
+    "NiRioSrv",
+    "RoboRIO_FRC_ChipObject",
+    "visa",
+    "wpiHal",
+    "wpiutil",
+];
+///
 fn link() {
     for lib in LIB_LIST.iter() {
         println!("cargo:rustc-link-lib=dylib={}", lib);
