@@ -5,12 +5,13 @@ extern crate clap;
 #[macro_use]
 extern crate log;
 extern crate fern;
+extern crate ref_slice;
 extern crate serde;
 extern crate tempfile;
 mod config;
 mod deploy;
 mod util;
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use fern::colors::{Color, ColoredLevelConfig};
 use util::*;
 
@@ -24,7 +25,7 @@ fn main() {
             0
         }
         Err(x) => {
-            error!("Fatal: {}", x);
+            error!("Fatal: {}\nRun with -vv for more info.", x);
             1
         }
     });
@@ -42,6 +43,11 @@ fn cli_app() -> Result<(), String> {
         .subcommand(SubCommand::with_name(COMMAND_NAME)
             // the real entry point
             .about(COMMAND_DESCRIPTION)
+            .arg(Arg::with_name("verbose")
+                .long("verbose")
+                .short("v")
+                .multiple(true)
+                .global(true))
             .subcommand(SubCommand::with_name("deploy")
                 .arg(Arg::with_name("release")
                     .short("r")
@@ -58,7 +64,8 @@ fn cli_app() -> Result<(), String> {
         .subcommand_matches(COMMAND_NAME)
         .ok_or("frc subcommand not specified")?;
 
-    setup_logger(log::LevelFilter::Debug).map_err(str_map("Could not initialize logging"))?;
+    let level = setup_logger(frc_matches).map_err(str_map("Could not initialize logging"))?;
+    info!("Using log level {}", level);
 
     let cfg = config::get_config()?;
 
@@ -70,7 +77,15 @@ fn cli_app() -> Result<(), String> {
     }
 }
 
-fn setup_logger(level: log::LevelFilter) -> Result<(), fern::InitError> {
+fn setup_logger(matches: &ArgMatches) -> Result<log::LevelFilter, fern::InitError> {
+    let level = match 2 + matches.occurrences_of("verbose") {
+        0 => log::LevelFilter::Error,
+        1 => log::LevelFilter::Warn,
+        2 => log::LevelFilter::Info,
+        3 => log::LevelFilter::Debug,
+        _ => log::LevelFilter::Trace,
+    };
+
     let colors = ColoredLevelConfig::new()
         .error(Color::Red)
         .warn(Color::Yellow)
@@ -84,5 +99,5 @@ fn setup_logger(level: log::LevelFilter) -> Result<(), fern::InitError> {
         .level(level)
         .chain(std::io::stdout())
         .apply()?;
-    Ok(())
+    Ok(level)
 }

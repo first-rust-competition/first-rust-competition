@@ -14,13 +14,13 @@ pub struct FrcConfig {
 
 pub fn get_config() -> Result<FrcConfig, String> {
     debug!("Reading from `cargo read-manifest`");
-    let manifest: Value =
-        serde_json::from_str(&subprocess::Exec::cmd("cargo")
+    let manifest: Value = serde_json::from_str(
+        &subprocess::Exec::cmd("cargo")
             .arg("read-manifest")
             .capture()
             .map_err(str_map("Failed to capture cargo read-manifest"))?
-            .stdout_str())
-            .map_err(str_map("Failed to capture cargo read-manifest stdout"))?;
+            .stdout_str(),
+    ).map_err(str_map("Failed to capture cargo read-manifest stdout"))?;
     let err = "FRC Config not found in package manifest.
         Config should be in [package.metadata.frc] in Cargo.toml";
     let mut target_dir = PathBuf::new();
@@ -50,7 +50,10 @@ pub fn get_config() -> Result<FrcConfig, String> {
         .map_err(str_map("Could not canonicalize target_dir path"))?;
 
     let executable_name = match frc.get("executable-name") {
-        Some(Value::String(x)) => Ok(x.clone()),
+        Some(Value::String(x)) => {
+            info!("Using executable name {}", x);
+            Ok(x.clone())
+        }
         _ => {
             warn!("Executable name not specified, using package name instead.");
             match manifest["name"] {
@@ -79,12 +82,15 @@ pub fn get_config() -> Result<FrcConfig, String> {
     }.cloned();
     if team_number == None && rio_address_override == None {
         error!("Neither a team number or rio address was specified.");
-    }
+    };
 
-    Ok(FrcConfig {
+    let tmp = FrcConfig {
         team_number,
         rio_address_override,
         target_dir,
         executable,
-    })
+    };
+    debug!("Using config: {:?}.", tmp);
+
+    Ok(tmp)
 }

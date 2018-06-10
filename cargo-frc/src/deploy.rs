@@ -1,6 +1,9 @@
 use super::config::FrcConfig;
 use clap::ArgMatches;
+use ref_slice::*;
+use std::env;
 use std::ffi::OsStr;
+use std::fmt;
 use std::io::prelude::*;
 use std::path::Path;
 use std::time::Duration;
@@ -10,15 +13,16 @@ use tempfile;
 use util::*;
 
 pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
-    // println!("{}", test_ssh_address("demo@test.rebex.net")?);
     cargo_build(matches, config)?;
 
     let addresses = if let Some(addr) = config.rio_address_override.clone() {
         vec![addr]
     } else {
-        make_addresses(config
-            .team_number
-            .ok_or("No RIO address or team number specified")?)
+        make_addresses(
+            config
+                .team_number
+                .ok_or("No RIO address or team number specified")?,
+        )
     };
     let mut executable_path = config.target_dir.clone();
     executable_path.push(DEPLOY_TARGET_TRIPLE);
@@ -30,8 +34,7 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
     executable_path.push(&config.executable);
     info!("Attempting to deploy executable {:?}", executable_path);
 
-    //test
-    // do_deploy("admin@10.1.14.2", &executable_path)?;
+    do_deploy("admin@10.1.14.2", &executable_path)?;
 
     for addr in addresses.iter() {
         info!("Searching for rio at {}", addr);
@@ -93,13 +96,13 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
         .write_all(
             format!(
                 r#"#!/bin/bash
-. /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t 2> /dev/null
-mv {} /home/lvuser/{exec_name}
-echo "/home/lvuser/{exec_name}" > /home/lvuser/robotCommand
-chmod +x /home/lvuser/robotCommand; chown lvuser /home/lvuser/robotCommand
-sync
-ldconfig
-. /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null"#,
+    . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t 2> /dev/null
+    mv {} /home/lvuser/{exec_name}
+    echo "/home/lvuser/{exec_name}" > /home/lvuser/robotCommand
+    chmod +x /home/lvuser/robotCommand; chown lvuser /home/lvuser/robotCommand
+    sync
+    ldconfig
+    . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null"#,
                 EXECUTABLE_TEMPORARY_PATH,
                 exec_name = executable_name
             ).as_bytes(),
@@ -114,10 +117,21 @@ ldconfig
         .canonicalize()
         .map_err(str_map("Could not canonicalize script path"))?;
     info!("scp-ing deploy script...");
-    scp(&script_path, rio_address, DEPLOY_SCRIPT_CANONICAL_PATH)?;
+    scp(
+        ref_slice(&script_path),
+        rio_address,
+        DEPLOY_SCRIPT_CANONICAL_PATH,
+    )?;
 
     info!("scp-ing executable...");
-    scp(&executable_path, rio_address, EXECUTABLE_TEMPORARY_PATH)?;
+    scp(
+        ref_slice(&executable_path),
+        rio_address,
+        EXECUTABLE_TEMPORARY_PATH,
+    )?;
+
+    info!("Deploying libs...");
+    deploy_libs(rio_address)?;
 
     info!("ssh-ing to execute deploy script...");
     ssh(
@@ -128,47 +142,41 @@ ldconfig
 }
 
 /// Only call this with addresses checked with `test_ssh_address` first
-fn scp<T: AsRef<OsStr>>(
-    local_path: &T,
+fn scp<T: AsRef<OsStr> + fmt::Debug>(
+    local_paths: &[T],
     target_address: &str,
     remote_path: &str,
 ) -> Result<(), String> {
-    debug!(
-        "scp -oBatchMode=yes, $local_path {}:{}",
-        target_address, remote_path,
-    );
-    let handle = subprocess::Exec::cmd("scp")
+    let mut builder = subprocess::Exec::cmd("scp")
         .arg("-oBatchMode=yes")
-        .arg("-oStrictHostKeyChecking=no")
-        .arg(local_path)
-        .arg(format!("{}:{}", target_address, remote_path))
-        .join();
-    handle_subprocess("scp", handle)?;
+        .arg("-oStrictHostKeyChecking=no");
+    for arg in local_paths.iter() {
+        builder = builder.arg(arg);
+    }
+    builder = builder.arg(format!("{}:{}", target_address, remote_path));
+    trace!("scp subprocess builder struct: {:?}", builder);
+    debug!("Running scp command: \"{}\"", builder.to_cmdline_lossy());
+    handle_subprocess("scp", builder.join())?;
     Ok(())
 }
 
 /// Only call this with addresses checked with `test_ssh_address` first
 fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String> {
-    debug!("ssh -oBatchMode=yes $target_address \"{}\"", command);
-    let handle = subprocess::Exec::cmd("ssh")
+    let builder = subprocess::Exec::cmd("ssh")
         .arg("-oBatchMode=yes")
         .arg("-oStrictHostKeyChecking=no")
         .arg(target_address)
         .arg(command);
-    // .join();
-    println!("\n{:?}\n", handle);
-    // let handle = subprocess::Exec::shell(format!(
-    //     "ssh -oBatchMode=yes -oStrictHostKeyChecking=no {} \"{}
-    // \"",
-    //     target_address, command
-    // )).join();
-    handle_subprocess("ssh", handle.join())?;
+    trace!("ssh process builder struct: {:?}", builder);
+    debug!("Running ssh -command: \"{}\"", builder.to_cmdline_lossy());
+    handle_subprocess("ssh", builder.join())?;
     Ok(())
 }
 
 const DEPLOY_TARGET_TRIPLE: &'static str = "arm-unknown-linux-gnueabi";
 
-pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
+fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
+    info!("Building the project...");
     let mut args = vec![
         "build",
         "--quiet",
@@ -176,16 +184,42 @@ pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), Strin
         DEPLOY_TARGET_TRIPLE,
         "--bin",
     ];
-    args.push(config
-        .executable
-        .to_str()
-        .ok_or("Executable name is not valid Unicode.")?);
+    args.push(
+        config
+            .executable
+            .to_str()
+            .ok_or("Executable name is not valid Unicode.")?,
+    );
     if matches.is_present("release") {
         args.push("--release");
     }
+    debug!("Using cargo args {:?}", args);
     let exit_code = subprocess::Exec::cmd("cargo")
         .args(&args)
         .join()
         .map_err(str_map("'cargo build' subprocess failed"))?;
     handle_subprocess_exit("cargo build", exit_code)
+}
+
+const LIBS_TO_DEPLOY: &'static [&'static str] =
+    &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
+
+fn deploy_libs(target_address: &str) -> Result<(), String> {
+    debug!("Attempting to deploy libs: {:?}", LIBS_TO_DEPLOY);
+    let mut symlink_path = env::temp_dir();
+    symlink_path.push("frc-libs");
+    symlink_path
+        .canonicalize()
+        .map_err(str_map("Could not canonicalize symlinked athena lib path"))?;
+    let libs: Vec<_> = LIBS_TO_DEPLOY
+        .iter()
+        .map(|name| {
+            let mut d = symlink_path.clone();
+            d.push(format!("lib{}.so", name));
+            d
+        })
+        .collect();
+    trace!("Deploying libs at paths {:?}", libs);
+    scp(&libs[..], target_address, "/usr/local/frc/lib")?;
+    Ok(())
 }

@@ -30,7 +30,7 @@ fn output() -> PathBuf {
 //     copy(input, out_path, &options).expect("Couldn't copy libs.");
 // }
 
-/// anounce our lib dir to cargo-frc
+/// anounce our lib dir with a symlink cargo-frc to copy
 fn announce_lib() {
     #![allow(unreachable_code)] // compile-dependent panic for not windows or unix platform
     let mut lib_path = PathBuf::new();
@@ -52,11 +52,10 @@ fn announce_lib() {
     {
         symlink_dir(lib_path, symlink_path).expect("Could not create lib symlink");
     }
-    #[cfg(any(windows, unix))]
+    #[cfg(not(any(windows, unix)))]
     {
-        return;
+        panic!("Platform is not Windows or UNIX!");
     }
-    panic!("Platform is not Windows or UNIX!");
 }
 
 const LIB_DIR: &'static str = "HAL/lib";
@@ -72,7 +71,8 @@ const LIB_LIST: &'static [&'static str] = &[
     "wpiHal",
     "wpiutil",
 ];
-///
+
+/// Tell cargo to link our libs
 fn link() {
     for lib in LIB_LIST.iter() {
         println!("cargo:rustc-link-lib=dylib={}", lib);
@@ -90,12 +90,13 @@ fn link() {
 // While not ideal, this is kind of necessary for cargo-frc to do its thing
 // If you plan to have multilple FRC projects and deploy them randomly
 // (How do I know I have a symlink to the right lib version?)
-// TODO(Lytigas) replace this hack with an updated index
+// TODO(Lytigas) replace this hack with a file cargo-frc will touch on run
 fn always_run() {
     #[cfg(feature = "dev")]
     println!("cargo:rerun-if-changed=*");
 }
 
+/// Code-generation for the HAL
 fn generate_bindings() {
     const INCLUDE_DIR: &'static str = "HAL/include";
     const SYMBOL_REGEX: &'static str = "HAL_[A-Za-z0-9]+";
