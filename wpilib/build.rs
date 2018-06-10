@@ -40,10 +40,11 @@ fn announce_lib() {
     let mut flag_path = symlink_path.clone();
     symlink_path.push("frc-libs");
     flag_path.push("frc-flag");
-    fs::write(flag_path.clone(), b"flag").expect("Could not write to temp flag file");
 
     println!("cargo:rerun-if-changed={}", flag_path.display());
-    fs::remove_file(symlink_path.clone()).expect("Could not remove stale symlink");
+    fs::write(flag_path, b"flag").expect("Could not write to temp flag file");
+
+    fs::remove_file(symlink_path.clone()).ok(); //ignore the err
     #[cfg(unix)]
     {
         symlink(lib_path, symlink_path).expect("Could not create lib symlink");
