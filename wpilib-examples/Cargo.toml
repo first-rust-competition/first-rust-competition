@@ -17,3 +17,8 @@ executable-name = "digital_out"
 [[bin]]
 name = "digital_out"
 path = "./digital_out.rs"
+
+
+[[bin]]
+name = "pneumatics"
+path = "./pneumatics.rs"

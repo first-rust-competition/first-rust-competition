@@ -27,36 +27,35 @@ SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
 #![allow(dead_code)] // for now
-use hal::bindings::*;
+use hal::*;
 
-/// The number of DIOs on the RoboRIO.
-pub fn num_digital_channels() -> i32 {
-    unsafe { HAL_GetNumDigitalChannels() }
+lazy_static! {
+    /// The number of DIOs on the RoboRIO.
+    pub static ref NUM_DIGITAL_CHANNELS: i32 = unsafe { HAL_GetNumDigitalChannels() };
+
+    /// The number of analog inputs on the RoboRIO.
+    pub static ref NUM_ANALOG_INPUTS: i32  = unsafe { HAL_GetNumAnalogInputs() };
+
+    /// The number of solenoid channels per PCM.
+    pub static ref NUM_SOLENOID_CHANNELS: i32 = unsafe { HAL_GetNumSolenoidChannels() };
+
+    /// ?The number of PCMs?
+    pub static ref NUM_SOLENOID_MODULES: i32 = unsafe { HAL_GetNumPCMModules() };
+
+    /// The number of hardware PWM channels on the RoboRIO.
+    pub static ref NUM_PWM_CHANNELS: i32 = unsafe { HAL_GetNumPWMChannels() };
+
+    /// The number of relay headers on the RoboRIO.
+    pub static ref NUM_RELAY_CHANNELS: i32 = unsafe { HAL_GetNumRelayHeaders() };
+
+    /// The number of PDP channels on the robot.
+    pub static ref NUM_PDP_CHANNELS: i32 = unsafe { HAL_GetNumPDPChannels() };
 }
 
-/// The number of analog inputs on the RoboRIO.
-pub fn num_analog_inputs() -> i32 {
-    unsafe { HAL_GetNumAnalogInputs() }
-}
-
-/// The number of solenoid channels per PCM.
-pub fn num_solenoid_channels() -> i32 {
-    unsafe { HAL_GetNumSolenoidChannels() }
-}
-
-/// The number of PCMs.
-pub fn num_solenoid_modules() -> i32 {
-    unsafe { HAL_GetNumPCMModules() }
-}
-
-/// The number of hardware PWM channels on the RoboRIO.
-pub fn num_pwm_channels() -> i32 {
-    unsafe { HAL_GetNumPWMChannels() }
-}
-
-/// The number of relay headers on the RoboRIO.
-pub fn num_relay_headers() -> i32 {
-    unsafe { HAL_GetNumRelayHeaders() }
+/// Get the default CAN module that the PCM will be on/
+/// Currently, this matches WPILibC and always returns 0
+pub fn default_solenoid_module() -> i32 {
+    0
 }
 
 /// Check if a solenoid module is valid.

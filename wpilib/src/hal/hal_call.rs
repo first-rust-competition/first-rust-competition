@@ -49,6 +49,9 @@ impl fmt::Debug for HalError {
 
 pub type HalResult<T> = Result<T, HalError>;
 
+/// Wraps a C/C++ HAL function call that looks like `T foo(arg1, arg2, arg3, ... , int32_t* status)
+/// and turns that status into a `HALResult<T>`, with a non-zero status code returning in
+/// the `Err` variant.
 macro_rules! hal_call {
     ($function:ident($($arg:expr),*)) => {{
         let mut status = 0;
@@ -63,5 +66,23 @@ macro_rules! hal_call {
             $arg,
         )* &mut status as *mut i32) };
         if status == 0 { Ok(result) } else { Err(HalError::from(status)) }
+    }};
+}
+
+/// Like `hal_call!`, but ignores the status code and returns the functions result anyway.
+/// This sounds bad, but WPILibC does it in some places, and there isn't really a reason to
+/// needlessly complicate the public interface.
+macro_rules! ok_hal_call {
+    ($function:ident($($arg:expr),*)) => {{
+        let mut status = 0;
+        unsafe { $function($(
+            $arg,
+        )* &mut status as *mut i32) }
+    }};
+    ($namespace:path, $function:ident($($arg:expr),*)) => {{
+        let mut status = 0;
+        unsafe { $namespace::$function($(
+            $arg,
+        )* &mut status as *mut i32) }
     }};
 }

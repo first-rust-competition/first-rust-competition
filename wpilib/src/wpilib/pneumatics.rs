@@ -1,0 +1,215 @@
+use super::sensor_util;
+use hal::*;
+use std::ptr;
+
+/// Corresponds to WPILibC's SolenoidBase, and is responsible for
+/// Getting info about a solenoid module, (conceptually a PCM).
+/// Even though each Solenoid will have a different instance, they all will
+/// probably refer to the same piece of hardware.
+pub struct SolenoidModule {
+    module: i32,
+}
+
+impl SolenoidModule {
+    /// Gets the state of each solenoid on the module with the given number.
+    /// Returns a bit mask.
+    pub fn get_all_with_module(module: i32) -> HalResult<i32> {
+        hal_call!(HAL_GetAllSolenoids(module))
+    }
+
+    /// Is the same as `get_all_with_module`, but on the module this instance
+    /// refers to.
+    pub fn get_all(&self) -> HalResult<i32> {
+        Self::get_all_with_module(self.module)
+    }
+
+    /// Honestly no idea what this does
+    ///
+    /// WPILibC ignores errors in this function, so you can too.
+    pub fn get_pcm_solenoid_blacklist_with_module(module: i32) -> i32 {
+        ok_hal_call!(HAL_GetPCMSolenoidBlackList(module))
+    }
+
+    pub fn get_pcm_solenoid_blacklist(&self) -> i32 {
+        Self::get_pcm_solenoid_blacklist_with_module(self.module)
+    }
+
+    pub fn get_pcm_solenoid_voltage_sticky_fault_with_module(module: i32) -> bool {
+        ok_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(module)) != 0
+    }
+
+    pub fn get_pcm_solenoid_voltage_sticky_fault(&self) -> bool {
+        Self::get_pcm_solenoid_voltage_sticky_fault_with_module(self.module)
+    }
+
+    pub fn get_pcm_solenoid_voltage_fault_with_module(module: i32) -> bool {
+        ok_hal_call!(HAL_GetPCMSolenoidVoltageFault(module)) != 0
+    }
+
+    pub fn get_pcm_solenoid_voltage_fault(&self) -> bool {
+        Self::get_pcm_solenoid_voltage_fault_with_module(self.module)
+    }
+
+    pub fn clear_all_pcm_sticky_faults_with_module(module: i32) {
+        ok_hal_call!(HAL_ClearAllPCMStickyFaults(module));
+    }
+
+    pub fn clear_all_pcm_sticky_faults(&self) {
+        Self::clear_all_pcm_sticky_faults_with_module(self.module);
+    }
+}
+
+pub struct Solenoid {
+    solenoid_handle: HAL_SolenoidHandle,
+    channel: i32,
+    module: SolenoidModule,
+}
+
+impl Solenoid {
+    /// Make a new solenoid with the given channel.
+    pub fn new(channel: i32) -> HalResult<Solenoid> {
+        Self::new_with_module(sensor_util::default_solenoid_module(), channel)
+    }
+
+    /// If for some reason the Pneumatic Control Module is not on CAN module 0,
+    /// you can use this constructor. Most people will never need this.
+    pub fn new_with_module(module_number: i32, channel: i32) -> HalResult<Solenoid> {
+        if !sensor_util::check_solenoid_module(module_number) {
+            return Err(HalError(0));
+        };
+
+        if !sensor_util::check_solenoid_channel(channel) {
+            return Err(HalError(0));
+        };
+
+        let handle = hal_call!(HAL_InitializeSolenoidPort(HAL_GetPortWithModule(
+            module_number,
+            channel
+        )))?;
+
+        report_usage_extras(
+            resource_type!(Solenoid),
+            channel as UsageResourceType,
+            module_number,
+            ptr::null(),
+        );
+
+        Ok(Solenoid {
+            solenoid_handle: handle,
+            channel,
+            module: SolenoidModule {
+                module: module_number,
+            },
+        })
+    }
+
+    /// Sets the solenoid to on or off
+    pub fn set(&self, on: bool) -> HalResult<()> {
+        hal_call!(HAL_SetSolenoid(self.solenoid_handle, on as i32))
+    }
+
+    /// Gets the state of the solenoid by calling out to the hardware through an FFI.
+    /// If you need speed, consider caching the value you set yourself!
+    pub fn get(&self) -> HalResult<bool> {
+        Ok(hal_call!(HAL_GetSolenoid(self.solenoid_handle))? != 0)
+    }
+
+    pub fn is_blacklisted(&self) -> bool {
+        return (self.module.get_pcm_solenoid_blacklist() & (1 << self.channel)) != 0;
+    }
+
+    pub fn set_pulse_duration(&self, seconds: f64) -> HalResult<()> {
+        let duration_ms: i32 = (seconds * 1000.0) as i32;
+        hal_call!(HAL_SetOneShotDuration(self.solenoid_handle, duration_ms))
+    }
+
+    pub fn start_pulse(&self) -> HalResult<()> {
+        hal_call!(HAL_FireOneShot(self.solenoid_handle))
+    }
+
+    pub fn module(&self) -> &SolenoidModule {
+        &self.module
+    }
+}
+
+impl Drop for Solenoid {
+    fn drop(&mut self) {
+        unsafe { HAL_FreeSolenoidPort(self.solenoid_handle) }
+    }
+}
+
+pub enum Action {
+    Forward,
+    Reverse,
+    Off,
+}
+
+pub struct DoubleSolenoid {
+    forward: Solenoid,
+    reverse: Solenoid,
+}
+
+impl DoubleSolenoid {
+    pub fn new(forward_channel: i32, reverse_channel: i32) -> HalResult<DoubleSolenoid> {
+        Self::new_with_module(
+            sensor_util::default_solenoid_module(),
+            forward_channel,
+            reverse_channel,
+        )
+    }
+
+    pub fn new_with_module(
+        module_number: i32,
+        forward_channel: i32,
+        reverse_channel: i32,
+    ) -> HalResult<DoubleSolenoid> {
+        Ok(DoubleSolenoid {
+            forward: Solenoid::new_with_module(module_number, forward_channel)?,
+            reverse: Solenoid::new_with_module(module_number, reverse_channel)?,
+        })
+    }
+
+    pub fn set(&self, action: Action) -> HalResult<()> {
+        let forward;
+        let reverse;
+        match action {
+            Action::Forward => {
+                forward = true;
+                reverse = false;
+            }
+            Action::Reverse => {
+                forward = false;
+                reverse = true;
+            }
+            Action::Off => {
+                forward = false;
+                reverse = false;
+            }
+        };
+        self.forward.set(forward)?;
+        self.reverse.set(reverse)?;
+        Ok(())
+    }
+
+    pub fn get(&self) -> HalResult<Action> {
+        if self.forward.get()? {
+            return Ok(Action::Forward);
+        };
+        if self.reverse.get()? {
+            return Ok(Action::Reverse);
+        };
+        Ok(Action::Off)
+    }
+
+    pub fn is_fwd_blacklisted(&self) -> bool {
+        self.forward.is_blacklisted()
+    }
+
+    pub fn is_rev_blacklisted(&self) -> bool {
+        self.reverse.is_blacklisted()
+    }
+
+    pub fn module(&self) -> &SolenoidModule {
+        self.forward.module()
+    }
+}

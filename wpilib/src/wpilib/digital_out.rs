@@ -26,6 +26,7 @@ THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF TH
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
+use super::sensor_util;
 use hal::*;
 
 /// A digital output used to control lights, etc from the RoboRIO.
@@ -39,7 +40,7 @@ impl DigitalOutput {
     /// Create a new digital output on the specificed channel, returning an error if initialization
     /// fails.
     pub fn new(channel: i32) -> HalResult<DigitalOutput> {
-        if !sensor_base::check_digital_channel(channel) {
+        if !sensor_util::check_digital_channel(channel) {
             return Err(HalError(0));
         }
 
@@ -49,8 +50,8 @@ impl DigitalOutput {
         ))?;
 
         report_usage(
-            nUsageReporting_tResourceType_kResourceType_DigitalOutput,
-            channel as nUsageReporting_tInstances,
+            resource_type!(DigitalOutput),
+            channel as UsageResourceInstance,
         );
 
         Ok(DigitalOutput {
@@ -110,7 +111,7 @@ impl DigitalOutput {
         if let Some(pwm) = self.pwm {
             hal_call!(HAL_SetDigitalPWMOutputChannel(
                 pwm,
-                sensor_base::num_digital_channels()
+                *sensor_util::NUM_DIGITAL_CHANNELS
             ))?;
             hal_call!(HAL_FreeDigitalPWM(pwm))?;
             self.pwm = None;

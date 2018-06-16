@@ -25,6 +25,7 @@ SOFTWARE.
 THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF THIS REPOSITORY.
 SEE THE LICENSE FILE FOR FULL TERMS.
 */
+#![macro_use]
 
 use super::bindings::nUsageReporting_tInstances;
 use super::bindings::nUsageReporting_tResourceType;
@@ -32,18 +33,33 @@ use super::bindings::HAL_Report;
 use std::os::raw;
 use std::ptr;
 
+/// Wraps the ugly type rust-bindgen generates for usage reporting types.
+pub type UsageResourceType = nUsageReporting_tResourceType;
+
+/// Wraps the ugly type rust-bindgen generates for usage reporting instances.
+pub type UsageResourceInstance = nUsageReporting_tInstances;
+
+/// A utility macro for referencing rust-bindgen's generated names for usage instances.
+/// Currently, the identifier for a digital output is
+/// `nUsageReporting_tResourceType_kResourceType_DigitalOutput`
+/// This is equivalent to `resource_type!(DigitalOutput)`.
+macro_rules! resource_type {
+    ($resource_name:ident) => {
+        concat_idents!(nUsageReporting_tResourceType_kResourceType_, $resource_name)
+    };
+}
+
 /// Report the usage of a specific resource type with an `instance` value attached.
-pub fn report_usage(resource: nUsageReporting_tResourceType, instance: nUsageReporting_tInstances) {
+pub fn report_usage(resource: UsageResourceType, instance: UsageResourceInstance) {
     unsafe {
         HAL_Report(resource as i32, instance as i32, 0, ptr::null());
     }
 }
 
-#[allow(dead_code)]
 /// A safe wrapper around HAL_Report
 pub fn report_usage_extras(
-    resource: nUsageReporting_tResourceType,
-    instance: nUsageReporting_tInstances,
+    resource: UsageResourceType,
+    instance: UsageResourceInstance,
     context: i32,
     feature: *const raw::c_char,
 ) {

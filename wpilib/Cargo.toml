@@ -30,7 +30,7 @@ test = false
 dev = []
 
 [dependencies]
-
+lazy_static = "1.0.1"
 
 [build-dependencies]
 bindgen = "0.37.0"
