@@ -25,16 +25,11 @@ to your `Cargo.toml`.
 
 You can then run `cargo frc deploy` in your robot code package.
 
-## Limitations
-
-Currently, you must deploy once with GradleRIO/ant/whatever at least once before `cargo frc` will work.
-As of yet, I have not figured out an easy way to fetch versioned shared libraries to deploy. Ideally I could use crates.io and associated versioning.
-
 ## Roadmap
 
 - [x] MVP to streamline `wpilib` testing and development
-- [ ] Test windows support
-- [ ] Deploy shared libraries
+- [ ] Test windows support, decide whether to add it
+- [x] Deploy shared libraries
 - [ ] Automatic debugging support with `gdb` and its server
 
 ## License
