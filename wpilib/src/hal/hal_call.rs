@@ -29,10 +29,22 @@ THIS REPOSITORY. SEE THE LICENSE FILE FOR FULL TERMS.
 #![macro_use]
 
 use super::bindings::*;
-use std::{ffi, fmt};
+use std::{borrow::Cow, ffi::CStr, fmt};
 
 #[derive(Copy, Clone)]
 pub struct HalError(pub i32);
+
+impl HalError {
+    /// Get the HAL error message associated with this error code.
+    /// In traditional WPILib, this would be printed the the driver
+    /// station whenever an error occured. The resulting string may
+    /// not be valid UTF-8.
+    pub fn message(&self) -> Cow<str> {
+        let const_char_ptr = unsafe { HAL_GetErrorMessage(self.0) };
+        let c_str = unsafe { CStr::from_ptr(const_char_ptr) };
+        c_str.to_string_lossy()
+    }
+}
 
 impl From<i32> for HalError {
     fn from(code: i32) -> Self {
@@ -42,8 +54,7 @@ impl From<i32> for HalError {
 
 impl fmt::Debug for HalError {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        let error_string = unsafe { ffi::CStr::from_ptr(HAL_GetErrorMessage(self.0)) };
-        write!(f, "HalError {{ {} }}", error_string.to_str().unwrap())
+        write!(f, "HalError {{ {} }}", self.message())
     }
 }
 
