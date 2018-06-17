@@ -123,6 +123,14 @@ fn generate_bindings() {
 
     out.write_to_file(output().join("hal_bindings.rs"))
         .expect("Couldn't write bindings!");
+
+    // write the bindings to a file for viewing
+    #[cfg(feature = "dev")]
+    {
+        let dev_dir = env::current_dir().unwrap();
+        out.write_to_file(dev_dir.join("HAL_bindings_temp.rs"))
+            .expect("Couldn't write bindings to temporary file!");
+    }
 }
 
 fn main() {
