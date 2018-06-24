@@ -14,8 +14,8 @@ impl RobotBase {
             return Err("HAL Initialized Failed");
         }
         report_usage(
-            nUsageReporting_tResourceType_kResourceType_Language,
-            nUsageReporting_tInstances_kLanguage_CPlusPlus, // one day, we will have our own.
+            resource_type!(Language),
+            resource_instance!(Language, CPlusPlus), // nUsageReporting_tInstances_kLanguage_CPlusPlus, // one day, we will have our own.
         );
         println!("\n********** Hardware Init **********\n");
         let mut ds = Arc::new(RwLock::new(DriverStation::new()));

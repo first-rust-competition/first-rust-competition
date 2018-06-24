@@ -25,8 +25,8 @@ SOFTWARE.
 THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF
 THIS REPOSITORY. SEE THE LICENSE FILE FOR FULL TERMS.
 */
-#![macro_use]
 
+#![macro_use]
 use super::bindings::nUsageReporting_tInstances;
 use super::bindings::nUsageReporting_tResourceType;
 use super::bindings::HAL_Report;
@@ -39,13 +39,28 @@ pub type UsageResourceType = nUsageReporting_tResourceType;
 /// Wraps the ugly type rust-bindgen generates for usage reporting instances.
 pub type UsageResourceInstance = nUsageReporting_tInstances;
 
-/// A utility macro for referencing rust-bindgen's generated names for usage instances.
+/// A utility macro for referencing rust-bindgen's generated names for usage types.
 /// Currently, the identifier for a digital output is
-/// `nUsageReporting_tResourceType_kResourceType_DigitalOutput`
+/// `nUsageReporting_tResourceType_kResourceType_DigitalOutput`.
 /// This is equivalent to `resource_type!(DigitalOutput)`.
 macro_rules! resource_type {
     ($resource_name:ident) => {
         concat_idents!(nUsageReporting_tResourceType_kResourceType_, $resource_name)
+    };
+}
+
+/// A utility macro for referencing rust-bindgen's generated names for usage instances.
+/// Currently, the identifier for the C++ language is
+/// `nUsageReporting_tInstances_kLanguage_CPlusPlus`.
+/// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
+macro_rules! resource_instance {
+    ($resource_name:ident, $instance_name:ident) => {
+        concat_idents!(
+            nUsageReporting_tInstances_k,
+            $resource_name,
+            _,
+            $instance_name
+        )
     };
 }
 
