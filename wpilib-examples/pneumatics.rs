@@ -4,7 +4,7 @@ use wpilib::*;
 
 fn main() {
     let robot = RobotBase::new().expect("HAL FAILED");
-    let solenoid = pneumatics::Solenoid::new(1).expect("Could not make Solenoid");
+    let solenoid = pneumatics::Solenoid::new(4).expect("Could not make Solenoid");
     RobotBase::start_competition();
 
     let mut val;

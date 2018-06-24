@@ -10,7 +10,7 @@ wpilib = {path = "../wpilib"}
 
 [package.metadata.frc]
 team-number = 114
-rio-address = "10.1.14.2"
+# rio-address = "10.1.14.2"
 target-dir = "../target" 
 executable-name = "digital_out"
 
@@ -18,6 +18,9 @@ executable-name = "digital_out"
 name = "digital_out"
 path = "./digital_out.rs"
 
+[[bin]]
+name = "pdp"
+path = "./pdp.rs"
 
 [[bin]]
 name = "pneumatics"
