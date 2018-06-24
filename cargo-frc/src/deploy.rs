@@ -34,8 +34,6 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
     executable_path.push(&config.executable);
     info!("Attempting to deploy executable {:?}", executable_path);
 
-    do_deploy("admin@10.1.14.2", &executable_path)?;
-
     for addr in addresses.iter() {
         info!("Searching for rio at {}", addr);
         let canonical = &format!("admin@{}", addr);
