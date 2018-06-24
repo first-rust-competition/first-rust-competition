@@ -15,6 +15,11 @@ libs: hal_compile wpilibc_compile
 	cp ./allwpilib/ntcore/build/libs/ntcore/shared/athena/*.so ./lib/
 	cp ./allwpilib/wpiutil/build/libs/wpiutil/shared/athena/*.so ./lib/
 	cp ./allwpilib/cscore/build/libs/cscore/shared/athena/*.so ./lib/
+
+	# grab libuv, which *grumble* is apparently a dependency I need to deploy now
+	# Hopefully its in the 2019 RIO image
+	find ./allwpilib/ -print0 | grep -FzZ -m 1 "athena/shared/libuv.so" | xargs -0 -I so cp so ./lib/
+
 	# strip versions tags
 	rename -f 's/.so.*/.so/' ./lib/*
 
