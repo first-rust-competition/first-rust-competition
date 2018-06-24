@@ -8,7 +8,8 @@ In this package, run `cargo install`, assuming `cargo`'s bin is in your `PATH`.
 
 ## Usage
 
-Add a config section like 
+Add a config section like
+
 ```toml
 [package.metadata.frc]
 team-number = 114
@@ -16,6 +17,7 @@ rio-address = "10.1.14.2"
 target-dir = "target" 
 executable-name = "digital_out"
 ```
+
 to your `Cargo.toml`.
 
 * `team-number` - used to deduce the IP of the roborio if an override is not provided. Currently, this will try mDNS, USB, and the conventional static IP.
