@@ -10,6 +10,7 @@ pub struct SolenoidModule {
     module: i32,
 }
 
+/// All of these methods are equivalent to their WPILib counterparts.
 impl SolenoidModule {
     /// Gets the state of each solenoid on the module with the given number.
     /// Returns a bit mask.
@@ -23,11 +24,8 @@ impl SolenoidModule {
         Self::get_all_with_module(self.module)
     }
 
-    /// Honestly no idea what this does
-    ///
-    /// WPILibC ignores errors in this function, so you can too.
     pub fn get_pcm_solenoid_blacklist_with_module(module: i32) -> i32 {
-        ok_hal_call!(HAL_GetPCMSolenoidBlackList(module))
+        maybe_hal_call!(HAL_GetPCMSolenoidBlackList(module)).ok()
     }
 
     pub fn get_pcm_solenoid_blacklist(&self) -> i32 {
@@ -35,7 +33,7 @@ impl SolenoidModule {
     }
 
     pub fn get_pcm_solenoid_voltage_sticky_fault_with_module(module: i32) -> bool {
-        ok_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(module)) != 0
+        maybe_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(module)).ok() != 0
     }
 
     pub fn get_pcm_solenoid_voltage_sticky_fault(&self) -> bool {
@@ -43,7 +41,7 @@ impl SolenoidModule {
     }
 
     pub fn get_pcm_solenoid_voltage_fault_with_module(module: i32) -> bool {
-        ok_hal_call!(HAL_GetPCMSolenoidVoltageFault(module)) != 0
+        maybe_hal_call!(HAL_GetPCMSolenoidVoltageFault(module)).ok() != 0
     }
 
     pub fn get_pcm_solenoid_voltage_fault(&self) -> bool {
@@ -51,7 +49,7 @@ impl SolenoidModule {
     }
 
     pub fn clear_all_pcm_sticky_faults_with_module(module: i32) {
-        ok_hal_call!(HAL_ClearAllPCMStickyFaults(module));
+        maybe_hal_call!(HAL_ClearAllPCMStickyFaults(module)).ok();
     }
 
     pub fn clear_all_pcm_sticky_faults(&self) {
@@ -138,6 +136,7 @@ impl Drop for Solenoid {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub enum Action {
     Forward,
     Reverse,

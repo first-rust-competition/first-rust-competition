@@ -8,12 +8,14 @@ fn main() {
     RobotBase::start_competition();
 
     loop {
-        print_pdp_info(&pdp).expect("Couldn't access pdp info");
+        print_pdp_info(&pdp);
         thread::sleep(time::Duration::from_millis(100));
+        pdp.clear_sticky_faults().expect("CAN Timeout");
+        pdp.reset_total_energy().expect("CAN Timeout");
     }
 }
 
-fn print_pdp_info(pdp: &PowerDistributionPanel) -> HalResult<()> {
+fn print_pdp_info(pdp: &PowerDistributionPanel) {
     println!(
         "===== PDP =====
         Voltage: {} Volts
@@ -22,12 +24,11 @@ fn print_pdp_info(pdp: &PowerDistributionPanel) -> HalResult<()> {
         Current on 1: {} Amps
         Total Power: {} Watts
         Total Energy: {} Joules",
-        pdp.get_voltage()?,
-        pdp.get_temperature()?,
-        pdp.get_total_current()?,
-        pdp.get_current(1)?,
-        pdp.get_total_power()?,
-        pdp.get_total_energy()?
+        pdp.get_voltage().ok(),
+        pdp.get_temperature().ok(),
+        pdp.get_total_current().ok(),
+        pdp.get_current(1).ok(),
+        pdp.get_total_power().ok(),
+        pdp.get_total_energy().ok()
     );
-    Ok(())
 }

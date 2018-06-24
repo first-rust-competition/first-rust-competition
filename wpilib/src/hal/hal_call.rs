@@ -29,7 +29,7 @@ THIS REPOSITORY. SEE THE LICENSE FILE FOR FULL TERMS.
 #![macro_use]
 
 use super::bindings::*;
-use std::{borrow::Cow, ffi::CStr, fmt};
+use std::{borrow::Cow, error::Error, ffi::CStr, fmt};
 
 #[derive(Copy, Clone)]
 pub struct HalError(pub i32);
@@ -46,19 +46,77 @@ impl HalError {
     }
 }
 
-impl From<i32> for HalError {
-    fn from(code: i32) -> Self {
-        HalError(code)
-    }
-}
-
 impl fmt::Debug for HalError {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "HalError {{ {} }}", self.message())
     }
 }
 
+impl fmt::Display for HalError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Error: \"{}\"!", self.message())
+    }
+}
+
+impl Error for HalError {
+    fn description(&self) -> &str {
+        "Error in the HAL"
+    }
+}
+
+impl From<i32> for HalError {
+    fn from(code: i32) -> Self {
+        HalError(code)
+    }
+}
+
 pub type HalResult<T> = Result<T, HalError>;
+
+/// Represents the result of a function call that could error,
+/// but even if it does, the result is still usable. Unfortunately,
+/// the way the WPILib HAL handles things, this comes up a lot.
+/// Like `Result`, `HalMaybe` must be used.
+#[must_use]
+pub struct HalMaybe<T> {
+    ret: T,
+    err: Option<HalError>,
+}
+
+impl<T> HalMaybe<T> {
+    pub(crate) fn new(ret: T, err: Option<HalError>) -> HalMaybe<T> {
+        HalMaybe { ret, err }
+    }
+
+    /// Ignore the possible error, and consume the `HalMaybe` into
+    /// its return value.
+    pub fn ok(self) -> T {
+        self.ret
+    }
+
+    /// Returns true if there is an error
+    pub fn has_err(&self) -> bool {
+        match self.err {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
+    /// Access the potential error.
+    pub fn err(&self) -> Option<HalError> {
+        self.err
+    }
+
+    /// Convert the `HalMaybe` into a `Result`, discarding the return
+    /// value if there is an error. This is useful for accessing
+    /// the many methods on `Result`, including `?` error raising.
+    pub fn into_res(self) -> Result<T, HalError> {
+        if let Some(x) = self.err {
+            Err(x)
+        } else {
+            Ok(self.ret)
+        }
+    }
+}
 
 /// Wraps a C/C++ HAL function call that looks like `T foo(arg1, arg2, arg3, ... , int32_t* status)
 /// and turns that status into a `HALResult<T>`, with a non-zero status code returning in
@@ -83,17 +141,33 @@ macro_rules! hal_call {
 /// Like `hal_call!`, but ignores the status code and returns the functions result anyway.
 /// This sounds bad, but WPILibC does it in some places, and there isn't really a reason to
 /// needlessly complicate the public interface.
-macro_rules! ok_hal_call {
+macro_rules! maybe_hal_call {
     ($function:ident($($arg:expr),*)) => {{
         let mut status = 0;
-        unsafe { $function($(
+        let result = unsafe { $function($(
             $arg,
-        )* &mut status as *mut i32) }
+        )* &mut status as *mut i32) };
+        HalMaybe::new(
+            result,
+            if status == 0 {
+                None
+            } else {
+                Some(HalError::from(status))
+            }
+        )
     }};
     ($namespace:path, $function:ident($($arg:expr),*)) => {{
         let mut status = 0;
-        unsafe { $namespace::$function($(
+        let result = unsafe { $namespace::$function($(
             $arg,
-        )* &mut status as *mut i32) }
+        )* &mut status as *mut i32) };
+        HalMaybe::new(
+            result,
+            if status == 0 {
+                None
+            } else {
+                Some(HalError::from(status))
+            }
+        )
     }};
 }

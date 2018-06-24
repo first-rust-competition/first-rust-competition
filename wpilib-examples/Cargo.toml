@@ -12,7 +12,7 @@ wpilib = {path = "../wpilib"}
 team-number = 114
 # rio-address = "10.1.14.2"
 target-dir = "../target" 
-executable-name = "digital_out"
+executable-name = "pneumatics"
 
 [[bin]]
 name = "digital_out"

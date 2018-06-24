@@ -28,6 +28,7 @@ THIS REPOSITORY. SEE THE LICENSE FILE FOR FULL TERMS.
 
 use super::sensor_util;
 use hal::*;
+use std::f64::NAN;
 
 /// An interface to the PDP for getting information about robot power.
 pub struct PowerDistributionPanel {
@@ -48,48 +49,77 @@ impl PowerDistributionPanel {
     }
 
     /// Get the voltage going into the PDP.
-    pub fn get_voltage(&self) -> HalResult<f64> {
-        hal_call!(HAL_GetPDPVoltage(self.handle))
+    pub fn get_voltage(&self) -> HalMaybe<f64> {
+        maybe_hal_call!(HAL_GetPDPVoltage(self.handle))
     }
 
     /// Get the PDP's temperature, in degrees Celsius.
-    pub fn get_temperature(&self) -> HalResult<f64> {
-        hal_call!(HAL_GetPDPTemperature(self.handle))
+    /// # Errors
+    /// The `HalMaybe` returned will have an error most commonly
+    /// in the case of a CAN timeout. (In Fact, this is the only
+    /// error WPILib will ever report!).
+    pub fn get_temperature(&self) -> HalMaybe<f64> {
+        maybe_hal_call!(HAL_GetPDPTemperature(self.handle))
     }
 
     /// Get the current on a specific channel on the PDP, in amps.
     ///
-    /// Returns `Err(HalError(0))` if `channel` is not a valid channel.
-    pub fn get_current(&self, channel: i32) -> HalResult<f64> {
+    /// # Errrors
+    /// If `channel` is invalid, the return value will contain
+    /// `NAN` and `HalError(0).
+    ///
+    /// The `HalMaybe` returned will have an error most commonly
+    /// in the case of a CAN timeout. (In Fact, this is the only
+    /// error WPILib will ever report!).
+    pub fn get_current(&self, channel: i32) -> HalMaybe<f64> {
         if !sensor_util::check_pdp_channel(channel) {
-            return Err(HalError(0));
+            return HalMaybe::new(NAN, Some(HalError(0)));
         }
 
-        hal_call!(HAL_GetPDPChannelCurrent(self.handle, channel))
+        maybe_hal_call!(HAL_GetPDPChannelCurrent(self.handle, channel))
     }
 
     /// Get the total current drawn from the PDP, in amps.
-    pub fn get_total_current(&self) -> HalResult<f64> {
-        hal_call!(HAL_GetPDPTotalCurrent(self.handle))
+    /// # Errors
+    /// The `HalMaybe` returned will have an error most commonly
+    /// in the case of a CAN timeout. (In Fact, this is the only
+    /// error WPILib will ever report!).
+    pub fn get_total_current(&self) -> HalMaybe<f64> {
+        maybe_hal_call!(HAL_GetPDPTotalCurrent(self.handle))
     }
 
     /// Get the total power drawn from the PDP, in watts.
-    pub fn get_total_power(&self) -> HalResult<f64> {
-        hal_call!(HAL_GetPDPTotalPower(self.handle))
+    /// # Errors
+    /// The `HalMaybe` returned will have an error most commonly
+    /// in the case of a CAN timeout. (In Fact, this is the only
+    /// error WPILib will ever report!).
+    pub fn get_total_power(&self) -> HalMaybe<f64> {
+        maybe_hal_call!(HAL_GetPDPTotalPower(self.handle))
     }
 
     /// Get the total energy expended by the PDP, in joules.
-    pub fn get_total_energy(&self) -> HalResult<f64> {
-        hal_call!(HAL_GetPDPTotalEnergy(self.handle))
+    /// # Errors
+    /// The `HalMaybe` returned will have an error most commonly
+    /// in the case of a CAN timeout. (In Fact, this is the only
+    /// error WPILib will ever report!).
+    pub fn get_total_energy(&self) -> HalMaybe<f64> {
+        maybe_hal_call!(HAL_GetPDPTotalEnergy(self.handle))
     }
 
     /// Reset the total energy count so far to zero.
-    pub fn reset_total_energy(&mut self) -> HalResult<()> {
+    ///
+    /// # Errors
+    /// Errors in the case of a CAN timeout. (In Fact, this
+    /// is the only error WPILib will ever report!).
+    pub fn reset_total_energy(&self) -> HalResult<()> {
         hal_call!(HAL_ResetPDPTotalEnergy(self.handle))
     }
 
     /// Clear sticky faults in the PDP.
-    pub fn clear_sticky_faults(&mut self) -> HalResult<()> {
+    /// # Errors
+    /// Errors in the case of a CAN timeout. (In Fact, this
+    /// is the only error WPILib will ever report!).
+    pub fn clear_sticky_faults(&self) -> HalResult<()> {
         hal_call!(HAL_ClearPDPStickyFaults(self.handle))
     }
 }
