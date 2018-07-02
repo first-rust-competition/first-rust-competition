@@ -200,7 +200,7 @@ fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
 }
 
 const LIBS_TO_DEPLOY: &'static [&'static str] =
-    &["wpiHal", "wpiutil", "uv" /* "ntcore.so", "cscore"*/];
+    &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
 
 fn deploy_libs(target_address: &str) -> Result<(), String> {
     debug!("Attempting to deploy libs: {:?}", LIBS_TO_DEPLOY);
