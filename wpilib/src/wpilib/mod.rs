@@ -24,3 +24,6 @@ mod pdp;
 pub use self::pdp::*;
 
 mod sensor_util;
+
+mod analog_input;
+pub use self::analog_input::*;
