@@ -1,3 +1,8 @@
+# This file is part of "first-rust-competition", which is free software: you
+# can redistribute it and/or modify it under the terms of the GNU General
+# Public License version 3 as published by the Free Software Foundation. See
+# <https://www.gnu.org/licenses/> for a copy.
+
 [package]
 name = "wpilib-examples"
 version = "0.1.0"
@@ -11,7 +16,7 @@ wpilib = {path = "../wpilib"}
 [package.metadata.frc]
 team-number = 114
 # rio-address = "10.1.14.2"
-target-dir = "../target" 
+target-dir = "../target"
 executable-name = "pneumatics"
 
 [[bin]]

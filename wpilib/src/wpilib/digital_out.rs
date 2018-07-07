@@ -1,4 +1,4 @@
-/* THE ORIGINAL VERSION OF THIS FILE WAS DISTRIBUTED WITH THE FOLLOWING LICENSE
+/* PORTIONS OF THIS FILE WERE ORIGINALLY DISTRIBUTED WITH THE FOLLOWING LICENSE
 
 """
 MIT License
@@ -22,8 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF
-THIS REPOSITORY. SEE THE LICENSE FILE FOR FULL TERMS.
+This file is part of "first-rust-competition", which is free software: you can
+redistribute it and/or modify it under the terms of the GNU General Public
+License version 3 as published by the Free Software Foundation. See
+<https://www.gnu.org/licenses/> for a copy.
 */
 
 use super::sensor_util;
