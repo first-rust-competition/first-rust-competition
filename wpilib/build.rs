@@ -14,23 +14,7 @@ fn output() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
 
-// fn place_libs() {
-//     let options = CopyOptions {
-//         overwrite: true,
-//         skip_exist: false,
-//         buffer_size: 6400,
-//         copy_inside: true,
-//         depth: 100,
-//     };
-//     let mut out_path = PathBuf::new();
-//     out_path.push(env::var("CARGO_MANIFEST_DIR").expect("Couldn't read manifest dir env var."));
-//     out_path.push(".frc");
-//     let mut input = env::current_dir().expect("Couldn't find current directory");
-//     input.push("HAL/lib");
-//     copy(input, out_path, &options).expect("Couldn't copy libs.");
-// }
-
-/// anounce our lib dir with a symlink cargo-frc to copy
+/// announce our lib dir with a symlink cargo-frc to copy
 fn announce_lib() {
     #![allow(unreachable_code)] // compile-dependent panic for not windows or unix platform
     let mut lib_path = PathBuf::new();
@@ -89,7 +73,7 @@ fn link() {
 
 // For some reason, this makes the build script always run on compile
 // While not ideal, this is kind of necessary for cargo-frc to do its thing
-// If you plan to have multilple FRC projects and deploy them randomly
+// If you plan to have multiple FRC projects and deploy them randomly
 // (How do I know I have a symlink to the right lib version?)
 // TODO(Lytigas) replace this hack with a file cargo-frc will touch on run
 fn always_run() {
