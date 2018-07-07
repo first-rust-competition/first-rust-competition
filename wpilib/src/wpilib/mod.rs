@@ -9,8 +9,6 @@ pub use self::robot_base::*;
 
 pub mod ds;
 
-pub mod robot_controller;
-
 pub mod time;
 
 pub mod joystick;

@@ -26,7 +26,7 @@ THE CURRENT FORM OF THIS FILE IS LICENSED UNDER THE SAME TERMS AS THE REST OF
 THIS REPOSITORY. SEE THE LICENSE FILE FOR FULL TERMS.
 */
 
-use super::robot_controller::*;
+use super::robot_base::RobotBase;
 use super::time::Throttler;
 use hal::*;
 use std::ffi;
@@ -108,7 +108,7 @@ impl DriverStation {
             state: RobotState::Disabled,
             fms_attached: false,
             ds_attached: false,
-            report_throttler: Throttler::new(fpga_time().unwrap(), 1_000_000),
+            report_throttler: Throttler::new(RobotBase::fpga_time().unwrap(), 1_000_000),
             condvar: Arc::new((Mutex::new(false), Condvar::new())),
             join: None,
         };
@@ -217,7 +217,10 @@ impl DriverStation {
     /// Report a message at a throttled rate
     pub fn report_throttled(&mut self, is_error: bool, message: &str) {
         // If the FPGA timer breaks, don't throttle
-        if self.report_throttler.update(fpga_time().unwrap_or(0)) {
+        if self
+            .report_throttler
+            .update(RobotBase::fpga_time().unwrap_or(0))
+        {
             self.report(is_error, 1, message, "", "");
         }
     }
