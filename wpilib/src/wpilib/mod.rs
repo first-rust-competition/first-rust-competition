@@ -23,4 +23,6 @@ pub mod pneumatics;
 mod pdp;
 pub use self::pdp::*;
 
+pub mod serial;
+
 mod sensor_util;
