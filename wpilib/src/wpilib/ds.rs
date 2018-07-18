@@ -347,7 +347,7 @@ impl DriverStation {
 
     /// Does the robot have connection to the driver station?
     pub fn is_ds_attached(&self) -> bool {
-        self.fms_attached
+        self.ds_attached
     }
 
     /// Get the state of the robot.
