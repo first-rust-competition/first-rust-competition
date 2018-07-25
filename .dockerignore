@@ -8,6 +8,7 @@
 
 !Cargo.toml
 !makefile
+!publish.sh
 
 # for submodules
 !.git

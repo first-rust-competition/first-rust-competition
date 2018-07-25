@@ -16,7 +16,7 @@ install:
   - docker build -t "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" -t "$DOCKER_USERNAME"/frc:latest . --cache-from "$DOCKER_USERNAME"/frc:latest
 
 script:
-  - docker run -it "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" sh -c "cd /first-rust-competition; make all"
+  - docker run -it -e CRATESIO_TOKEN -e TRAVIS_TAG "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" sh -c "cd /first-rust-competition; make all"
 
 after_script:
   - docker images

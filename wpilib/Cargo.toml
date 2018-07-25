@@ -9,11 +9,9 @@ version = "0.1.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 build = "build.rs"
 description = "FRC's WPILib written in Rust."
-# documentation = "..."
-# homepage = "..."
 repository = "https://github.com/Lytigas/first-rust-competition"
 readme = "./README.md"
-keywords = ["frc", "RoboRIO"]
+keywords = ["frc", "RoboRIO", "wpilib"]
 categories = ["embedded", "hardware-support", "external-ffi-bindings"]
 license = "GPL-3.0"
 
@@ -29,7 +27,7 @@ exclude = [".cargo", "./**/makefile"]
 [lib]
 name = "wpilib"
 path = "src/lib.rs"
-# Test can only be run on ARM
+# Tests can only be run on ARM
 test = false
 
 [features]

@@ -6,7 +6,7 @@
 .PHONY: all cargo-frc wpilib
 
 all: cargo-frc wpilib
-	:
+	sh publish.sh
 
 cargo-frc:
 	cd cargo-frc; cargo build
