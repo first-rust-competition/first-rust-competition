@@ -96,14 +96,14 @@ fn generate_bindings() {
         .derive_default(true)
 
         .rustfmt_bindings(false)
-        .header(format!("{}{}", INCLUDE_DIR, "/HAL/HAL.h"))
+        .header(format!("{}{}", INCLUDE_DIR, "/hal/HAL.h"))
         .whitelist_type(SYMBOL_REGEX)
         .whitelist_function(SYMBOL_REGEX)
         .whitelist_var(SYMBOL_REGEX)
         // usage reporting enums
         .whitelist_type(".*tInstances")
         .whitelist_type(".*tResourceType")
-        .clang_arg("-I./HAL/include")
+        .clang_arg(format!("-I{}", INCLUDE_DIR))
         .clang_arg("-x")
         .clang_arg("c++")
         .clang_arg("-std=c++14");

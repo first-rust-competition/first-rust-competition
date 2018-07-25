@@ -39,5 +39,4 @@ dev = []
 lazy_static = "1.0.1"
 
 [build-dependencies]
-bindgen = "0.37.0"
-# fs_extra = "1.1.0"
+bindgen = "0.37.4"
