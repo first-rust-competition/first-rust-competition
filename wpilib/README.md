@@ -54,8 +54,8 @@ symlink (another version of this crate has changed it). During development, to f
   - [ ] Structs for things like solenoids / analog in / etc.
   - [ ] etc.
 - [ ] Integrate with a build system to make bootstrapping a new project easy and deploying to the RIO simple. ~~Probably a fork of GradleRIO, because it seems like all build tools run on the JVM.~~ Work has begun on `cargo-frc`, the third-party cargo subcommand for this project.
-- [ ] ~~Look into~~ FFI bindings and a abstractions for [CTRE Pheonix](https://github.com/CrossTheRoadElec/Phoenix-frc-lib)
-    and the [NavX](https://github.com/kauailabs/navxmxp). Both of these libraries will play very nicely with rust-bindgen's C++ support. Neither is too heavy in inheritance, neither uses templates, and neither throws exceptions. However, the question of how each of them interacts with NI's dynamic libs is yet to be seen. Getting them to behave at link-time and run-time might be hard.
+- [ ] ~~Look into FFI bindings and a abstractions for [CTRE Pheonix](https://github.com/CrossTheRoadElec/Phoenix-frc-lib)
+    and the [NavX](https://github.com/kauailabs/navxmxp). Both of these libraries will play very nicely with rust-bindgen's C++ support. Neither is too heavy in inheritance, neither uses templates, and neither throws exceptions. However, the question of how each of them interacts with NI's dynamic libs is yet to be seen. Getting them to behave at link-time and run-time might be hard.~~ Check out [CTRE-rs](https://github.com/auscompgeek/ctre-rs) for a CAN interface to the Talon and Victor SPX. At some point, the NavX serial protocol (for MXP and USB) will be re-implemented on top of our own serial port.
 - [ ] *Re-write* Team 114's 2018 codebase *in rust.*
 - [ ] Test robustness at an offseason competition.
 
