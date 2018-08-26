@@ -19,10 +19,10 @@ libs: hal_compile
 	rename -f 's/.so.*/.so/' ./lib/*
 
 load_headers: allwpilib_repo
-	cp --recursive ./allwpilib/hal/src/main/native/include/hal/ ./include/
-	cp --recursive ./allwpilib/ni-libraries/include/* ./include/
-	cp --recursive ./allwpilib/wpiutil/src/main/native/include/* ./include/
-	cp --recursive ./allwpilib/ntcore/src/main/native/include/* ./include/
+	cp -R ./allwpilib/hal/src/main/native/include/hal ./include/
+	cp -R ./allwpilib/ni-libraries/include/* ./include/
+	cp -R ./allwpilib/wpiutil/src/main/native/include/* ./include/
+	cp -R ./allwpilib/ntcore/src/main/native/include/* ./include/
 
 clean: clean_local clean_wpilib
 

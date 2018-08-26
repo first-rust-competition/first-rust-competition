@@ -11,7 +11,11 @@ This repository is designed to be compiled for a [RoboRIO](http://sine.ni.com/ni
 processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, you have to do a few things:
 
 1. Install [Rustup](https://www.rustup.rs/) to help manage Rust toolchains.
-2. Run `rustup target add arm-unknown-linux-gnueabi` to install the Rust stdlib for ARM-based Linux.
+2. Rust-bindgen requires rust nightly. You can configure this with the following:
+    ```bash
+    rustup toolchain install nightly
+    rustup default nightly
+    ```
 3. Install some variant of `arm-linux-gnueabi-gcc`. For example, the official FRC toolchain
     (`arm-frc-linux-gnueabi-gcc`) is available [here](https://launchpad.net/~wpilib/+archive/ubuntu/toolchain), or you
     can install a generic toolchain with your package manager of choice (`sudo apt-get install gcc-arm-linux-gnueabi` on
@@ -22,11 +26,7 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     linker = "<path-to-arm-linux-gnueabi-gcc>"
     ```
     Mine is at `/usr/bin/arm-frc-linux-gnueabi-gcc` on Ubuntu.
-5. Rust-bindgen requires rust nightly. You can configure this with the following:
-    ```bash
-    rustup toolchain install nightly
-    rustup default nightly
-    ```
+5. Run `rustup target add arm-unknown-linux-gnueabi` to install the Rust stdlib for ARM-based Linux.
 6. Install the [requirements of `bindgen`](https://rust-lang-nursery.github.io/rust-bindgen/requirements.html), with Clang 3.9 or higher for better C++ support.
 7. Add `wpilib = ...` to `[dependencies]` in `Cargo.toml`.
 
