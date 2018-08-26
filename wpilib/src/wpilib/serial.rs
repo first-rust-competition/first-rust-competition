@@ -7,6 +7,19 @@ License version 3 as published by the Free Software Foundation. See
 
 use hal::*;
 
+// This is kind of a hack so that IDEs don't bug devs.
+// bindgen rightfully generates a serial interface that uses std::os::raw::c_char
+// but that's a crappy user interface. The problem is that wheter its u8 or i8
+// depends on the platform.
+// Of course, this could change under us at the mere flip of a compiler option.
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+#[allow(non_camel_case_types)]
+type byte = u8;
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[allow(non_camel_case_types)]
+type byte = i8;
+
 // all of these enums use magic numbers from wpilibc SerialPort.h
 
 #[derive(Debug, Copy, Clone)]
@@ -78,7 +91,7 @@ impl SerialPort {
         let mut serial_port = SerialPort { port };
         serial_port.set_timeout(5.0)?;
         serial_port.set_write_buf_mode(WriteBufferMode::FlushOnAcces)?;
-        serial_port.enable_termination('\n' as u8)?;
+        serial_port.enable_termination('\n' as byte)?;
         report_usage(resource_type!(SerialPort), 0);
         Ok(serial_port)
     }
@@ -90,7 +103,7 @@ impl SerialPort {
         ))
     }
 
-    pub fn enable_termination(&mut self, terminator: u8) -> HalResult<()> {
+    pub fn enable_termination(&mut self, terminator: byte) -> HalResult<()> {
         hal_call!(HAL_EnableSerialTermination(
             self.port as HAL_SerialPort,
             terminator
@@ -105,7 +118,7 @@ impl SerialPort {
         hal_call!(HAL_GetSerialBytesReceived(self.port as HAL_SerialPort))
     }
 
-    pub fn read(&mut self, buf: &mut [u8]) -> HalResult<i32> {
+    pub fn read(&mut self, buf: &mut [byte]) -> HalResult<i32> {
         hal_call!(HAL_ReadSerial(
             self.port as HAL_SerialPort,
             buf.as_mut_ptr(),
@@ -113,7 +126,7 @@ impl SerialPort {
         ))
     }
 
-    pub fn read_len(&mut self, buf: &mut [u8], len: usize) -> HalResult<i32> {
+    pub fn read_len(&mut self, buf: &mut [byte], len: usize) -> HalResult<i32> {
         let len = ::std::cmp::max(len, buf.len());
         hal_call!(HAL_ReadSerial(
             self.port as HAL_SerialPort,
@@ -124,7 +137,7 @@ impl SerialPort {
 
     /// # Returns
     /// Then number of bytes actually written to the buffer.
-    pub fn write(&mut self, buf: &[u8]) -> HalResult<i32> {
+    pub fn write(&mut self, buf: &[byte]) -> HalResult<i32> {
         hal_call!(HAL_WriteSerial(
             self.port as HAL_SerialPort,
             buf.as_ptr(),
