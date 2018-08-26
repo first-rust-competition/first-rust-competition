@@ -1,5 +1,8 @@
 # WPIlib
 
+[![Crates.io](https://img.shields.io/crates/v/wpilib.svg)](https://crates.io/crates/wpilib/)
+[![Docs.rs](https://docs.rs/wpilib/badge.svg)](https://docs.rs/wpilib)
+
 Rewrite it in rust. Not ready for any non-dev use.
 
 ## Getting started

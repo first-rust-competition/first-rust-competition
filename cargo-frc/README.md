@@ -1,5 +1,7 @@
 # Cargo FRC
 
+[![Crates.io](https://img.shields.io/crates/v/cargo-frc.svg)](https://crates.io/crates/cargo-frc/)
+
 A cargo subcommand for deploying your rust code.
 
 ## Installation
@@ -14,7 +16,7 @@ Add a config section like
 [package.metadata.frc]
 team-number = 114
 rio-address = "10.1.14.2"
-target-dir = "target" 
+target-dir = "target"
 executable-name = "digital_out"
 ```
 
