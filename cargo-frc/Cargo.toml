@@ -37,4 +37,3 @@ ref_slice = "1.1.1"
 team-number = 114
 rio-address = "10.1.14.2"
 target-dir = "../target"
-executable-name = "digital_out"
