@@ -24,6 +24,21 @@ load_headers: allwpilib_repo
 	cp -R ./allwpilib/wpiutil/src/main/native/include/* ./include/
 	cp -R ./allwpilib/ntcore/src/main/native/include/* ./include/
 
+	# TODO(lytigas) move this functionality into the python script
+	# TODO(lytigas) find a better method for selecting the include dir than the one without version information
+	# which is marked currently by the existence of globs.h
+
+	# gnu/**/*.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type d -name "gnu" | xargs -I '{}' cp -R '{}' ./include/
+	# sys/**/*.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type d -name "sys" | xargs -I '{}' cp -R '{}' ./include/
+	# *.h in one of the include dirs that is marked by glob.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -name "glob.h" | xargs dirname | xargs -I '{}' bash -c 'cp -R {}/*.h ./include/'
+	# same folder us a above but its the bits directory
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -name "glob.h" | xargs dirname | xargs -I '{}' cp -R '{}/bits' ./include/
+	# stddef.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -path "*/include/stddef.h" | xargs -I '{}' cp -R '{}' ./include/
+
 clean: clean_local clean_wpilib
 
 clean_local:

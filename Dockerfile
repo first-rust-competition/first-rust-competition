@@ -56,6 +56,7 @@ RUN set -eux; \
     libclang-5.0-dev \
     clang-5.0 \
     gcc-multilib \
+    python \
     ;
 
 # install frc arm compiler and g++

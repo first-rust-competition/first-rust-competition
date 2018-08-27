@@ -106,6 +106,8 @@ fn generate_bindings() {
         .clang_arg(format!("-I{}", INCLUDE_DIR))
         .clang_arg("-x")
         .clang_arg("c++")
+        .clang_arg("-nostdinc")
+        .clang_arg("-nostdinc++")
         .clang_arg("-std=c++14");
     println!("builder_args: {:?}", bindings.command_line_flags());
     let out = bindings.generate().expect("Unable to generate bindings");
