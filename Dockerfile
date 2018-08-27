@@ -16,6 +16,31 @@
 # Begin with rust-nightly image but based on ubuntu xenial
 FROM ubuntu:xenial
 
+# install dev utils
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+    make \
+    git \
+    default-jdk \
+    llvm-5.0-dev \
+    libclang-5.0-dev \
+    clang-5.0 \
+    g++ \
+    python \
+    ;
+
+# install frc arm compiler
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends software-properties-common; \
+    apt-add-repository ppa:wpilib/toolchain; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+    frc-toolchain \
+    ;
+
+# begin rust nightly
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH
@@ -43,36 +68,12 @@ RUN set -eux; \
     wget \
     ; \
     rm -rf /var/lib/apt/lists/*;
-# end rust nightly file
-
-# install dev utils
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-    make \
-    git \
-    default-jdk \
-    llvm-5.0-dev \
-    libclang-5.0-dev \
-    clang-5.0 \
-    gcc-multilib \
-    python \
-    ;
-
-# install frc arm compiler and g++
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends software-properties-common; \
-    apt-add-repository ppa:wpilib/toolchain; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-    frc-toolchain \
-    g++ \
-    ;
+# end rust nightly
 
 # add arm target to rust
 RUN rustup target add arm-unknown-linux-gnueabi
 
+# configure the linker
 ENV CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER arm-frc-linux-gnueabi-gcc
 
 COPY . ./first-rust-competition
