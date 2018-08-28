@@ -8,9 +8,9 @@ A monorepo for `wpilib` for programming FRC robots and `cargo-frc` for deploying
 
 ## Getting started
 
-Parts of this repository is designed to be compiled for a [RoboRIO](http://sine.ni.com/nips/cds/view/p/lang/en/nid/213308), the
+Parts of this repository are designed to be compiled for a [RoboRIO](http://sine.ni.com/nips/cds/view/p/lang/en/nid/213308), the
 processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, you have to do a few things.
-Detailed instructions can be found in [WPIlib's README](wpilib/README.md).
+Detailed instructions can be found in [WPILib's README](wpilib/README.md).
 
 Examples can be found in [wpilib-examples](wpilib-examples).
 
