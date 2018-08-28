@@ -17,7 +17,7 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     rustup default nightly
     ```
 3. Install some variant of `arm-linux-gnueabi-gcc`. For example, the official FRC toolchain
-    (`arm-frc-linux-gnueabi-gcc`) is available [here](https://launchpad.net/~wpilib/+archive/ubuntu/toolchain), or you
+    (`arm-frc-linux-gnueabi-gcc`) is available for various platforms [here](http://first.wpi.edu/FRC/roborio/toolchains/), or you
     can install a generic toolchain with your package manager of choice (`sudo apt-get install gcc-arm-linux-gnueabi` on
     Ubuntu).
 4. Edit your `~/.cargo/config` file with the following information:
@@ -36,7 +36,8 @@ Setup:
 
 1. Follow the [Getting Started](#getting-started) section.
 2. Verify you satisfy the [WPILib build requirements](https://github.com/wpilibsuite/allwpilib#building-wpilib).
-3. Run `make all`. This will likely take a minute or two. The process will:
+3. Either install `arm-frc-linux-gnueabi-*` from the official FRC toolchain, or acquire a different arm compiler and `export CXX_FRC="/path/to or name of arm C++ compiler"`. This is necessary to load compiler headers.
+4. Run `make all`. This will likely take a minute or two. The process will:
     1. Init and update the WPILib submodule
     2. Build the HAL and WPILibC shared libraries to link against.
     3. Generate the rust-bindings and build the library.
