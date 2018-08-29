@@ -5,11 +5,10 @@
 
 # A container with all the build dependencies:
 # * Rust nightly
-# * g++ > 5.0
 # * arm-frc-linux-gnueabi-gcc > 5.0
-# * libclang
-# * gcc-multilib
+# * libclang / clang / llvm
 # * JDK
+# * Python 2.7
 #
 # Check the apt-get commands for the canonical list
 
@@ -26,7 +25,6 @@ RUN set -eux; \
     llvm-5.0-dev \
     libclang-5.0-dev \
     clang-5.0 \
-    g++ \
     python \
     ;
 
