@@ -5,7 +5,7 @@
 
 [package]
 name = "wpilib"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 build = "build.rs"
 description = "FRC's WPILib written in Rust."
