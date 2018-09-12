@@ -25,4 +25,6 @@ pub use self::pdp::*;
 
 pub mod serial;
 
+pub mod spi;
+
 mod sensor_util;
