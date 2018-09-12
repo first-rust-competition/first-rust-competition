@@ -74,16 +74,6 @@ impl Spi {
         self.update_spi_opts();
     }
 
-    pub fn set_sample_data_on_falling(&mut self) {
-        self.sample_on_trailing = true;
-        self.update_spi_opts();
-    }
-
-    pub fn set_sample_data_on_rising(&mut self) {
-        self.sample_on_trailing = false;
-        self.update_spi_opts();
-    }
-
     pub fn set_clock_active_low(&mut self) {
         self.clk_idle_high = true;
         self.update_spi_opts();
