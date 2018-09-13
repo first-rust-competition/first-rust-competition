@@ -1,4 +1,4 @@
-# FIRST Rust Competition
+# FIRST Java Competition
 
 [![Build Status](https://travis-ci.org/Lytigas/first-rust-competition.svg?branch=master)](https://travis-ci.org/Lytigas/first-rust-competition)
 [![Crates.io](https://img.shields.io/crates/v/wpilib.svg)](https://crates.io/crates/wpilib/)
