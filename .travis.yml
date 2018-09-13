@@ -8,17 +8,6 @@ sudo: required
 services:
   - docker
 
-before_install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker pull "$DOCKER_USERNAME"/frc:latest
-
-install:
-  - docker build -t "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" -t "$DOCKER_USERNAME"/frc:latest . --cache-from "$DOCKER_USERNAME"/frc:latest
-
 script:
-  - docker run -it -e CRATESIO_TOKEN -e TRAVIS_TAG "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" sh -c "cd /first-rust-competition; make all"
-
-after_script:
-  - docker images
-  - docker push "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT"
-  - docker push "$DOCKER_USERNAME"/frc:latest
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./.ci/pull-request.sh; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./.ci/authorized.sh; fi'
