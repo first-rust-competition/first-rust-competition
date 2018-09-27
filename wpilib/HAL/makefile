@@ -4,7 +4,7 @@
 # <https://www.gnu.org/licenses/> for a copy.
 
 # compile libs and assemble an include dir for rust-bindgen
-.PHONY: all hal_compile wpilibc_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo
+.PHONY: all hal_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo
 
 all: load_headers libs
 

@@ -3,7 +3,7 @@
 # Public License version 3 as published by the Free Software Foundation. See
 # <https://www.gnu.org/licenses/> for a copy.
 
-.PHONY: all wpilib_hal rust_build clean
+.PHONY: all wpilib_hal rust_build clean hal
 
 all: rust_build
 
