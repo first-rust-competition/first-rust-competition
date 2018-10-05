@@ -217,3 +217,94 @@ impl DoubleSolenoid {
         self.forward.module()
     }
 }
+
+pub struct Compressor {
+    compressor_handle: HAL_CompressorHandle,
+    module: i32,
+}
+
+impl Compressor {
+    pub fn new() -> HalResult<Self> {
+        Self::new_with_module(sensor_util::default_solenoid_module())
+    }
+
+    pub fn new_with_module(module: i32) -> HalResult<Self> {
+        let compressor_handle = hal_call!(HAL_InitializeCompressor(module))?;
+        Ok(Self {
+            compressor_handle,
+            module,
+        })
+    }
+
+    pub fn set_closed_loop_control(&self, on: bool) {
+        hal_call!(HAL_SetCompressorClosedLoopControl(
+            self.compressor_handle,
+            on as i32
+        ))
+        .ok();
+    }
+
+    pub fn start(&self) {
+        self.set_closed_loop_control(true);
+    }
+
+    pub fn stop(&self) {
+        self.set_closed_loop_control(false);
+    }
+
+    pub fn enabled(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressor(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_pressure_switch_value(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorPressureSwitch(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_current(&self) -> f64 {
+        maybe_hal_call!(HAL_GetCompressorCurrent(self.compressor_handle)).ok()
+    }
+
+    pub fn get_closed_loop_control(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorClosedLoopControl(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_current_too_high_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
+            self.compressor_handle
+        ))
+        .ok()
+            != 0
+    }
+
+    pub fn get_compressor_current_too_high_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
+            self.compressor_handle
+        ))
+        .ok()
+            != 0
+    }
+
+    pub fn get_compressor_shorted_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorShortedStickyFault(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_shorted_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorShortedFault(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_not_connected_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorNotConnectedStickyFault(
+            self.compressor_handle
+        ))
+        .ok()
+            != 0
+    }
+
+    pub fn get_compressor_not_connected_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorNotConnectedFault(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn clear_all_pcm_sticky_faults(&self) {
+        hal_call!(HAL_ClearAllPCMStickyFaults(self.module)).ok();
+    }
+}
