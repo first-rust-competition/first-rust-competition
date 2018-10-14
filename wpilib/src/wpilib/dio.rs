@@ -139,3 +139,53 @@ impl Drop for DigitalOutput {
         }
     }
 }
+
+/**
+ * Class to read a digital input.
+ *
+ * This class will read digital inputs and return the current value on the
+ * channel. Other devices such as encoders, gear tooth sensors, etc. that are
+ * implemented elsewhere will automatically allocate digital inputs and outputs
+ * as required. This class is only for devices like switches etc. that aren't
+ * implemented anywhere else.
+ */
+pub struct DigitalInput {
+    channel: i32,
+    handle: HAL_DigitalHandle,
+}
+
+impl DigitalInput {
+    pub fn new(channel: i32) -> HalResult<DigitalOutput> {
+        if !sensor_util::check_digital_channel(channel) {
+            return Err(HalError(0));
+        }
+
+        let handle = hal_call!(HAL_InitializeDIOPort(
+            HAL_GetPort(channel as i32),
+            false as i32
+        ))?;
+
+        report_usage(
+            resource_type!(DigitalInput),
+            channel as UsageResourceInstance,
+        );
+
+        Ok(DigitalInput {
+            channel: channel,
+            handle: handle,
+        })
+    }
+
+    /// Get the value from the digital input channel from the FPGA.
+    pub fn get(&self) -> HalResult<bool> {
+        Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
+    }
+}
+
+impl Drop for DigitalInput {
+    fn drop(&mut self) {
+        unsafe {
+            HAL_FreeDIOPort(self.handle);
+        }
+    }
+}
