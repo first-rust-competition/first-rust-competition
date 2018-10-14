@@ -20,6 +20,10 @@ target-dir = "../target"
 executable-name = "pneumatics"
 
 [[bin]]
+name = "custom_usage"
+path = "./custom_usage.rs"
+
+[[bin]]
 name = "digital_out"
 path = "./digital_out.rs"
 

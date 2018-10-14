@@ -9,6 +9,6 @@
 extern crate lazy_static;
 
 mod hal;
-pub use hal::{HalError, HalMaybe, HalResult};
+pub use hal::{report_usage, report_usage_extras, HalError, HalMaybe, HalResult};
 mod wpilib;
 pub use wpilib::*;

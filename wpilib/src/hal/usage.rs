@@ -67,6 +67,8 @@ macro_rules! resource_instance {
 }
 
 /// Report the usage of a specific resource type with an `instance` value attached.
+///
+/// This is provided as a utility for library developers.
 pub fn report_usage(resource: UsageResourceType, instance: UsageResourceInstance) {
     unsafe {
         HAL_Report(resource as i32, instance as i32, 0, ptr::null());
@@ -74,6 +76,8 @@ pub fn report_usage(resource: UsageResourceType, instance: UsageResourceInstance
 }
 
 /// A safe wrapper around HAL_Report
+///
+/// This is provided as a utility for library developers.
 pub fn report_usage_extras(
     resource: UsageResourceType,
     instance: UsageResourceInstance,
