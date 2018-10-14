@@ -44,10 +44,7 @@ impl RobotBase {
         if unsafe { HAL_Initialize(500, 0) } == 0 {
             return Err("HAL Initialized Failed");
         }
-        report_usage(
-            resource_type!(Language),
-            resource_instance!(Language, CPlusPlus), // nUsageReporting_tInstances_kLanguage_CPlusPlus, // one day, we will have our own.
-        );
+        //report_usage(resource_type!(Language), resource_instance!(Language, Rust));
         println!("\n********** Hardware Init **********\n");
         let mut ds = Arc::new(RwLock::new(DriverStation::new()));
         DriverStation::spawn_updater(&mut ds);
