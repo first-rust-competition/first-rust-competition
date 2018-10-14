@@ -108,7 +108,7 @@ impl Spi {
                 )
             };
         }
-        return unsafe { HAL_ReadSPI(self.port, buf.as_mut_ptr(), buf.len() as i32) };
+        unsafe { HAL_ReadSPI(self.port, buf.as_mut_ptr(), buf.len() as i32) }
     }
 
     /// Caller must ensure that the slices size is greater than the size parameter

@@ -76,7 +76,7 @@ impl Joystick {
 
     pub fn new_raw_ds(ds: ThreadSafeDs, port: usize) -> Joystick {
         Joystick {
-            port: port,
+            port,
             ds,
             outputs: 0i64,
             left_rumble: 0i32,
@@ -103,7 +103,7 @@ impl JoystickBase for Joystick {
 
     fn set_output(&mut self, output_number: i32, value: bool) {
         let o = output_number - 1i32;
-        self.outputs = (self.outputs & (!(1i32 << o)) as i64) | ((value as i64) << o);
+        self.outputs = (self.outputs & i64::from(!(1i32 << o))) | ((value as i64) << o);
         unsafe {
             HAL_SetJoystickOutputs(
                 self.port as i32,

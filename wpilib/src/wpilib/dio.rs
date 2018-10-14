@@ -57,8 +57,8 @@ impl DigitalOutput {
         );
 
         Ok(DigitalOutput {
-            channel: channel,
-            handle: handle,
+            channel,
+            handle,
             pwm: None,
         })
     }

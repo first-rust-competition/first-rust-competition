@@ -39,7 +39,7 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
     executable_path.push(&config.executable);
     info!("Attempting to deploy executable {:?}", executable_path);
 
-    for addr in addresses.iter() {
+    for addr in &addresses {
         info!("Searching for rio at {}", addr);
         let canonical = &format!("admin@{}", addr);
         if test_ssh_address(canonical)? {
@@ -80,15 +80,15 @@ fn test_ssh_address(address: &str) -> Result<bool, String> {
     ret
 }
 
-const DEPLOY_SCRIPT_CANONICAL_PATH: &'static str = "/home/lvuser/cargo-frc-script.sh";
-const EXECUTABLE_TEMPORARY_PATH: &'static str = "/home/lvuser/rust-program-temp";
+const DEPLOY_SCRIPT_CANONICAL_PATH: &str = "/home/lvuser/cargo-frc-script.sh";
+const EXECUTABLE_TEMPORARY_PATH: &str = "/home/lvuser/rust-program-temp";
 
 fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     let executable_path = executable_path
         .canonicalize()
         .map_err(str_map("Could not canonicalize executable path"))?;
-    let mut script =
-        tempfile::NamedTempFile::new().map_err(str_map("Could not create temporary script file"))?;
+    let mut script = tempfile::NamedTempFile::new()
+        .map_err(str_map("Could not create temporary script file"))?;
     let executable_name = executable_path
         .file_name()
         .ok_or("executable_path does not point to a file")?
@@ -109,8 +109,7 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
                 EXECUTABLE_TEMPORARY_PATH,
                 exec_name = executable_name
             ).as_bytes(),
-        )
-        .map_err(str_map("Could not write to temporary deploy script file"))?;
+        ).map_err(str_map("Could not write to temporary deploy script file"))?;
     script
         .as_file_mut()
         .sync_all()
@@ -176,7 +175,7 @@ fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String>
     Ok(())
 }
 
-const DEPLOY_TARGET_TRIPLE: &'static str = "arm-unknown-linux-gnueabi";
+const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
 fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     info!("Building the project...");
@@ -204,8 +203,7 @@ fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     handle_subprocess_exit("cargo build", exit_code)
 }
 
-const LIBS_TO_DEPLOY: &'static [&'static str] =
-    &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
+const LIBS_TO_DEPLOY: &[&str] = &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
 
 fn deploy_libs(target_address: &str) -> Result<(), String> {
     debug!("Attempting to deploy libs: {:?}", LIBS_TO_DEPLOY);
@@ -220,8 +218,7 @@ fn deploy_libs(target_address: &str) -> Result<(), String> {
             let mut d = symlink_path.clone();
             d.push(format!("lib{}.so", name));
             d
-        })
-        .collect();
+        }).collect();
     trace!("Deploying libs at paths {:?}", libs);
     scp(&libs[..], target_address, "/usr/local/frc/lib")?;
     Ok(())

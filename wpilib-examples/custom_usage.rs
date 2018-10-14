@@ -11,7 +11,7 @@ struct UsageReported {}
 impl UsageReported {
     pub fn new() -> Self {
         report_usage(9999, 9999);
-        report_usage_extras(9998, 9998, 9997, b"FEATURE".as_ptr());
+        unsafe { report_usage_extras(9998, 9998, 9997, b"FEATURE".as_ptr()) };
         Self {}
     }
 }

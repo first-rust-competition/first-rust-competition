@@ -3,8 +3,9 @@
 // Public License version 3 as published by the Free Software Foundation. See
 // <https://www.gnu.org/licenses/> for a copy.
 
-// no code in this module should have any `unsafe` calls.
-// Anything needing an unsafe call should be abstracted using either `hal_call!` or something else in the `hal` module.
+// Code in this module should minimize `unsafe` calls.
+// Repeated patterns should be abstraced into the `hal` module
+// and the items in the that module should be used as much as possible.
 
 pub mod dio;
 pub use self::dio::{DigitalInput, DigitalOutput};

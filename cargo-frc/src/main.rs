@@ -20,8 +20,8 @@ use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use fern::colors::{Color, ColoredLevelConfig};
 use util::*;
 
-const COMMAND_NAME: &'static str = "frc";
-const COMMAND_DESCRIPTION: &'static str = "The unufficial cargo extension for FRC.";
+const COMMAND_NAME: &str = "frc";
+const COMMAND_DESCRIPTION: &str = "The unufficial cargo extension for FRC.";
 
 fn main() {
     std::process::exit(match cli_app() {
@@ -100,8 +100,7 @@ fn setup_logger(matches: &ArgMatches) -> Result<log::LevelFilter, fern::InitErro
     fern::Dispatch::new()
         .format(move |out, message, record| {
             out.finish(format_args!("{} {}", colors.color(record.level()), message,))
-        })
-        .level(level)
+        }).level(level)
         .chain(std::io::stdout())
         .apply()?;
     Ok(level)

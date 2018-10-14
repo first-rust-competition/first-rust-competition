@@ -55,6 +55,8 @@ macro_rules! resource_type {
 /// Currently, the identifier for the C++ language is
 /// `nUsageReporting_tInstances_kLanguage_CPlusPlus`.
 /// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
+#[allow(unused_macros)] // it'll probably be used at some point.
+                        // TODO(Lytigas) examine what kind of values this points to
 macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {
         concat_idents!(
@@ -75,16 +77,13 @@ pub fn report_usage(resource: UsageResourceType, instance: UsageResourceInstance
     }
 }
 
-/// A safe wrapper around HAL_Report
-///
 /// This is provided as a utility for library developers.
-pub fn report_usage_extras(
+/// Pass `ptr::null()` for `feature` to exclude it.
+pub unsafe fn report_usage_extras(
     resource: UsageResourceType,
     instance: UsageResourceInstance,
     context: i32,
     feature: *const raw::c_char,
 ) {
-    unsafe {
-        HAL_Report(resource as i32, instance as i32, context, feature);
-    }
+    HAL_Report(resource as i32, instance as i32, context, feature);
 }

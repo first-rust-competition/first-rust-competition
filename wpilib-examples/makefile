@@ -7,3 +7,4 @@
 
 all:
 	cargo build
+	cargo clippy --all-targets --all-features -- -D warnings

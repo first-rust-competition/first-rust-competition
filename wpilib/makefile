@@ -12,6 +12,7 @@ hal:
 
 rust_build: hal
 	cargo build
+	cargo clippy --all-targets --all-features -- -D warnings
 
 clean:
 	cd HAL; make clean

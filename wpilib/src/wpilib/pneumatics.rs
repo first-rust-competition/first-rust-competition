@@ -90,12 +90,14 @@ impl Solenoid {
             channel
         )))?;
 
-        report_usage_extras(
-            resource_type!(Solenoid),
-            channel as UsageResourceType,
-            module_number,
-            ptr::null(),
-        );
+        unsafe {
+            report_usage_extras(
+                resource_type!(Solenoid),
+                channel as UsageResourceType,
+                module_number,
+                ptr::null(),
+            );
+        }
 
         Ok(Solenoid {
             solenoid_handle: handle,
@@ -118,7 +120,7 @@ impl Solenoid {
     }
 
     pub fn is_blacklisted(&self) -> bool {
-        return (self.module.get_pcm_solenoid_blacklist() & (1 << self.channel)) != 0;
+        (self.module.get_pcm_solenoid_blacklist() & (1 << self.channel)) != 0
     }
 
     pub fn set_pulse_duration(&self, seconds: f64) -> HalResult<()> {

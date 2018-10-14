@@ -91,7 +91,10 @@ impl SerialPort {
         let mut serial_port = SerialPort { port };
         serial_port.set_timeout(5.0)?;
         serial_port.set_write_buf_mode(WriteBufferMode::FlushOnAcces)?;
-        serial_port.enable_termination('\n' as byte)?;
+
+        #[allow(unknown_lints)]
+        #[allow(unnecessary_cast)] // silence clippy on some platforms
+        serial_port.enable_termination(b'\n' as byte)?;
         report_usage(resource_type!(SerialPort), 0);
         Ok(serial_port)
     }
