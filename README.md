@@ -16,6 +16,14 @@ Examples can be found in [wpilib-examples](wpilib-examples).
 
 To deploy code you write using `wpilib`, use [cargo-frc](cargo-frc).
 
+## Other Rust Projects
+
+If you want to go further with Rust development for FRC, check out these other community projects:
+
+* [ctre-rs](https://github.com/auscompgeek/ctre-rs) for functionality found in CTRE Phoenix.
+* [nt-rs](https://gitlab.com/Redrield/nt-rs) for using NetworkTables.
+* [navx-rs](https://github.com/Eaglestrike/navX-rs) for interfacing with Kauai Labs's gyroscope.
+
 ## Building
 
 Verify you can build `wpilib`, then run `make all`. `cargo-frc` should build out of the box, but you should `cargo install` it
