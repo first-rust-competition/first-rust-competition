@@ -155,7 +155,7 @@ pub struct DigitalInput {
 }
 
 impl DigitalInput {
-    pub fn new(channel: i32) -> HalResult<DigitalOutput> {
+    pub fn new(channel: i32) -> HalResult<DigitalInput> {
         if !sensor_util::check_digital_channel(channel) {
             return Err(HalError(0));
         }
