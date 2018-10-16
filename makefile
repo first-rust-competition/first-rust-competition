@@ -12,5 +12,6 @@ cargo-frc:
 	cd cargo-frc; cargo build
 
 wpilib:
+	cd wpilib-sys; make all
 	cd wpilib; make all
 	cd wpilib-examples; cargo build

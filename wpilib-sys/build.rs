@@ -3,10 +3,6 @@
 // Public License version 3 as published by the Free Software Foundation. See
 // <https://www.gnu.org/licenses/> for a copy.
 
-extern crate bindgen;
-
-// extern crate fs_extra;
-// use fs_extra::dir::*;
 use std::env;
 use std::fs;
 #[cfg(unix)]
@@ -48,7 +44,7 @@ fn announce_lib() {
     }
 }
 
-const LIB_DIR: &'static str = "HAL/lib";
+const LIB_DIR: &'static str = "lib";
 const LIB_LIST: &'static [&'static str] = &[
     "FRC_NetworkCommunication",
     "NiFpga",
@@ -88,7 +84,7 @@ fn always_run() {
 
 /// Code-generation for the HAL
 fn generate_bindings() {
-    const INCLUDE_DIR: &'static str = "HAL/include";
+    const INCLUDE_DIR: &'static str = "include";
     const SYMBOL_REGEX: &'static str = "HAL_[A-Za-z0-9]+";
     // Not needed due to `always-run()`
     // println!("cargo:rerun-if-changed={}/*", INCLUDE_DIR);

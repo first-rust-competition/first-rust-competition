@@ -29,9 +29,10 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 use super::sensor_util;
-use hal::*;
+use wpilib_sys::*;
 
 /// A digital output used to control lights, etc from the RoboRIO.
+#[allow(dead_code)]
 pub struct DigitalOutput {
     channel: i32,
     handle: HAL_DigitalHandle,
@@ -41,6 +42,7 @@ pub struct DigitalOutput {
 impl DigitalOutput {
     /// Create a new digital output on the specificed channel, returning an error if initialization
     /// fails.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<DigitalOutput> {
         if !sensor_util::check_digital_channel(channel) {
             return Err(HalError(0));
@@ -149,13 +151,15 @@ impl Drop for DigitalOutput {
  * as required. This class is only for devices like switches etc. that aren't
  * implemented anywhere else.
  */
+#[allow(dead_code)]
 pub struct DigitalInput {
     channel: i32,
     handle: HAL_DigitalHandle,
 }
 
 impl DigitalInput {
-    pub fn new(channel: i32) -> HalResult<DigitalOutput> {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(channel: i32) -> HalResult<DigitalInput> {
         if !sensor_util::check_digital_channel(channel) {
             return Err(HalError(0));
         }
@@ -171,8 +175,8 @@ impl DigitalInput {
         );
 
         Ok(DigitalInput {
-            channel: channel,
-            handle: handle,
+            channel,
+            handle,
         })
     }
 

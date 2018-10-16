@@ -5,7 +5,7 @@ License version 3 as published by the Free Software Foundation. See
 <https://www.gnu.org/licenses/> for a copy.
 */
 
-use hal::*;
+use wpilib_sys::*;
 
 // This is kind of a hack so that IDEs don't bug devs.
 // bindgen rightfully generates a serial interface that uses std::os::raw::c_char
@@ -65,6 +65,7 @@ pub struct SerialPort {
 }
 
 impl SerialPort {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(
         baud_rate: u32,
         port: Port,
@@ -93,7 +94,7 @@ impl SerialPort {
         serial_port.set_write_buf_mode(WriteBufferMode::FlushOnAcces)?;
 
         #[allow(unknown_lints)]
-        #[allow(unnecessary_cast)] // silence clippy on some platforms
+        #[allow(clippy::unnecessary_cast)] // silence clippy on some platforms
         serial_port.enable_termination(b'\n' as byte)?;
         report_usage(resource_type!(SerialPort), 0);
         Ok(serial_port)

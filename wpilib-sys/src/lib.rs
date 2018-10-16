@@ -3,12 +3,10 @@
 // Public License version 3 as published by the Free Software Foundation. See
 // <https://www.gnu.org/licenses/> for a copy.
 
-#![allow(non_snake_case)]
-#![allow(non_camel_case_types)]
-#![allow(dead_code)]
-#![allow(non_upper_case_globals)]
-// clippy
-#![allow(unknown_lints)]
-#![allow(clippy)]
+pub mod bindings;
+pub mod hal_call;
+pub mod usage;
 
-include!(concat!(env!("OUT_DIR"), "/hal_bindings.rs"));
+pub use self::bindings::*;
+pub use self::hal_call::*;
+pub use self::usage::*;

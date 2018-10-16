@@ -29,7 +29,8 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 #![allow(dead_code)] // for now
-use hal::*;
+use wpilib_sys::*;
+use lazy_static::*;
 
 lazy_static! {
     /// The number of DIOs on the RoboRIO.

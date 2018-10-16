@@ -4,7 +4,7 @@
 // <https://www.gnu.org/licenses/> for a copy.
 
 use super::sensor_util;
-use hal::*;
+use wpilib_sys::*;
 use std::ptr;
 
 /// Corresponds to WPILibC's SolenoidBase, and is responsible for
@@ -70,6 +70,7 @@ pub struct Solenoid {
 
 impl Solenoid {
     /// Make a new solenoid with the given channel.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Solenoid> {
         Self::new_with_module(sensor_util::default_solenoid_module(), channel)
     }
@@ -156,6 +157,7 @@ pub struct DoubleSolenoid {
 }
 
 impl DoubleSolenoid {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(forward_channel: i32, reverse_channel: i32) -> HalResult<DoubleSolenoid> {
         Self::new_with_module(
             sensor_util::default_solenoid_module(),

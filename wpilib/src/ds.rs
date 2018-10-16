@@ -30,11 +30,11 @@ License version 3 as published by the Free Software Foundation. See
 
 // TODO(Lytigas) re-architecht the Driverstation
 #![allow(unknown_lints)]
-#![allow(clippy)]
+#![allow(clippy::all)]
 
 use super::robot_base::RobotBase;
 use super::time::Throttler;
-use hal::*;
+use wpilib_sys::*;
 use std::ffi;
 use std::sync::*;
 use std::thread;

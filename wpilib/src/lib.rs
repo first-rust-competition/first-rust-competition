@@ -4,11 +4,26 @@
 // <https://www.gnu.org/licenses/> for a copy.
 
 #![feature(concat_idents)]
-
-#[macro_use]
+#![macro_use]
 extern crate lazy_static;
+extern crate wpilib_sys;
 
-mod hal;
-pub use hal::{report_usage, report_usage_extras, HalError, HalMaybe, HalResult};
-mod wpilib;
-pub use wpilib::*;
+mod robot_base;
+mod pdp;
+mod sensor_util;
+
+pub mod dio;
+pub mod ds;
+pub mod time;
+pub mod joystick;
+pub mod pneumatics;
+pub mod serial;
+pub mod spi;
+
+pub use self::dio::{DigitalInput, DigitalOutput};
+pub use self::robot_base::*;
+pub use self::pdp::*;
+
+pub use wpilib_sys::bindings::*;
+pub use wpilib_sys::hal_call::{HalMaybe, HalError, HalResult};
+pub use wpilib_sys::usage::{report_usage, report_usage_extras};

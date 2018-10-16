@@ -30,7 +30,7 @@ License version 3 as published by the Free Software Foundation. See
 
 use super::ds::*;
 use super::robot_base::*;
-use hal::*;
+use wpilib_sys::*;
 
 const RUMBLE_BASE: i32 = 65535;
 
