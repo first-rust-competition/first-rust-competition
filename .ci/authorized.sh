@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 docker pull "$DOCKER_USERNAME"/frc:latest
 docker build -t "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" -t "$DOCKER_USERNAME"/frc:latest . --cache-from "$DOCKER_USERNAME"/frc:latest
