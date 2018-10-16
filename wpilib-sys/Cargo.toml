@@ -21,7 +21,7 @@ include = [
     "WPILIB_LICENSE",
     "include/**/*",
     "lib/**/*",]
-exclude = [".cargo", "./**/makefile"]
+exclude = [".cargo", "./makefile"]
 
 [features]
 dev = []
