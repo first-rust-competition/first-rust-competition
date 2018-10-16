@@ -18,16 +18,13 @@ include = [
     "src/**/*",
     "Cargo.toml",
     "build.rs",
-    "HAL/WPILIB_LICENSE",
-    "HAL/include/**/*",
-    "HAL/lib/**/*",]
+    "WPILIB_LICENSE",
+    "include/**/*",
+    "lib/**/*",]
 exclude = [".cargo", "./**/makefile"]
 
 [features]
 dev = []
-
-[dependencies]
-lazy_static = "1.0.1"
 
 [build-dependencies]
 bindgen = "0.37.4"

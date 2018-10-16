@@ -24,6 +24,4 @@ pub use self::dio::{DigitalInput, DigitalOutput};
 pub use self::robot_base::*;
 pub use self::pdp::*;
 
-pub use wpilib_sys::bindings::*;
 pub use wpilib_sys::hal_call::{HalMaybe, HalError, HalResult};
-pub use wpilib_sys::usage::{report_usage, report_usage_extras};
