@@ -93,7 +93,8 @@ impl SerialPort {
         serial_port.set_write_buf_mode(WriteBufferMode::FlushOnAcces)?;
 
         #[allow(unknown_lints)]
-        #[allow(unnecessary_cast)] // silence clippy on some platforms
+        #[allow(clippy::unnecessary_cast)]
+        // silence clippy when casting to byte is already u8
         serial_port.enable_termination(b'\n' as byte)?;
         report_usage(resource_type!(SerialPort), 0);
         Ok(serial_port)

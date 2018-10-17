@@ -29,8 +29,7 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 // TODO(Lytigas) re-architecht the Driverstation
-#![allow(unknown_lints)]
-#![allow(clippy)]
+#![allow(clippy::mutex_atomic)]
 
 use super::robot_base::RobotBase;
 use super::time::Throttler;

@@ -4,6 +4,7 @@
 // <https://www.gnu.org/licenses/> for a copy.
 
 #![feature(concat_idents)]
+#![feature(tool_lints)]
 
 #[macro_use]
 extern crate lazy_static;
