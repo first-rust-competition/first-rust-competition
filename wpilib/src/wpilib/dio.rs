@@ -41,14 +41,14 @@ pub struct DigitalOutput {
 impl DigitalOutput {
     /// Create a new digital output on the specificed channel, returning an error if initialization
     /// fails.
-    pub fn new(channel: i32) -> HalResult<DigitalOutput> {
+    pub fn new(channel: i32) -> HalResult<Self> {
         if !sensor_util::check_digital_channel(channel) {
             return Err(HalError(0));
         }
 
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel as i32),
-            false as i32
+            false as i32 // for input?
         ))?;
 
         report_usage(
@@ -154,15 +154,16 @@ pub struct DigitalInput {
     handle: HAL_DigitalHandle,
 }
 
+// TODO: implement the rest of the methods
 impl DigitalInput {
-    pub fn new(channel: i32) -> HalResult<DigitalInput> {
+    pub fn new(channel: i32) -> HalResult<Self> {
         if !sensor_util::check_digital_channel(channel) {
             return Err(HalError(0));
         }
 
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel as i32),
-            false as i32
+            true as i32 // for input?
         ))?;
 
         report_usage(
@@ -170,15 +171,16 @@ impl DigitalInput {
             channel as UsageResourceInstance,
         );
 
-        Ok(DigitalInput {
-            channel: channel,
-            handle: handle,
-        })
+        Ok(DigitalInput { channel, handle })
     }
 
     /// Get the value from the digital input channel from the FPGA.
     pub fn get(&self) -> HalResult<bool> {
         Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
+    }
+
+    pub fn get_channel(&self) -> i32 {
+        self.channel
     }
 }
 
