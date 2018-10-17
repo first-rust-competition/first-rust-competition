@@ -8,6 +8,6 @@ sudo: required
 services:
   - docker
 
-script:
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./.ci/pull-request.sh; fi'
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./.ci/authorized.sh; fi'
+script: |
+  if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./.ci/pull-request.sh; fi &&
+  if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./.ci/authorized.sh; fi
