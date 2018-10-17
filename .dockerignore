@@ -20,6 +20,8 @@ cargo-frc/target
 
 !wpilib-examples
 
+!wpilib
+
 !wpilib-sys
 wpilib-sys/include/*
 wpilib-sys/lib/*
