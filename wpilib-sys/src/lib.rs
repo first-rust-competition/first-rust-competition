@@ -3,6 +3,7 @@
 // Public License version 3 as published by the Free Software Foundation. See
 // <https://www.gnu.org/licenses/> for a copy.
 
+#![feature(concat_idents)]
 pub mod bindings;
 pub mod hal_call;
 pub mod usage;
