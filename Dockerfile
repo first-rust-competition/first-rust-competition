@@ -68,8 +68,10 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*;
 # end rust nightly
 
-# add arm target to rust
-RUN rustup target add arm-unknown-linux-gnueabi
+# add arm target and clippy
+RUN set -eux; \
+    rustup target add arm-unknown-linux-gnueabi; \
+    rustup component add clippy-preview;
 
 # configure the linker
 ENV CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER arm-frc-linux-gnueabi-gcc
