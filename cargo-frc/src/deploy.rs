@@ -1,7 +1,9 @@
-// This file is part of "first-rust-competition", which is free software: you
-// can redistribute it and/or modify it under the terms of the GNU General
-// Public License version 3 as published by the Free Software Foundation. See
-// <https://www.gnu.org/licenses/> for a copy.
+// Copyright 2018 First Rust Competition Developers.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 use super::config::FrcConfig;
 use clap::ArgMatches;
@@ -87,8 +89,8 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     let executable_path = executable_path
         .canonicalize()
         .map_err(str_map("Could not canonicalize executable path"))?;
-    let mut script =
-        tempfile::NamedTempFile::new().map_err(str_map("Could not create temporary script file"))?;
+    let mut script = tempfile::NamedTempFile::new()
+        .map_err(str_map("Could not create temporary script file"))?;
     let executable_name = executable_path
         .file_name()
         .ok_or("executable_path does not point to a file")?
@@ -108,7 +110,8 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null"#,
                 EXECUTABLE_TEMPORARY_PATH,
                 exec_name = executable_name
-            ).as_bytes(),
+            )
+            .as_bytes(),
         )
         .map_err(str_map("Could not write to temporary deploy script file"))?;
     script

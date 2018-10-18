@@ -1,7 +1,9 @@
-// This file is part of "first-rust-competition", which is free software: you
-// can redistribute it and/or modify it under the terms of the GNU General
-// Public License version 3 as published by the Free Software Foundation. See
-// <https://www.gnu.org/licenses/> for a copy.
+// Copyright 2018 First Rust Competition Developers.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 use super::sensor_util;
 use std::ptr;
@@ -245,7 +247,8 @@ impl Compressor {
         hal_call!(HAL_SetCompressorClosedLoopControl(
             self.compressor_handle,
             on as i32
-        )).ok();
+        ))
+        .ok();
     }
 
     pub fn start(&self) {
@@ -275,14 +278,16 @@ impl Compressor {
     pub fn get_compressor_current_too_high_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
             self.compressor_handle
-        )).ok()
+        ))
+        .ok()
             != 0
     }
 
     pub fn get_compressor_current_too_high_sticky_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
             self.compressor_handle
-        )).ok()
+        ))
+        .ok()
             != 0
     }
 
@@ -297,7 +302,8 @@ impl Compressor {
     pub fn get_compressor_not_connected_sticky_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorNotConnectedStickyFault(
             self.compressor_handle
-        )).ok()
+        ))
+        .ok()
             != 0
     }
 

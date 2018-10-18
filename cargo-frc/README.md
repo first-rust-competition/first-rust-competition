@@ -38,8 +38,8 @@ You can then run `cargo frc deploy` in your robot code package.
 
 ## License
 
-This application and its source code are released under the GPLv3.
-By contributing, you license your contribution under the GPLv3.
-You also agree to have your contribution included in a future
-version of this library licensed under a future version of the GPL
-as released by the Free Software Foundation.
+The contents of this repository are distributed under the terms of both the
+MIT license and the Apache License (Version 2.0). By contributing, you agree
+to license your contribution under these terms.
+
+See [LICENSE-APACHE](../LICENSE-APACHE), [LICENSE-MIT](../LICENSE-MIT), for details.

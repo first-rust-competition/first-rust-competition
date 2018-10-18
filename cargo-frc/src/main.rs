@@ -1,7 +1,9 @@
-// This file is part of "first-rust-competition", which is free software: you
-// can redistribute it and/or modify it under the terms of the GNU General
-// Public License version 3 as published by the Free Software Foundation. See
-// <https://www.gnu.org/licenses/> for a copy.
+// Copyright 2018 First Rust Competition Developers.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 extern crate serde_json;
 extern crate subprocess;
@@ -45,22 +47,26 @@ fn cli_app() -> Result<(), String> {
         .bin_name("cargo")
         // We use a subcommand because parsed after `cargo` is sent to the third party plugin
         // which will be interpreted as a subcommand/positional arg by clap
-        .subcommand(SubCommand::with_name(COMMAND_NAME)
-            // the real entry point
-            .about(COMMAND_DESCRIPTION)
-            .arg(Arg::with_name("verbose")
-                .long("verbose")
-                .short("v")
-                .multiple(true)
-                .global(true))
-            .subcommand(SubCommand::with_name("deploy")
-                .arg(Arg::with_name("release")
-                    .short("r")
-                    .long("release")
-                    .help("If specified, will target the deployment of a release build")
+        .subcommand(
+            SubCommand::with_name(COMMAND_NAME)
+                // the real entry point
+                .about(COMMAND_DESCRIPTION)
+                .arg(
+                    Arg::with_name("verbose")
+                        .long("verbose")
+                        .short("v")
+                        .multiple(true)
+                        .global(true),
                 )
-            )
-            .setting(AppSettings::SubcommandRequired)
+                .subcommand(
+                    SubCommand::with_name("deploy").arg(
+                        Arg::with_name("release")
+                            .short("r")
+                            .long("release")
+                            .help("If specified, will target the deployment of a release build"),
+                    ),
+                )
+                .setting(AppSettings::SubcommandRequired),
         )
         .setting(AppSettings::SubcommandRequired)
         .get_matches();

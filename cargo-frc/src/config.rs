@@ -1,7 +1,9 @@
-// This file is part of "first-rust-competition", which is free software: you
-// can redistribute it and/or modify it under the terms of the GNU General
-// Public License version 3 as published by the Free Software Foundation. See
-// <https://www.gnu.org/licenses/> for a copy.
+// Copyright 2018 First Rust Competition Developers.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 use serde_json;
 use serde_json::Value;
@@ -25,7 +27,8 @@ pub fn get_config() -> Result<FrcConfig, String> {
             .capture()
             .map_err(str_map("Failed to capture cargo read-manifest"))?
             .stdout_str(),
-    ).map_err(str_map("Failed to capture cargo read-manifest stdout"))?;
+    )
+    .map_err(str_map("Failed to capture cargo read-manifest stdout"))?;
     let err = "FRC Config not found in package manifest.
         Config should be in [package.metadata.frc] in Cargo.toml";
     let mut target_dir = PathBuf::new();
@@ -84,7 +87,8 @@ pub fn get_config() -> Result<FrcConfig, String> {
             info!("No rio address override found, or it is not a string.");
             None
         }
-    }.cloned();
+    }
+    .cloned();
     if team_number == None && rio_address_override == None {
         error!("Neither a team number or rio address was specified.");
     };
