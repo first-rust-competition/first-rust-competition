@@ -4,30 +4,26 @@
 # <https://www.gnu.org/licenses/> for a copy.
 
 [package]
-name = "wpilib"
+name = "wpilib-sys"
 version = "0.2.2"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
-description = "FRC's WPILib written in Rust."
+build = "build.rs"
+description = "FRC's WPILib system bindings for rust."
 repository = "https://github.com/Lytigas/first-rust-competition"
-readme = "./README.md"
-keywords = ["frc", "RoboRIO", "wpilib"]
+keywords = ["frc", "RoboRIO", "wpilib", "RoboRust", "wpilib-sys"]
 categories = ["embedded", "hardware-support", "external-ffi-bindings"]
 license = "GPL-3.0"
 
-exclude = [".cargo", "./**/makefile"]
-
-[lib]
-name = "wpilib"
-path = "src/lib.rs"
-# Tests can only be run on ARM
-test = false
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "build.rs",
+    "WPILIB_LICENSE",
+    "include/**/*",
+    "lib/**/*",]
 
 [features]
 dev = []
-
-[dependencies]
-lazy_static = "1.1.0"
-wpilib-sys = {path = "../wpilib-sys", version = "0.2.2"}
 
 [build-dependencies]
 bindgen = "0.37.4"

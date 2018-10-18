@@ -4,7 +4,10 @@
 // <https://www.gnu.org/licenses/> for a copy.
 
 extern crate wpilib;
-use wpilib::*;
+
+extern crate wpilib_sys;
+
+use wpilib_sys::usage::*;
 
 struct UsageReported {}
 

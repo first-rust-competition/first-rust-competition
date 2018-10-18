@@ -3,17 +3,13 @@
 # Public License version 3 as published by the Free Software Foundation. See
 # <https://www.gnu.org/licenses/> for a copy.
 
-.PHONY: all wpilib_hal rust_build clean hal
+.PHONY: all build clean
 
-all: rust_build
+all: clean build
 
-hal:
-	cd HAL; make all
-
-rust_build: hal
+build:
 	cargo build
 	cargo clippy --all-targets --all-features -- -D warnings
 
 clean:
-	cd HAL; make clean
 	cargo clean;

@@ -3,10 +3,10 @@
 // Public License version 3 as published by the Free Software Foundation. See
 // <https://www.gnu.org/licenses/> for a copy.
 
-#![macro_use]
-mod bindings;
-mod hal_call;
-mod usage;
+#![feature(concat_idents)]
+pub mod bindings;
+pub mod hal_call;
+pub mod usage;
 
 pub use self::bindings::*;
 pub use self::hal_call::*;

@@ -4,14 +4,14 @@
 # <https://www.gnu.org/licenses/> for a copy.
 
 # compile libs and assemble an include dir for rust-bindgen
-.PHONY: all hal_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo
+.PHONY: all wpilib_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo
 
 all: load_headers libs
 
-hal_compile: allwpilib_repo
+wpilib_compile: allwpilib_repo
 	cd allwpilib; ./gradlew --console=plain halAthenaSharedLibrary -PreleaseBuild
 
-libs: hal_compile
+libs: wpilib_compile
 	cp ./allwpilib/ni-libraries/lib/* ./lib/
 	cp ./allwpilib/hal/build/libs/hal/shared/athena/*.so ./lib/
 	cp ./allwpilib/wpiutil/build/libs/wpiutil/shared/athena/*.so ./lib/

@@ -33,11 +33,11 @@ License version 3 as published by the Free Software Foundation. See
 
 use super::robot_base::RobotBase;
 use super::time::Throttler;
-use hal::*;
 use std::ffi;
 use std::sync::*;
 use std::thread;
 use std::time;
+use wpilib_sys::*;
 
 const JOYSTICK_PORTS: usize = 6;
 const JOYSTICK_AXES: usize = 12;

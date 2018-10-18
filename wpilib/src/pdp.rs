@@ -29,8 +29,8 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 use super::sensor_util;
-use hal::*;
 use std::f64::NAN;
+use wpilib_sys::*;
 
 /// An interface to the PDP for getting information about robot power.
 pub struct PowerDistributionPanel {
@@ -39,6 +39,7 @@ pub struct PowerDistributionPanel {
 
 impl PowerDistributionPanel {
     /// Initalizes a PDP using the default module, which is 0, according to WPILibC.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> HalResult<PowerDistributionPanel> {
         Self::new_with_module(0)
     }

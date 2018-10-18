@@ -85,7 +85,7 @@ pub struct HalMaybe<T> {
 }
 
 impl<T> HalMaybe<T> {
-    pub(crate) fn new(ret: T, err: Option<HalError>) -> HalMaybe<T> {
+    pub fn new(ret: T, err: Option<HalError>) -> HalMaybe<T> {
         HalMaybe { ret, err }
     }
 
@@ -123,6 +123,7 @@ impl<T> HalMaybe<T> {
 /// Wraps a C/C++ HAL function call that looks like `T foo(arg1, arg2, arg3, ... , int32_t* status)
 /// and turns that status into a `HALResult<T>`, with a non-zero status code returning in
 /// the `Err` variant.
+#[macro_export]
 macro_rules! hal_call {
     ($function:ident($($arg:expr),*)) => {{
         let mut status = 0;
@@ -143,6 +144,7 @@ macro_rules! hal_call {
 /// Like `hal_call!`, but ignores the status code and returns the functions result anyway.
 /// This sounds bad, but WPILibC does it in some places, and there isn't really a reason to
 /// needlessly complicate the public interface.
+#[macro_export]
 macro_rules! maybe_hal_call {
     ($function:ident($($arg:expr),*)) => {{
         let mut status = 0;

@@ -7,5 +7,6 @@
 members = [
     "wpilib",
     "cargo-frc",
-    "wpilib-examples"
+    "wpilib-examples",
+    "wpilib-sys"
 ]

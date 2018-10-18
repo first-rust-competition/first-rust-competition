@@ -5,7 +5,7 @@ License version 3 as published by the Free Software Foundation. See
 <https://www.gnu.org/licenses/> for a copy.
 */
 
-use hal::*;
+use wpilib_sys::*;
 
 #[derive(Debug, Copy, Clone)]
 pub enum Port {
@@ -25,6 +25,7 @@ pub struct Spi {
 }
 
 impl Spi {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(port: Port) -> HalResult<Self> {
         hal_call!(HAL_InitializeSPI(port as HAL_SPIPort))?;
         report_usage(resource_type!(SPI), 1);

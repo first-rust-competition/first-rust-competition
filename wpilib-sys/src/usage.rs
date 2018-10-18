@@ -45,6 +45,7 @@ pub type UsageResourceInstance = nUsageReporting_tInstances;
 /// Currently, the identifier for a digital output is
 /// `nUsageReporting_tResourceType_kResourceType_DigitalOutput`.
 /// This is equivalent to `resource_type!(DigitalOutput)`.
+#[macro_export]
 macro_rules! resource_type {
     ($resource_name:ident) => {
         concat_idents!(nUsageReporting_tResourceType_kResourceType_, $resource_name)
@@ -55,8 +56,7 @@ macro_rules! resource_type {
 /// Currently, the identifier for the C++ language is
 /// `nUsageReporting_tInstances_kLanguage_CPlusPlus`.
 /// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
-#[allow(unused_macros)] // it'll probably be used at some point.
-                        // TODO(Lytigas) examine what kind of values this points to
+#[macro_export]
 macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {
         concat_idents!(

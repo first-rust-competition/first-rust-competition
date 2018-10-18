@@ -4,5 +4,5 @@
 # <https://www.gnu.org/licenses/> for a copy.
 
 [submodule "wpilib/HAL/allwpilib"]
-	path = wpilib/HAL/allwpilib
+	path = wpilib-sys/allwpilib
 	url = https://github.com/Lytigas/allwpilib.git

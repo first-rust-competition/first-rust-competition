@@ -29,9 +29,9 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 use super::ds::*;
-use hal::*;
 use std::sync::*;
 use std::time::Duration;
+use wpilib_sys::*;
 
 pub struct RobotBase {
     ds: ThreadSafeDs,
@@ -40,6 +40,7 @@ pub struct RobotBase {
 impl RobotBase {
     /// Create a new robot, initializing hardware in the process.
     /// Call before initializing any other wpilib stuff.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Result<RobotBase, &'static str> {
         if unsafe { HAL_Initialize(500, 0) } == 0 {
             return Err("HAL Initialized Failed");

@@ -87,8 +87,8 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     let executable_path = executable_path
         .canonicalize()
         .map_err(str_map("Could not canonicalize executable path"))?;
-    let mut script = tempfile::NamedTempFile::new()
-        .map_err(str_map("Could not create temporary script file"))?;
+    let mut script =
+        tempfile::NamedTempFile::new().map_err(str_map("Could not create temporary script file"))?;
     let executable_name = executable_path
         .file_name()
         .ok_or("executable_path does not point to a file")?
@@ -109,7 +109,8 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
                 EXECUTABLE_TEMPORARY_PATH,
                 exec_name = executable_name
             ).as_bytes(),
-        ).map_err(str_map("Could not write to temporary deploy script file"))?;
+        )
+        .map_err(str_map("Could not write to temporary deploy script file"))?;
     script
         .as_file_mut()
         .sync_all()
@@ -218,7 +219,8 @@ fn deploy_libs(target_address: &str) -> Result<(), String> {
             let mut d = symlink_path.clone();
             d.push(format!("lib{}.so", name));
             d
-        }).collect();
+        })
+        .collect();
     trace!("Deploying libs at paths {:?}", libs);
     scp(&libs[..], target_address, "/usr/local/frc/lib")?;
     Ok(())
