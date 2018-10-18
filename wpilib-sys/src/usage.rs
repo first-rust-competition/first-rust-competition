@@ -56,8 +56,7 @@ macro_rules! resource_type {
 /// Currently, the identifier for the C++ language is
 /// `nUsageReporting_tInstances_kLanguage_CPlusPlus`.
 /// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
-#[macro_export] // it'll probably be used at some point.
-                        // TODO(Lytigas) examine what kind of values this points to
+#[macro_export]
 macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {
         concat_idents!(

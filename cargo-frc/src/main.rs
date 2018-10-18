@@ -100,7 +100,8 @@ fn setup_logger(matches: &ArgMatches) -> Result<log::LevelFilter, fern::InitErro
     fern::Dispatch::new()
         .format(move |out, message, record| {
             out.finish(format_args!("{} {}", colors.color(record.level()), message,))
-        }).level(level)
+        })
+        .level(level)
         .chain(std::io::stdout())
         .apply()?;
     Ok(level)

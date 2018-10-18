@@ -4,8 +4,8 @@
 // <https://www.gnu.org/licenses/> for a copy.
 
 use super::sensor_util;
-use wpilib_sys::*;
 use std::ptr;
+use wpilib_sys::*;
 
 /// Corresponds to WPILibC's SolenoidBase, and is responsible for
 /// Getting info about a solenoid module, (conceptually a PCM).

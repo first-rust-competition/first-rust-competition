@@ -29,9 +29,9 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 use super::ds::*;
-use wpilib_sys::*;
 use std::sync::*;
 use std::time::Duration;
+use wpilib_sys::*;
 
 pub struct RobotBase {
     ds: ThreadSafeDs,

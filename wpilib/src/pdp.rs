@@ -29,8 +29,8 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 use super::sensor_util;
-use wpilib_sys::*;
 use std::f64::NAN;
+use wpilib_sys::*;
 
 /// An interface to the PDP for getting information about robot power.
 pub struct PowerDistributionPanel {
