@@ -3,15 +3,17 @@
 # Public License version 3 as published by the Free Software Foundation. See
 # <https://www.gnu.org/licenses/> for a copy.
 
-.PHONY: all cargo-frc wpilib
+.PHONY: all cargo-frc wpilib ci
 
 all: cargo-frc wpilib
+
+ci: cargo-frc wpilib
 	sh publish.sh
 
 cargo-frc:
-	cd cargo-frc; cargo build
+	cd cargo-frc; make all
 
 wpilib:
 	cd wpilib-sys; make all
 	cd wpilib; make all
-	cd wpilib-examples; cargo build
+	cd wpilib-examples; make all

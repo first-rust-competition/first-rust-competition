@@ -29,16 +29,15 @@ License version 3 as published by the Free Software Foundation. See
 */
 
 // TODO(Lytigas) re-architecht the Driverstation
-#![allow(unknown_lints)]
-#![allow(clippy::all)]
+#![allow(clippy::mutex_atomic)]
 
 use super::robot_base::RobotBase;
 use super::time::Throttler;
-use wpilib_sys::*;
 use std::ffi;
 use std::sync::*;
 use std::thread;
 use std::time;
+use wpilib_sys::*;
 
 const JOYSTICK_PORTS: usize = 6;
 const JOYSTICK_AXES: usize = 12;
