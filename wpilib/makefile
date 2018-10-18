@@ -5,11 +5,11 @@
 
 .PHONY: all build clean
 
-all: clean build
+all: build
 
 build:
 	cargo build
 	cargo clippy --all-targets --all-features -- -D warnings
 
 clean:
-	cargo clean;
+	cargo clean
