@@ -26,8 +26,8 @@ test = false
 dev = []
 
 [dependencies]
-lazy_static = "1.0.1"
-wpilib-sys = {path = "../wpilib-sys"}
+lazy_static = "1.1.0"
+wpilib-sys = {path = "../wpilib-sys", version = "0.2.2"}
 
 [build-dependencies]
 bindgen = "0.37.4"
