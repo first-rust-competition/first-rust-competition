@@ -37,7 +37,8 @@ Setup:
 1. Follow the [Getting Started](#getting-started) section.
 2. Verify you satisfy the [WPILib build requirements](https://github.com/wpilibsuite/allwpilib#building-wpilib).
 3. Either install `arm-frc-linux-gnueabi-*` from the official FRC toolchain, or acquire a different arm compiler and `export CXX_FRC="/path/to or name of arm C++ compiler"`. This is necessary to load compiler headers.
-4. Run `make all`. This will likely take a minute or two. The process will:
+4. If using **windows** subsystem for linux, add `export WIN_LINUX_SUBSYSTEM=1` to the bottom of the file `~/.profile` in order to tell the makefile to use compatible commands. Restart your bash terminal or run `export WIN_LINUX_SUBSYSTEM=1` before using make.
+5. Run `make all`. This will likely take a minute or two. The process will:
     1. Init and update the WPILib submodule
     2. Build the HAL and WPILibC shared libraries to link against.
     3. Generate the rust-bindings and build the library.

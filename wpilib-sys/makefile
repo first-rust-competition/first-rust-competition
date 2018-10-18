@@ -2,14 +2,22 @@
 # can redistribute it and/or modify it under the terms of the GNU General
 # Public License version 3 as published by the Free Software Foundation. See
 # <https://www.gnu.org/licenses/> for a copy.
-
 # compile libs and assemble an include dir for rust-bindgen
-.PHONY: all wpilib_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo
+
+ifeq ($(WIN_LINUX_SUBSYSTEM),1)
+	system_type := win_linux
+	gradle_wrapper := gradle wrapper; ./gradlew
+else
+	system_type := normal
+	gradle_wrapper := ./gradlew
+endif
+
+.PHONY: all wpilib_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo normal_copy win_linux_copy
 
 all: load_headers libs
 
 wpilib_compile: allwpilib_repo
-	cd allwpilib; ./gradlew --console=plain halAthenaSharedLibrary -PreleaseBuild
+	cd allwpilib; $(gradle_wrapper) --console=plain halAthenaSharedLibrary -PreleaseBuild
 
 libs: wpilib_compile
 	cp ./allwpilib/ni-libraries/lib/* ./lib/
@@ -27,7 +35,9 @@ load_headers: allwpilib_repo
 	# TODO(lytigas) move this functionality into the python script
 	# TODO(lytigas) find a better method for selecting the include dir than the one without version information
 	# which is marked currently by the existence of globs.h
+	make $(system_type)_copy
 
+normal_copy:
 	# gnu/**/*.h
 	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type d -name "gnu" | xargs -I '{}' cp -R '{}' ./include/
 	# sys/**/*.h
@@ -39,6 +49,20 @@ load_headers: allwpilib_repo
 	# stddef.h
 	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -path "*/include/stddef.h" | xargs -I '{}' cp -R '{}' ./include/
 
+win_linux_copy:
+	mkdir -p include/bits
+	# gnu/**/*.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type d -name "gnu" | xargs -I '{}' cp --remove-destination -R '{}' ./include/
+	# sys/**/*.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type d -name "sys" | xargs -I '{}' cp --remove-destination -R '{}' ./include/
+	# *.h in one of the include dirs that is marked by glob.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -name "glob.h" | xargs dirname | xargs -I '{}' bash -c 'cp --remove-destination -R {}/*.h ./include/'
+	# same folder us a above but its the bits directory
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -name "glob.h" | xargs dirname | xargs -I '{}' bash -c 'cp --remove-destination -R {}/bits/* ./include/bits/'
+	# stddef.h
+	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -path "*/include/stddef.h" | xargs -I '{}' cp --remove-destination -R '{}' ./include/
+
+
 clean: clean_local clean_wpilib
 
 clean_local:
@@ -46,7 +70,7 @@ clean_local:
 	rm -rf ./include/*
 
 clean_wpilib: allwpilib_repo
-	cd ./allwpilib; ./gradlew clean
+	cd ./allwpilib; $(gradle_wrapper) clean
 
 allwpilib_repo:
 	git submodule sync
