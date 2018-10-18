@@ -3,6 +3,7 @@
 // Public License version 3 as published by the Free Software Foundation. See
 // <https://www.gnu.org/licenses/> for a copy.
 
+extern crate bindgen;
 use std::env;
 use std::fs;
 #[cfg(unix)]
