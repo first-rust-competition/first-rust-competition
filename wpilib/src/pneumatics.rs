@@ -228,6 +228,7 @@ pub struct Compressor {
 }
 
 impl Compressor {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> HalResult<Self> {
         Self::new_with_module(sensor_util::default_solenoid_module())
     }
@@ -244,8 +245,7 @@ impl Compressor {
         hal_call!(HAL_SetCompressorClosedLoopControl(
             self.compressor_handle,
             on as i32
-        ))
-        .ok();
+        )).ok();
     }
 
     pub fn start(&self) {
@@ -275,16 +275,14 @@ impl Compressor {
     pub fn get_compressor_current_too_high_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
             self.compressor_handle
-        ))
-        .ok()
+        )).ok()
             != 0
     }
 
     pub fn get_compressor_current_too_high_sticky_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
             self.compressor_handle
-        ))
-        .ok()
+        )).ok()
             != 0
     }
 
@@ -299,8 +297,7 @@ impl Compressor {
     pub fn get_compressor_not_connected_sticky_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorNotConnectedStickyFault(
             self.compressor_handle
-        ))
-        .ok()
+        )).ok()
             != 0
     }
 
