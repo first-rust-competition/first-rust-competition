@@ -7,7 +7,7 @@
 
 [package]
 name = "wpilib-sys"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 build = "build.rs"
 description = "FRC's WPILib system bindings for rust."
