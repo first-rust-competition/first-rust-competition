@@ -9,6 +9,7 @@
 name = "wpilib-examples"
 version = "0.0.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
+license = "MIT OR Apache-2.0"
 publish = false
 
 [dependencies]

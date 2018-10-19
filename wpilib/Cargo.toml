@@ -12,9 +12,9 @@ authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 description = "FRC's WPILib written in Rust."
 repository = "https://github.com/Lytigas/first-rust-competition"
 readme = "./README.md"
-keywords = ["frc", "RoboRIO", "wpilib"]
-categories = ["embedded", "hardware-support", "external-ffi-bindings"]
-license = "GPL-3.0"
+keywords = ["frc", "roborio", "robotics", "first"]
+categories = ["embedded", "hardware-support"]
+license = "MIT OR Apache-2.0"
 
 exclude = [".cargo", "./**/makefile"]
 

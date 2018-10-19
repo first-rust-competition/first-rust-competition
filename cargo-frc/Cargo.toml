@@ -14,9 +14,9 @@ description = "A cargo extension for deploying rust code to FRC robots."
 # homepage = "..."
 repository = "https://github.com/Lytigas/first-rust-competition"
 readme = "./README.md"
-keywords = ["frc", "RoboRIO"]
+keywords = ["frc", "roborio", "robotics", "first"]
 categories = ["development-tools::cargo-plugins", "embedded", "command-line-interface"]
-license = "GPL-3.0"
+license = "MIT OR Apache-2.0"
 
 [[bin]]
 name = "cargo-frc"
