@@ -15,10 +15,10 @@ fn main() {
     RobotBase::start_competition();
 
     let mut val;
-    let ds = robot.get_ds_instance();
+    let ds = robot.make_ds();
     loop {
         {
-            val = match ds.read().unwrap().get_state() {
+            val = match ds.robot_state() {
                 ds::RobotState::Disabled => pneumatics::Action::Forward,
                 _ => pneumatics::Action::Reverse,
             }
