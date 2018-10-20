@@ -33,17 +33,70 @@ except according to those terms.
 // TODO(Lytigas) re-architecht the Driverstation
 #![allow(clippy::mutex_atomic)]
 
-use super::robot_base::RobotBase;
-use super::time::Throttler;
-use std::ffi;
-use std::sync::*;
-use std::thread;
-use std::time;
 use wpilib_sys::*;
 
 const JOYSTICK_PORTS: usize = 6;
-const JOYSTICK_AXES: usize = 12;
-const JOYSTICK_POVS: usize = 12;
+
+#[derive(Debug, Copy, Clone)]
+pub enum JoystickError {
+    PortDNE,
+    ButtonUnplugged,
+    AxisUnplugged,
+    AxisDNE,
+    PovDNE,
+    PovUnplugged,
+}
+
+/// A type representing a valid Joystick port
+#[derive(Copy, Clone, Debug)]
+pub struct JoystickPort(i32);
+impl JoystickPort {
+    /// Creates a new port from a port number
+    /// # Errors
+    /// `PortDNE` if `port` is greater than 6.
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(port: u8) -> Result<Self, JoystickError> {
+        if port as usize >= JOYSTICK_PORTS {
+            Err(JoystickError::PortDNE)
+        } else {
+            Ok(Self(i32::from(port)))
+        }
+    }
+}
+
+/// A type representing a valid Joystick axis
+#[derive(Copy, Clone, Debug)]
+pub struct JoystickAxis(usize);
+impl JoystickAxis {
+    /// Creates a new axis from a port number
+    /// # Errors
+    /// `AxisDNE` if `axis` is an invalid index.
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(axis: u8) -> Result<Self, JoystickError> {
+        if u32::from(axis) >= HAL_kMaxJoystickAxes {
+            Err(JoystickError::PortDNE)
+        } else {
+            Ok(Self(usize::from(axis)))
+        }
+    }
+}
+
+/// A type representing a valid Joystick axis
+#[derive(Copy, Clone, Debug)]
+pub struct JoystickPOV(usize);
+impl JoystickPOV {
+    /// Creates a new POV hat from a port number
+    /// # Errors
+    /// `PovDNE` if `pov` is an invalid index.
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(pov: u8) -> Result<Self, JoystickError> {
+        if u32::from(pov) >= HAL_kMaxJoystickPOVs {
+            Err(JoystickError::PovDNE)
+        } else {
+            Ok(Self(usize::from(pov)))
+        }
+    }
+}
 
 #[derive(Debug, Copy, Clone)]
 pub enum Alliance {
@@ -51,13 +104,13 @@ pub enum Alliance {
     Blue,
 }
 
-// #[derive(Debug, Copy, Clone)]
-// enum MatchType {
-//     None,
-//     Practice,
-//     Qualification,
-//     Elimination,
-// }
+#[derive(Debug, Copy, Clone)]
+enum MatchType {
+    None,
+    Practice,
+    Qualification,
+    Elimination,
+}
 
 #[derive(Debug, Copy, Clone)]
 pub enum RobotState {
@@ -68,228 +121,114 @@ pub enum RobotState {
     EStop,
 }
 
-// TODO: implement matchinfo data
-// struct MatchInfoData {
-//     event_name: String,
-//     game_specific_message: String,
-//     match_number: u32,
-//     replay_number: u32,
-//     match_type: MatchType,
-// }
-
-#[derive(Default)]
-struct Joysticks {
-    axes: [HAL_JoystickAxes; JOYSTICK_PORTS],
-    povs: [HAL_JoystickPOVs; JOYSTICK_PORTS],
-    buttons: [HAL_JoystickButtons; JOYSTICK_PORTS],
-    descriptor: [HAL_JoystickDescriptor; JOYSTICK_PORTS],
+#[derive(Debug, Clone)]
+struct MatchInfoData {
+    event_name: String,
+    game_specific_message: Vec<u8>,
+    match_number: u16,
+    replay_number: u8,
+    match_type: MatchType,
 }
 
-#[derive(Debug, Copy, Clone)]
-pub enum JoystickError {
-    JoystickDNE,
-    ChannelUnplugged,
-    ChannelDNE,
-    DsUnreachable,
-}
+use std::ffi::CStr;
+use std::os::raw::c_char;
+#[allow(non_upper_case_globals)]
+impl From<HAL_MatchInfo> for MatchInfoData {
+    fn from(info: HAL_MatchInfo) -> MatchInfoData {
+        let mut cs = info.eventName;
+        cs[cs.len() - 1] = 0;
 
-pub struct DriverStation {
-    joysticks: Joysticks,
-    control_word: HAL_ControlWord,
-    state: RobotState,
-    fms_attached: bool,
-    ds_attached: bool,
-    report_throttler: Throttler<u64, u64>,
-    condvar: Arc<(Mutex<bool>, Condvar)>,
-    join: Option<thread::JoinHandle<()>>,
-}
-
-pub type ThreadSafeDs = Arc<RwLock<DriverStation>>;
-
-impl DriverStation {
-    pub(crate) fn new() -> Self {
-        DriverStation {
-            joysticks: Joysticks::default(),
-            control_word: HAL_ControlWord::default(),
-            state: RobotState::Disabled,
-            fms_attached: false,
-            ds_attached: false,
-            report_throttler: Throttler::new(RobotBase::fpga_time().unwrap(), 1_000_000),
-            condvar: Arc::new((Mutex::new(false), Condvar::new())),
-            join: None,
+        Self {
+            event_name: unsafe { CStr::from_ptr(&cs as *const c_char) }
+                .to_string_lossy()
+                .into_owned(),
+            game_specific_message: info.gameSpecificMessage
+                [0..info.gameSpecificMessageSize as usize]
+                .to_vec(),
+            match_number: info.matchNumber,
+            replay_number: info.replayNumber,
+            match_type: match info.matchType {
+                HAL_MatchType_HAL_kMatchType_practice => MatchType::Practice,
+                HAL_MatchType_HAL_kMatchType_qualification => MatchType::Qualification,
+                HAL_MatchType_HAL_kMatchType_elimination => MatchType::Elimination,
+                _ => MatchType::None,
+            },
         }
     }
-    /// Spawns a thread to read from the physical driver station and pass the data to the given
-    /// virtual driverstation
-    pub(crate) fn spawn_updater(ds: &mut Arc<RwLock<DriverStation>>) {
-        let updater_pointer = ds.clone();
-        let mut write_lock = ds.write().unwrap();
-        if write_lock.join.is_some() {
-            return;
-        }
-        write_lock.join = Some(thread::spawn(move || {
-            loop {
-                unsafe {
-                    HAL_WaitForDSData();
-                }
+}
 
-                // Update the joysticks and control word using the new data.
-                let mut joysticks = Joysticks::default();
-                for stick in 0..JOYSTICK_PORTS {
-                    unsafe {
-                        HAL_GetJoystickAxes(
-                            stick as i32,
-                            &mut joysticks.axes[stick] as *mut HAL_JoystickAxes,
-                        );
-                        HAL_GetJoystickPOVs(
-                            stick as i32,
-                            &mut joysticks.povs[stick] as *mut HAL_JoystickPOVs,
-                        );
-                        HAL_GetJoystickButtons(
-                            stick as i32,
-                            &mut joysticks.buttons[stick] as *mut HAL_JoystickButtons,
-                        );
-                        HAL_GetJoystickDescriptor(
-                            stick as i32,
-                            &mut joysticks.descriptor[stick] as *mut HAL_JoystickDescriptor,
-                        );
-                    }
-                }
-                let mut control_word: HAL_ControlWord = HAL_ControlWord::default();
-                unsafe {
-                    HAL_GetControlWord(&mut control_word as *mut HAL_ControlWord);
-                }
-                // copy data over
-                {
-                    let mut write_lock = updater_pointer.write().unwrap();
-                    write_lock.joysticks = joysticks;
-                    write_lock.update_data(control_word);
-                }
-                // notify threads
-                {
-                    let read_lock = updater_pointer.read().unwrap();
-                    let mut guard = read_lock.condvar.0.lock().unwrap();
-                    *guard = true;
-                    read_lock.condvar.1.notify_all();
-                }
-            }
-        }));
-    }
+use super::robot_base::RobotBase;
 
-    fn update_data(&mut self, control_word: HAL_ControlWord) {
-        self.control_word = control_word;
-        self.state = if self.control_word.enabled() != 0 {
-            if self.control_word.autonomous() != 0 {
-                RobotState::Autonomous
-            } else {
-                RobotState::Teleop
-            }
-        } else if self.control_word.eStop() != 0 {
-            RobotState::EStop
+#[derive(Clone, Debug)]
+pub struct DriverStation<'a>(&'a RobotBase);
+
+// All methods on here MUST require &self
+// The ONLY thing allowed to create instances of DriverStation is RobotBase,
+// which ensures the HAL has been initialized successfully.
+impl<'a> DriverStation<'a> {
+    #[inline]
+    pub(crate) fn from_base(base: &'a RobotBase) -> Result<Self, ()> {
+        if unsafe { HAL_Initialize(500, 0) } == 0 {
+            Err(())
         } else {
-            RobotState::Disabled
-        };
-        self.fms_attached = self.control_word.fmsAttached() != 0;
-        self.ds_attached = self.control_word.dsAttached() != 0;
+            Ok(Self(base))
+        }
     }
 
-    /// Report an error to the driver station in its most general form. Don't use this directly,
-    /// instead use it in other error reporting methods.
-    fn report(&self, is_error: bool, code: i32, error: &str, location: &str, stack: &str) {
+    /// Whether the 0-indexed button `button` is held on the controller on `port`
+    /// # Errors
+    /// `ButtonUnplugged` if the requested button does not exist on the controller. This may mean it is
+    /// unplugged
+    #[inline]
+    pub fn stick_button(&self, port: JoystickPort, button: u8) -> Result<bool, JoystickError> {
+        let mut buttons: HAL_JoystickButtons = Default::default();
         unsafe {
-            HAL_SendError(
-                is_error as i32,
-                code,
-                false as i32,
-                ffi::CString::new(error).unwrap().into_raw(),
-                ffi::CString::new(location).unwrap().into_raw(),
-                ffi::CString::new(stack).unwrap().into_raw(),
-                true as i32,
-            );
+            HAL_GetJoystickButtons(port.0, &mut buttons);
         }
-    }
 
-    pub fn report_error(&mut self, error: &str) {
-        self.report(true, 1, error, "", "");
-    }
-
-    pub fn report_warning(&mut self, warning: &str) {
-        self.report(false, 1, warning, "", "");
-    }
-
-    /// Report a message at a throttled rate
-    pub fn report_throttled(&mut self, is_error: bool, message: &str) {
-        // If the FPGA timer breaks, don't throttle
-        if self
-            .report_throttler
-            .update(RobotBase::fpga_time().unwrap_or(0))
-        {
-            self.report(is_error, 1, message, "", "");
+        if button >= buttons.count {
+            return Err(JoystickError::ButtonUnplugged);
         }
+        Ok(buttons.buttons & (1 << button) != 0)
     }
 
-    /// Get an axis on a joystick, in the range of [-1, 1].
-    pub fn get_joystick_axis(&self, stick: usize, axis: usize) -> Result<f32, JoystickError> {
-        if stick >= JOYSTICK_PORTS {
-            // self.report_throttled(true, "Bad joystick");
-            Err(JoystickError::JoystickDNE)
-        } else if axis >= JOYSTICK_AXES {
-            // self.report_throttled(true, "Bad joystick axis");
-            Err(JoystickError::ChannelDNE)
-        } else if axis >= self.joysticks.axes[stick].count as usize {
-            // self.report_throttled(
-            // true,
-            // "Joystick axis missing, check if all controllers are plugged in",
-            // );
-            Err(JoystickError::ChannelUnplugged)
-        } else {
-            Ok(self.joysticks.axes[stick].axes[axis])
+    /// The value of `axis` on the controller on `port`
+    /// # Errors
+    /// `AxisUnplugged` if the requested axis does not exist on the controller. This may mean it is
+    /// unplugged
+    #[inline]
+    pub fn stick_axis(&self, port: JoystickPort, axis: JoystickAxis) -> Result<f32, JoystickError> {
+        let mut axes: HAL_JoystickAxes = Default::default();
+        unsafe {
+            HAL_GetJoystickAxes(port.0, &mut axes);
         }
-    }
 
-    /// Get the position of a POV switch, in degrees.
-    pub fn get_joystick_pov(&self, stick: usize, pov: usize) -> Result<i16, JoystickError> {
-        if stick >= JOYSTICK_POVS {
-            // self.report_throttled(true, "Bad joystick");
-            Err(JoystickError::JoystickDNE)
-        } else if pov >= JOYSTICK_AXES {
-            // self.report_throttled(true, "Bad joystick pov");
-            Err(JoystickError::ChannelDNE)
-        } else if pov >= self.joysticks.povs[stick].count as usize {
-            // self.report_throttled(
-            //     true,
-            //     "Joystick pov missing, check if all controllers are plugged in",
-            // );
-            Err(JoystickError::ChannelUnplugged)
-        } else {
-            Ok(self.joysticks.povs[stick].povs[pov])
+        if axis.0 > axes.count as usize {
+            return Err(JoystickError::AxisUnplugged);
         }
+        Ok(axes.axes[axis.0])
     }
 
-    /// Get the state of a button on a joystick.
-    pub fn get_joystick_button(&self, stick: usize, button: usize) -> Result<bool, JoystickError> {
-        if stick >= JOYSTICK_POVS {
-            // self.report_throttled(true, "Bad joystick");
-            Err(JoystickError::JoystickDNE)
-        } else if button == 0 {
-            // self.report_throttled(true, "Bad joystick button (button IDs start from 1)");
-            Err(JoystickError::ChannelDNE)
-        } else if button >= self.joysticks.povs[stick].count as usize {
-            // self.report_throttled(
-            //     true,
-            //     "Joystick button missing, check if all controllers are plugged \
-            //      in",
-            // );
-            Err(JoystickError::ChannelUnplugged)
-        } else {
-            let mask = 1 << (button - 1);
-            Ok(self.joysticks.buttons[stick].buttons & mask != 0)
+    /// The value of `pov` on the controller on `port`
+    /// # Errors
+    /// `AxisUnplugged` if the requested axis does not exist on the controller. This may mean it is
+    /// unplugged
+    #[inline]
+    pub fn stick_pov(&self, port: JoystickPort, pov: JoystickPOV) -> Result<i16, JoystickError> {
+        let mut povs: HAL_JoystickPOVs = Default::default();
+        unsafe {
+            HAL_GetJoystickPOVs(port.0, &mut povs);
         }
+
+        if pov.0 > povs.count as usize {
+            return Err(JoystickError::PovUnplugged);
+        }
+        Ok(povs.povs[pov.0])
     }
 
-    /// Get the alliance the robot is on.
+    /// The alliance the robot is on.
     #[allow(non_upper_case_globals)]
-    pub fn get_alliance(&self) -> HalResult<Alliance> {
+    pub fn alliance(&self) -> HalResult<Alliance> {
         match hal_call!(HAL_GetAllianceStation())? {
             HAL_AllianceStationID_HAL_AllianceStationID_kRed1
             | HAL_AllianceStationID_HAL_AllianceStationID_kRed2
@@ -301,9 +240,9 @@ impl DriverStation {
         }
     }
 
-    /// Get the id for the station the driver station is at, as an integer.
+    /// The id for the station the driver station is at, as an integer.
     #[allow(non_upper_case_globals)]
-    pub fn get_station(&self) -> HalResult<u32> {
+    pub fn station(&self) -> HalResult<u32> {
         match hal_call!(HAL_GetAllianceStation())? {
             HAL_AllianceStationID_HAL_AllianceStationID_kRed1
             | HAL_AllianceStationID_HAL_AllianceStationID_kBlue1 => Ok(1),
@@ -315,52 +254,55 @@ impl DriverStation {
         }
     }
 
-    /// Wait for a new driver station packet.
-    pub fn wait_for_data(&self) {
-        let &(ref wait_lock, ref wait_cond) = &*self.condvar;
-        let mut has_data = wait_lock.lock().unwrap();
-        while !*has_data {
-            has_data = wait_cond.wait(has_data).unwrap();
+    pub fn robot_state(&self) -> RobotState {
+        let mut control_word: HAL_ControlWord = Default::default();
+        unsafe {
+            HAL_GetControlWord(&mut control_word);
         }
-    }
-
-    /// Waits for a new driver station packet and returns true, or returns false if timeout is
-    /// exceeded.
-    pub fn wait_for_data_or_timeout(&self, timeout: time::Duration) -> bool {
-        let &(ref wait_lock, ref wait_cond) = &*self.condvar;
-        let mut has_data = wait_lock.lock().unwrap();
-
-        while !*has_data {
-            let result = wait_cond.wait_timeout(has_data, timeout).unwrap();
-            if result.1.timed_out() {
-                return false;
+        if control_word.enabled() != 0 {
+            if control_word.autonomous() != 0 {
+                RobotState::Autonomous
             } else {
-                has_data = result.0;
+                RobotState::Teleop
             }
+        } else if control_word.eStop() != 0 {
+            RobotState::EStop
+        } else {
+            RobotState::Disabled
         }
-        true
     }
 
-    /// Does the robot have connection to the FMS?
-    pub fn is_fms_attached(&self) -> bool {
-        self.fms_attached
+    pub fn ds_attached(&self) -> bool {
+        let mut control_word: HAL_ControlWord = Default::default();
+        unsafe {
+            HAL_GetControlWord(&mut control_word);
+        }
+        control_word.dsAttached() != 0
     }
 
-    /// Does the robot have connection to the driver station?
-    pub fn is_ds_attached(&self) -> bool {
-        self.ds_attached
+    pub fn fms_attached(&self) -> bool {
+        let mut control_word: HAL_ControlWord = Default::default();
+        unsafe {
+            HAL_GetControlWord(&mut control_word);
+        }
+        control_word.fmsAttached() != 0
     }
 
-    /// Get the state of the robot.
-    pub fn get_state(&self) -> RobotState {
-        self.state
+    pub fn game_specific_message() -> Vec<u8> {
+        let mut info: HAL_MatchInfo = Default::default();
+        unsafe {
+            HAL_GetMatchInfo(&mut info);
+        }
+
+        info.gameSpecificMessage[0..info.gameSpecificMessageSize as usize].to_vec()
+    }
+
+    /// Blocks until a new data packet arrives
+    pub fn wait_for_data(&self) {
+        unsafe {
+            HAL_WaitForDSData();
+        }
     }
 }
 
-impl Drop for DriverStation {
-    fn drop(&mut self) {
-        if let Some(join) = self.join.take() {
-            let _ = join.join();
-        }
-    }
-}
+// Drop requirements implemented on RobotBase::drop

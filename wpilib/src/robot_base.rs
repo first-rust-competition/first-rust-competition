@@ -31,27 +31,43 @@ except according to those terms.
 */
 
 use super::ds::*;
-use std::sync::*;
+use std::mem;
+use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
 use std::time::Duration;
 use wpilib_sys::*;
 
-pub struct RobotBase {
-    ds: ThreadSafeDs,
+#[derive(Copy, Clone, Debug)]
+pub enum RobotBaseInitError {
+    HalInitFailed,
+    AlreadyInit,
 }
 
+// Should we give in and use lazy static?
+static ROBOT_INITED: AtomicBool = ATOMIC_BOOL_INIT;
+
+#[derive(Debug)]
+pub struct RobotBase {}
+
+/// Though many methods are static for convenience, they will error if a
+/// a `RobotBase` has not already been constructed.
 impl RobotBase {
     /// Create a new robot, initializing hardware in the process.
     /// Call before initializing any other wpilib stuff.
     #[allow(clippy::new_ret_no_self)]
-    pub fn new() -> Result<RobotBase, &'static str> {
-        if unsafe { HAL_Initialize(500, 0) } == 0 {
-            return Err("HAL Initialized Failed");
+    pub fn new() -> Result<RobotBase, RobotBaseInitError> {
+        if ROBOT_INITED.compare_and_swap(false, true, Ordering::AcqRel) {
+            return Err(RobotBaseInitError::AlreadyInit);
         }
-        //report_usage(resource_type!(Language), resource_instance!(Language, Rust));
+
+        if unsafe { HAL_Initialize(500, 0) } == 0 {
+            return Err(RobotBaseInitError::HalInitFailed);
+        }
+
+        report_usage(resource_type!(Language), unsafe {
+            mem::transmute(*b"Rust")
+        });
         println!("\n********** Hardware Init **********\n");
-        let mut ds = Arc::new(RwLock::new(DriverStation::new()));
-        DriverStation::spawn_updater(&mut ds);
-        Ok(RobotBase { ds })
+        Ok(RobotBase {})
     }
 
     /// Call when your robot is ready to be enabled.
@@ -63,8 +79,8 @@ impl RobotBase {
         println!("\n********** Robot program starting **********\n");
     }
 
-    pub fn get_ds_instance(&self) -> ThreadSafeDs {
-        self.ds.clone()
+    pub fn make_ds(&self) -> DriverStation {
+        DriverStation::from_base(self).expect("HAL FAILED ON DS CREATION")
     }
 
     /// Return the FPGA Version number.
@@ -124,5 +140,16 @@ impl RobotBase {
     /// Get the robot's current battery voltage.
     pub fn get_battery_voltage() -> HalResult<f64> {
         hal_call!(HAL_GetVinVoltage())
+    }
+}
+
+impl Drop for RobotBase {
+    fn drop(&mut self) {
+        // In WPILibc, this is handled by the destructor of a static variable,
+        // the one ds instance, which runs after main() finishes. Rust does not
+        // execute anything after main, so this is the closest approximation.
+        unsafe {
+            HAL_ReleaseDSMutex();
+        }
     }
 }
