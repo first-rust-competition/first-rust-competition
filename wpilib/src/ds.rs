@@ -288,7 +288,7 @@ impl<'a> DriverStation<'a> {
         control_word.fmsAttached() != 0
     }
 
-    pub fn game_specific_message() -> Vec<u8> {
+    pub fn game_specific_message(&self) -> Vec<u8> {
         let mut info: HAL_MatchInfo = Default::default();
         unsafe {
             HAL_GetMatchInfo(&mut info);
