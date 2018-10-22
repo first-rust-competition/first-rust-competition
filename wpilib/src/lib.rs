@@ -18,10 +18,10 @@ pub mod dio;
 pub mod ds;
 pub mod joystick;
 pub mod pneumatics;
+pub mod pwm;
 pub mod serial;
 pub mod spi;
 pub mod time;
-pub mod pwm;
 
 pub use self::dio::{DigitalInput, DigitalOutput};
 pub use self::pdp::*;
