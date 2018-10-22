@@ -28,10 +28,9 @@ License version 3 as published by the Free Software Foundation. See
 <https://www.gnu.org/licenses/> for a copy.
 */
 
+use super::sensor_util;
 use std::{thread, time};
 use wpilib_sys::*;
-use super::sensor_util;
-
 
 /// An analog input on the RoboRIO
 pub struct AnalogInput {
@@ -46,6 +45,7 @@ impl AnalogInput {
     ///
     /// # Errors
     /// Returns `Err(HalError(0))` if the channel is invalid.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<AnalogInput> {
         if !sensor_util::check_analog_input_channel(channel) {
             return Err(HalError(0));
@@ -56,7 +56,7 @@ impl AnalogInput {
         report_usage(resource_type!(AnalogChannel), channel as u32);
 
         Ok(AnalogInput {
-            channel: channel,
+            channel,
             port,
             accumulator_offset: 0,
         })
