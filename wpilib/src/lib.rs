@@ -21,6 +21,7 @@ pub mod pneumatics;
 pub mod serial;
 pub mod spi;
 pub mod time;
+pub mod pwm;
 
 pub use self::dio::{DigitalInput, DigitalOutput};
 pub use self::pdp::*;
