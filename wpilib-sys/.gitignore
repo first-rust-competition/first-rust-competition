@@ -5,6 +5,4 @@
 # option. This file may not be copied, modified, or distributed
 # except according to those terms.
 
-[submodule "wpilib/HAL/allwpilib"]
-	path = wpilib-sys/allwpilib
-	url = https://github.com/Lytigas/allwpilib.git
+HAL_bindings_temp.rs

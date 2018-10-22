@@ -22,19 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-This file is part of "first-rust-competition", which is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public
-License version 3 as published by the Free Software Foundation. See
-<https://www.gnu.org/licenses/> for a copy.
+Copyright 2018 First Rust Competition Developers.
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. This file may not be copied, modified, or distributed
+except according to those terms.
 */
+
+// TODO(Lytigas) re-architecht the Driverstation
+#![allow(clippy::mutex_atomic)]
 
 use super::robot_base::RobotBase;
 use super::time::Throttler;
-use hal::*;
 use std::ffi;
 use std::sync::*;
 use std::thread;
 use std::time;
+use wpilib_sys::*;
 
 const JOYSTICK_PORTS: usize = 6;
 const JOYSTICK_AXES: usize = 12;
@@ -44,7 +49,6 @@ const JOYSTICK_POVS: usize = 12;
 pub enum Alliance {
     Red,
     Blue,
-    Invalid,
 }
 
 // #[derive(Debug, Copy, Clone)]
@@ -103,8 +107,8 @@ pub struct DriverStation {
 pub type ThreadSafeDs = Arc<RwLock<DriverStation>>;
 
 impl DriverStation {
-    pub fn new() -> Self {
-        let ds = DriverStation {
+    pub(crate) fn new() -> Self {
+        DriverStation {
             joysticks: Joysticks::default(),
             control_word: HAL_ControlWord::default(),
             state: RobotState::Disabled,
@@ -113,14 +117,11 @@ impl DriverStation {
             report_throttler: Throttler::new(RobotBase::fpga_time().unwrap(), 1_000_000),
             condvar: Arc::new((Mutex::new(false), Condvar::new())),
             join: None,
-        };
-        ds
+        }
     }
     /// Spawns a thread to read from the physical driver station and pass the data to the given
     /// virtual driverstation
-    ///
-    /// Meant for internal use only.
-    pub fn spawn_updater(ds: &mut Arc<RwLock<DriverStation>>) {
+    pub(crate) fn spawn_updater(ds: &mut Arc<RwLock<DriverStation>>) {
         let updater_pointer = ds.clone();
         let mut write_lock = ds.write().unwrap();
         if write_lock.join.is_some() {
@@ -296,7 +297,7 @@ impl DriverStation {
             HAL_AllianceStationID_HAL_AllianceStationID_kBlue1
             | HAL_AllianceStationID_HAL_AllianceStationID_kBlue2
             | HAL_AllianceStationID_HAL_AllianceStationID_kBlue3 => Ok(Alliance::Blue),
-            _ => Ok(Alliance::Invalid),
+            _ => Err(HalError(0)),
         }
     }
 
@@ -310,7 +311,7 @@ impl DriverStation {
             | HAL_AllianceStationID_HAL_AllianceStationID_kBlue2 => Ok(2),
             HAL_AllianceStationID_HAL_AllianceStationID_kRed3
             | HAL_AllianceStationID_HAL_AllianceStationID_kBlue3 => Ok(3),
-            _ => Ok(0),
+            _ => Err(HalError(0)),
         }
     }
 
@@ -347,7 +348,7 @@ impl DriverStation {
 
     /// Does the robot have connection to the driver station?
     pub fn is_ds_attached(&self) -> bool {
-        self.fms_attached
+        self.ds_attached
     }
 
     /// Get the state of the robot.

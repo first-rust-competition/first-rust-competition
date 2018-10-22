@@ -22,15 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-This file is part of "first-rust-competition", which is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public
-License version 3 as published by the Free Software Foundation. See
-<https://www.gnu.org/licenses/> for a copy.
+Copyright 2018 First Rust Competition Developers.
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. This file may not be copied, modified, or distributed
+except according to those terms.
 */
 
 use super::ds::*;
 use super::robot_base::*;
-use hal::*;
+use wpilib_sys::*;
 
 const RUMBLE_BASE: i32 = 65535;
 
@@ -76,7 +78,7 @@ impl Joystick {
 
     pub fn new_raw_ds(ds: ThreadSafeDs, port: usize) -> Joystick {
         Joystick {
-            port: port,
+            port,
             ds,
             outputs: 0i64,
             left_rumble: 0i32,
@@ -103,7 +105,7 @@ impl JoystickBase for Joystick {
 
     fn set_output(&mut self, output_number: i32, value: bool) {
         let o = output_number - 1i32;
-        self.outputs = (self.outputs & (!(1i32 << o)) as i64) | ((value as i64) << o);
+        self.outputs = (self.outputs & i64::from(!(1i32 << o))) | ((value as i64) << o);
         unsafe {
             HAL_SetJoystickOutputs(
                 self.port as i32,

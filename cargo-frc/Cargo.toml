@@ -1,20 +1,22 @@
-# This file is part of "first-rust-competition", which is free software: you
-# can redistribute it and/or modify it under the terms of the GNU General
-# Public License version 3 as published by the Free Software Foundation. See
-# <https://www.gnu.org/licenses/> for a copy.
+# Copyright 2018 First Rust Competition Developers.
+# Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+# http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+# <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+# option. This file may not be copied, modified, or distributed
+# except according to those terms.
 
 [package]
 name = "cargo-frc"
-version = "0.1.0"
+version = "0.2.3"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 description = "A cargo extension for deploying rust code to FRC robots."
 # documentation = "..."
 # homepage = "..."
 repository = "https://github.com/Lytigas/first-rust-competition"
 readme = "./README.md"
-keywords = ["frc", "RoboRIO"]
+keywords = ["frc", "roborio", "robotics", "first"]
 categories = ["development-tools::cargo-plugins", "embedded", "command-line-interface"]
-license = "GPL-3.0"
+license = "MIT OR Apache-2.0"
 
 [[bin]]
 name = "cargo-frc"
@@ -37,4 +39,3 @@ ref_slice = "1.1.1"
 team-number = 114
 rio-address = "10.1.14.2"
 target-dir = "../target"
-executable-name = "digital_out"

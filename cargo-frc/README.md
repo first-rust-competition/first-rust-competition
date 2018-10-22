@@ -1,5 +1,7 @@
 # Cargo FRC
 
+[![Crates.io](https://img.shields.io/crates/v/cargo-frc.svg)](https://crates.io/crates/cargo-frc/)
+
 A cargo subcommand for deploying your rust code.
 
 ## Installation
@@ -14,7 +16,7 @@ Add a config section like
 [package.metadata.frc]
 team-number = 114
 rio-address = "10.1.14.2"
-target-dir = "target" 
+target-dir = "target"
 executable-name = "digital_out"
 ```
 
@@ -36,8 +38,8 @@ You can then run `cargo frc deploy` in your robot code package.
 
 ## License
 
-This application and its source code are released under the GPLv3.
-By contributing, you license your contribution under the GPLv3.
-You also agree to have your contribution included in a future
-version of this library licensed under a future version of the GPL
-as released by the Free Software Foundation.
+The contents of this repository are distributed under the terms of both the
+MIT license and the Apache License (Version 2.0). By contributing, you agree
+to license your contribution under these terms.
+
+See [LICENSE-APACHE](../LICENSE-APACHE), [LICENSE-MIT](../LICENSE-MIT), for details.

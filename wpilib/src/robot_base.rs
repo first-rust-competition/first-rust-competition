@@ -22,16 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-This file is part of "first-rust-competition", which is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public
-License version 3 as published by the Free Software Foundation. See
-<https://www.gnu.org/licenses/> for a copy.
+Copyright 2018 First Rust Competition Developers.
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. This file may not be copied, modified, or distributed
+except according to those terms.
 */
 
 use super::ds::*;
-use hal::*;
 use std::sync::*;
 use std::time::Duration;
+use wpilib_sys::*;
 
 pub struct RobotBase {
     ds: ThreadSafeDs,
@@ -40,14 +42,12 @@ pub struct RobotBase {
 impl RobotBase {
     /// Create a new robot, initializing hardware in the process.
     /// Call before initializing any other wpilib stuff.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Result<RobotBase, &'static str> {
         if unsafe { HAL_Initialize(500, 0) } == 0 {
             return Err("HAL Initialized Failed");
         }
-        report_usage(
-            resource_type!(Language),
-            resource_instance!(Language, CPlusPlus), // nUsageReporting_tInstances_kLanguage_CPlusPlus, // one day, we will have our own.
-        );
+        //report_usage(resource_type!(Language), resource_instance!(Language, Rust));
         println!("\n********** Hardware Init **********\n");
         let mut ds = Arc::new(RwLock::new(DriverStation::new()));
         DriverStation::spawn_updater(&mut ds);

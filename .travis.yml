@@ -1,24 +1,15 @@
-# This file is part of "first-rust-competition", which is free software: you
-# can redistribute it and/or modify it under the terms of the GNU General
-# Public License version 3 as published by the Free Software Foundation. See
-# <https://www.gnu.org/licenses/> for a copy.
+# Copyright 2018 First Rust Competition Developers.
+# Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+# http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+# <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+# option. This file may not be copied, modified, or distributed
+# except according to those terms.
 
 language: generic
 sudo: required
 services:
   - docker
 
-before_install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker pull "$DOCKER_USERNAME"/frc:latest
-
-install:
-  - docker build -t "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" -t "$DOCKER_USERNAME"/frc:latest . --cache-from "$DOCKER_USERNAME"/frc:latest
-
-script:
-  - docker run -it "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" sh -c "cd /first-rust-competition; make all"
-
-after_script:
-  - docker images
-  - docker push "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT"
-  - docker push "$DOCKER_USERNAME"/frc:latest
+script: |
+  if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./.ci/pull-request.sh; fi &&
+  if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./.ci/authorized.sh; fi

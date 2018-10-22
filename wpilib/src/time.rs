@@ -22,10 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-This file is part of "first-rust-competition", which is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public
-License version 3 as published by the Free Software Foundation. See
-<https://www.gnu.org/licenses/> for a copy.
+Copyright 2018 First Rust Competition Developers.
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. This file may not be copied, modified, or distributed
+except according to those terms.
 */
 
 /// Handles only doing some task once per set interval.
@@ -39,14 +41,14 @@ impl Throttler<u64, u64> {
     pub fn new(now: u64, interval: u64) -> Throttler<u64, u64> {
         Throttler {
             next_send: now + interval,
-            interval: interval,
+            interval,
         }
     }
 
     /// Update the throttler. Returns true if the task should be performed.
     pub fn update(&mut self, now: u64) -> bool {
         if now > self.next_send {
-            self.next_send = self.next_send + self.interval;
+            self.next_send += self.interval;
             true
         } else {
             false

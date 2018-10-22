@@ -1,11 +1,13 @@
-// This file is part of "first-rust-competition", which is free software: you
-// can redistribute it and/or modify it under the terms of the GNU General
-// Public License version 3 as published by the Free Software Foundation. See
-// <https://www.gnu.org/licenses/> for a copy.
+// Copyright 2018 First Rust Competition Developers.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 use super::sensor_util;
-use hal::*;
 use std::ptr;
+use wpilib_sys::*;
 
 /// Corresponds to WPILibC's SolenoidBase, and is responsible for
 /// Getting info about a solenoid module, (conceptually a PCM).
@@ -70,6 +72,7 @@ pub struct Solenoid {
 
 impl Solenoid {
     /// Make a new solenoid with the given channel.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Solenoid> {
         Self::new_with_module(sensor_util::default_solenoid_module(), channel)
     }
@@ -90,12 +93,14 @@ impl Solenoid {
             channel
         )))?;
 
-        report_usage_extras(
-            resource_type!(Solenoid),
-            channel as UsageResourceType,
-            module_number,
-            ptr::null(),
-        );
+        unsafe {
+            report_usage_extras(
+                resource_type!(Solenoid),
+                channel as UsageResourceType,
+                module_number,
+                ptr::null(),
+            );
+        }
 
         Ok(Solenoid {
             solenoid_handle: handle,
@@ -118,7 +123,7 @@ impl Solenoid {
     }
 
     pub fn is_blacklisted(&self) -> bool {
-        return (self.module.get_pcm_solenoid_blacklist() & (1 << self.channel)) != 0;
+        (self.module.get_pcm_solenoid_blacklist() & (1 << self.channel)) != 0
     }
 
     pub fn set_pulse_duration(&self, seconds: f64) -> HalResult<()> {
@@ -154,6 +159,7 @@ pub struct DoubleSolenoid {
 }
 
 impl DoubleSolenoid {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(forward_channel: i32, reverse_channel: i32) -> HalResult<DoubleSolenoid> {
         Self::new_with_module(
             sensor_util::default_solenoid_module(),
@@ -215,5 +221,97 @@ impl DoubleSolenoid {
 
     pub fn module(&self) -> &SolenoidModule {
         self.forward.module()
+    }
+}
+
+pub struct Compressor {
+    compressor_handle: HAL_CompressorHandle,
+    module: i32,
+}
+
+impl Compressor {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new() -> HalResult<Self> {
+        Self::new_with_module(sensor_util::default_solenoid_module())
+    }
+
+    pub fn new_with_module(module: i32) -> HalResult<Self> {
+        let compressor_handle = hal_call!(HAL_InitializeCompressor(module))?;
+        Ok(Self {
+            compressor_handle,
+            module,
+        })
+    }
+
+    pub fn set_closed_loop_control(&self, on: bool) {
+        hal_call!(HAL_SetCompressorClosedLoopControl(
+            self.compressor_handle,
+            on as i32
+        ))
+        .ok();
+    }
+
+    pub fn start(&self) {
+        self.set_closed_loop_control(true);
+    }
+
+    pub fn stop(&self) {
+        self.set_closed_loop_control(false);
+    }
+
+    pub fn enabled(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressor(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_pressure_switch_value(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorPressureSwitch(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_current(&self) -> f64 {
+        maybe_hal_call!(HAL_GetCompressorCurrent(self.compressor_handle)).ok()
+    }
+
+    pub fn get_closed_loop_control(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorClosedLoopControl(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_current_too_high_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
+            self.compressor_handle
+        ))
+        .ok()
+            != 0
+    }
+
+    pub fn get_compressor_current_too_high_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
+            self.compressor_handle
+        ))
+        .ok()
+            != 0
+    }
+
+    pub fn get_compressor_shorted_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorShortedStickyFault(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_shorted_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorShortedFault(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn get_compressor_not_connected_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorNotConnectedStickyFault(
+            self.compressor_handle
+        ))
+        .ok()
+            != 0
+    }
+
+    pub fn get_compressor_not_connected_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorNotConnectedFault(self.compressor_handle)).ok() != 0
+    }
+
+    pub fn clear_all_pcm_sticky_faults(&self) {
+        hal_call!(HAL_ClearAllPCMStickyFaults(self.module)).ok();
     }
 }

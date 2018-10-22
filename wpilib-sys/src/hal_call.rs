@@ -22,10 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-This file is part of "first-rust-competition", which is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public
-License version 3 as published by the Free Software Foundation. See
-<https://www.gnu.org/licenses/> for a copy.
+Copyright 2018 First Rust Competition Developers.
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. This file may not be copied, modified, or distributed
+except according to those terms.
 */
 
 #![macro_use]
@@ -85,7 +87,7 @@ pub struct HalMaybe<T> {
 }
 
 impl<T> HalMaybe<T> {
-    pub(crate) fn new(ret: T, err: Option<HalError>) -> HalMaybe<T> {
+    pub fn new(ret: T, err: Option<HalError>) -> HalMaybe<T> {
         HalMaybe { ret, err }
     }
 
@@ -123,6 +125,7 @@ impl<T> HalMaybe<T> {
 /// Wraps a C/C++ HAL function call that looks like `T foo(arg1, arg2, arg3, ... , int32_t* status)
 /// and turns that status into a `HALResult<T>`, with a non-zero status code returning in
 /// the `Err` variant.
+#[macro_export]
 macro_rules! hal_call {
     ($function:ident($($arg:expr),*)) => {{
         let mut status = 0;
@@ -143,6 +146,7 @@ macro_rules! hal_call {
 /// Like `hal_call!`, but ignores the status code and returns the functions result anyway.
 /// This sounds bad, but WPILibC does it in some places, and there isn't really a reason to
 /// needlessly complicate the public interface.
+#[macro_export]
 macro_rules! maybe_hal_call {
     ($function:ident($($arg:expr),*)) => {{
         let mut status = 0;

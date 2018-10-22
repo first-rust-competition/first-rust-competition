@@ -1,13 +1,16 @@
-# This file is part of "first-rust-competition", which is free software: you
-# can redistribute it and/or modify it under the terms of the GNU General
-# Public License version 3 as published by the Free Software Foundation. See
-# <https://www.gnu.org/licenses/> for a copy.
+# Copyright 2018 First Rust Competition Developers.
+# Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+# http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+# <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+# option. This file may not be copied, modified, or distributed
+# except according to those terms.
 
 # use explicit includes, exclude everything to start
 **
 
 !Cargo.toml
 !makefile
+!publish.sh
 
 # for submodules
 !.git
@@ -20,7 +23,9 @@ cargo-frc/target
 !wpilib-examples
 
 !wpilib
-wpilib/HAL/include/*
-wpilib/HAL/lib/*
-wpilib/HAL/allwpilib/**/build/**/*
-wpilib/HAL/allwpilib/.gradle
+
+!wpilib-sys
+wpilib-sys/include/*
+wpilib-sys/lib/*
+wpilib-sys/allwpilib/**/build/**/*
+wpilib-sys/allwpilib/.gradle

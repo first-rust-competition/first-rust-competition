@@ -1,18 +1,17 @@
-# This file is part of "first-rust-competition", which is free software: you
-# can redistribute it and/or modify it under the terms of the GNU General
-# Public License version 3 as published by the Free Software Foundation. See
-# <https://www.gnu.org/licenses/> for a copy.
+# Copyright 2018 First Rust Competition Developers.
+# Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+# http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+# <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+# option. This file may not be copied, modified, or distributed
+# except according to those terms.
 
-.PHONY: all wpilib_hal rust_build clean
+.PHONY: all build clean
 
-all: rust_build
+all: build
 
-hal:
-	cd HAL; make all
-
-rust_build: hal
+build:
 	cargo build
+	cargo clippy --all-targets --all-features -- -D warnings
 
 clean:
-	cd HAL; make clean
-	cargo clean;
+	cargo clean

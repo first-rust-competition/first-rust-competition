@@ -6,30 +6,26 @@
 # except according to those terms.
 
 [package]
-name = "wpilib"
+name = "wpilib-sys"
 version = "0.2.3"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
-description = "FRC's WPILib written in Rust."
+build = "build.rs"
+description = "FRC's WPILib system bindings for rust."
 repository = "https://github.com/Lytigas/first-rust-competition"
-readme = "./README.md"
-keywords = ["frc", "roborio", "robotics", "first"]
-categories = ["embedded", "hardware-support"]
+keywords = ["frc", "roborio", "robotics", "first", "wpilib"]
+categories = ["embedded", "hardware-support", "external-ffi-bindings"]
 license = "MIT OR Apache-2.0"
 
-exclude = [".cargo", "./**/makefile"]
-
-[lib]
-name = "wpilib"
-path = "src/lib.rs"
-# Tests can only be run on ARM
-test = false
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "build.rs",
+    "WPILIB_LICENSE",
+    "include/**/*",
+    "lib/**/*",]
 
 [features]
 dev = []
-
-[dependencies]
-lazy_static = "1.1.0"
-wpilib-sys = {path = "../wpilib-sys", version = "0.2.3"}
 
 [build-dependencies]
 bindgen = "0.37.4"

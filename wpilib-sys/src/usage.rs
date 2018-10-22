@@ -22,10 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-This file is part of "first-rust-competition", which is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public
-License version 3 as published by the Free Software Foundation. See
-<https://www.gnu.org/licenses/> for a copy.
+Copyright 2018 First Rust Competition Developers.
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. This file may not be copied, modified, or distributed
+except according to those terms.
 */
 
 #![macro_use]
@@ -45,6 +47,7 @@ pub type UsageResourceInstance = nUsageReporting_tInstances;
 /// Currently, the identifier for a digital output is
 /// `nUsageReporting_tResourceType_kResourceType_DigitalOutput`.
 /// This is equivalent to `resource_type!(DigitalOutput)`.
+#[macro_export]
 macro_rules! resource_type {
     ($resource_name:ident) => {
         concat_idents!(nUsageReporting_tResourceType_kResourceType_, $resource_name)
@@ -55,6 +58,7 @@ macro_rules! resource_type {
 /// Currently, the identifier for the C++ language is
 /// `nUsageReporting_tInstances_kLanguage_CPlusPlus`.
 /// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
+#[macro_export]
 macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {
         concat_idents!(
@@ -67,20 +71,21 @@ macro_rules! resource_instance {
 }
 
 /// Report the usage of a specific resource type with an `instance` value attached.
+///
+/// This is provided as a utility for library developers.
 pub fn report_usage(resource: UsageResourceType, instance: UsageResourceInstance) {
     unsafe {
         HAL_Report(resource as i32, instance as i32, 0, ptr::null());
     }
 }
 
-/// A safe wrapper around HAL_Report
-pub fn report_usage_extras(
+/// This is provided as a utility for library developers.
+/// Pass `ptr::null()` for `feature` to exclude it.
+pub unsafe fn report_usage_extras(
     resource: UsageResourceType,
     instance: UsageResourceInstance,
     context: i32,
     feature: *const raw::c_char,
 ) {
-    unsafe {
-        HAL_Report(resource as i32, instance as i32, context, feature);
-    }
+    HAL_Report(resource as i32, instance as i32, context, feature);
 }

@@ -1,7 +1,9 @@
-// This file is part of "first-rust-competition", which is free software: you
-// can redistribute it and/or modify it under the terms of the GNU General
-// Public License version 3 as published by the Free Software Foundation. See
-// <https://www.gnu.org/licenses/> for a copy.
+// Copyright 2018 First Rust Competition Developers.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 use super::config::FrcConfig;
 use clap::ArgMatches;
@@ -39,7 +41,7 @@ pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), St
     executable_path.push(&config.executable);
     info!("Attempting to deploy executable {:?}", executable_path);
 
-    for addr in addresses.iter() {
+    for addr in &addresses {
         info!("Searching for rio at {}", addr);
         let canonical = &format!("admin@{}", addr);
         if test_ssh_address(canonical)? {
@@ -80,15 +82,15 @@ fn test_ssh_address(address: &str) -> Result<bool, String> {
     ret
 }
 
-const DEPLOY_SCRIPT_CANONICAL_PATH: &'static str = "/home/lvuser/cargo-frc-script.sh";
-const EXECUTABLE_TEMPORARY_PATH: &'static str = "/home/lvuser/rust-program-temp";
+const DEPLOY_SCRIPT_CANONICAL_PATH: &str = "/home/lvuser/cargo-frc-script.sh";
+const EXECUTABLE_TEMPORARY_PATH: &str = "/home/lvuser/rust-program-temp";
 
 fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     let executable_path = executable_path
         .canonicalize()
         .map_err(str_map("Could not canonicalize executable path"))?;
-    let mut script =
-        tempfile::NamedTempFile::new().map_err(str_map("Could not create temporary script file"))?;
+    let mut script = tempfile::NamedTempFile::new()
+        .map_err(str_map("Could not create temporary script file"))?;
     let executable_name = executable_path
         .file_name()
         .ok_or("executable_path does not point to a file")?
@@ -108,7 +110,8 @@ fn do_deploy(rio_address: &str, executable_path: &Path) -> Result<(), String> {
     . /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r 2> /dev/null"#,
                 EXECUTABLE_TEMPORARY_PATH,
                 exec_name = executable_name
-            ).as_bytes(),
+            )
+            .as_bytes(),
         )
         .map_err(str_map("Could not write to temporary deploy script file"))?;
     script
@@ -176,7 +179,7 @@ fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String>
     Ok(())
 }
 
-const DEPLOY_TARGET_TRIPLE: &'static str = "arm-unknown-linux-gnueabi";
+const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
 fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     info!("Building the project...");
@@ -204,8 +207,7 @@ fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     handle_subprocess_exit("cargo build", exit_code)
 }
 
-const LIBS_TO_DEPLOY: &'static [&'static str] =
-    &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
+const LIBS_TO_DEPLOY: &[&str] = &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
 
 fn deploy_libs(target_address: &str) -> Result<(), String> {
     debug!("Attempting to deploy libs: {:?}", LIBS_TO_DEPLOY);

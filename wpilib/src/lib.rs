@@ -1,14 +1,31 @@
-// This file is part of "first-rust-competition", which is free software: you
-// can redistribute it and/or modify it under the terms of the GNU General
-// Public License version 3 as published by the Free Software Foundation. See
-// <https://www.gnu.org/licenses/> for a copy.
+// Copyright 2018 First Rust Competition Developers.
+// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. This file may not be copied, modified, or distributed
+// except according to those terms.
 
 #![feature(concat_idents)]
 
-#[macro_use]
 extern crate lazy_static;
+extern crate wpilib_sys;
 
-mod hal;
-pub use hal::{HalError, HalMaybe, HalResult};
-mod wpilib;
-pub use wpilib::*;
+mod pdp;
+mod robot_base;
+mod sensor_util;
+
+pub mod analog_input;
+pub mod dio;
+pub mod ds;
+pub mod joystick;
+pub mod pneumatics;
+pub mod serial;
+pub mod spi;
+pub mod time;
+
+pub use self::analog_input::*;
+pub use self::dio::{DigitalInput, DigitalOutput};
+pub use self::pdp::*;
+pub use self::robot_base::*;
+
+pub use wpilib_sys::hal_call::{HalError, HalMaybe, HalResult};

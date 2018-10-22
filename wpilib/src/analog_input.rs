@@ -28,9 +28,10 @@ License version 3 as published by the Free Software Foundation. See
 <https://www.gnu.org/licenses/> for a copy.
 */
 
-use hal::*;
 use std::{thread, time};
-use wpilib::sensor_util;
+use wpilib_sys::*;
+use super::sensor_util;
+
 
 /// An analog input on the RoboRIO
 pub struct AnalogInput {

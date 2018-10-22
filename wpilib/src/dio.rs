@@ -22,16 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-This file is part of "first-rust-competition", which is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public
-License version 3 as published by the Free Software Foundation. See
-<https://www.gnu.org/licenses/> for a copy.
+Copyright 2018 First Rust Competition Developers.
+Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+<LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+option. This file may not be copied, modified, or distributed
+except according to those terms.
 */
 
 use super::sensor_util;
-use hal::*;
+use wpilib_sys::*;
 
 /// A digital output used to control lights, etc from the RoboRIO.
+#[allow(dead_code)]
 pub struct DigitalOutput {
     channel: i32,
     handle: HAL_DigitalHandle,
@@ -41,14 +44,15 @@ pub struct DigitalOutput {
 impl DigitalOutput {
     /// Create a new digital output on the specificed channel, returning an error if initialization
     /// fails.
-    pub fn new(channel: i32) -> HalResult<DigitalOutput> {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(channel: i32) -> HalResult<Self> {
         if !sensor_util::check_digital_channel(channel) {
             return Err(HalError(0));
         }
 
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel as i32),
-            false as i32
+            false as i32 // for input?
         ))?;
 
         report_usage(
@@ -57,8 +61,8 @@ impl DigitalOutput {
         );
 
         Ok(DigitalOutput {
-            channel: channel,
-            handle: handle,
+            channel,
+            handle,
             pwm: None,
         })
     }
@@ -134,6 +138,60 @@ impl DigitalOutput {
 impl Drop for DigitalOutput {
     fn drop(&mut self) {
         let _ = self.disable_pwm();
+        unsafe {
+            HAL_FreeDIOPort(self.handle);
+        }
+    }
+}
+
+/**
+ * Class to read a digital input.
+ *
+ * This class will read digital inputs and return the current value on the
+ * channel. Other devices such as encoders, gear tooth sensors, etc. that are
+ * implemented elsewhere will automatically allocate digital inputs and outputs
+ * as required. This class is only for devices like switches etc. that aren't
+ * implemented anywhere else.
+ */
+#[allow(dead_code)]
+pub struct DigitalInput {
+    channel: i32,
+    handle: HAL_DigitalHandle,
+}
+
+// TODO: implement the rest of the methods
+impl DigitalInput {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(channel: i32) -> HalResult<Self> {
+        if !sensor_util::check_digital_channel(channel) {
+            return Err(HalError(0));
+        }
+
+        let handle = hal_call!(HAL_InitializeDIOPort(
+            HAL_GetPort(channel as i32),
+            true as i32 // for input?
+        ))?;
+
+        report_usage(
+            resource_type!(DigitalInput),
+            channel as UsageResourceInstance,
+        );
+
+        Ok(DigitalInput { channel, handle })
+    }
+
+    /// Get the value from the digital input channel from the FPGA.
+    pub fn get(&self) -> HalResult<bool> {
+        Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
+    }
+
+    pub fn get_channel(&self) -> i32 {
+        self.channel
+    }
+}
+
+impl Drop for DigitalInput {
+    fn drop(&mut self) {
         unsafe {
             HAL_FreeDIOPort(self.handle);
         }
