@@ -1,18 +1,20 @@
-# This file is part of "first-rust-competition", which is free software: you
-# can redistribute it and/or modify it under the terms of the GNU General
-# Public License version 3 as published by the Free Software Foundation. See
-# <https://www.gnu.org/licenses/> for a copy.
+# Copyright 2018 First Rust Competition Developers.
+# Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+# http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+# <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+# option. This file may not be copied, modified, or distributed
+# except according to those terms.
 
 [package]
 name = "wpilib"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 description = "FRC's WPILib written in Rust."
 repository = "https://github.com/Lytigas/first-rust-competition"
 readme = "./README.md"
-keywords = ["frc", "RoboRIO", "wpilib"]
-categories = ["embedded", "hardware-support", "external-ffi-bindings"]
-license = "GPL-3.0"
+keywords = ["frc", "roborio", "robotics", "first"]
+categories = ["embedded", "hardware-support"]
+license = "MIT OR Apache-2.0"
 
 exclude = [".cargo", "./**/makefile"]
 
@@ -27,7 +29,7 @@ dev = []
 
 [dependencies]
 lazy_static = "1.1.0"
-wpilib-sys = {path = "../wpilib-sys", version = "0.2.2"}
+wpilib-sys = {path = "../wpilib-sys", version = "0.2.3"}
 
 [build-dependencies]
 bindgen = "0.37.4"

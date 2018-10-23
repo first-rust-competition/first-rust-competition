@@ -71,11 +71,11 @@ Also note that using `cargo build` in the workspace root will always fail, becau
 
 ## License
 
-This library and its source code are released under the GPLv3.
-By contributing, you license your contribution under the GPLv3.
-You also agree to have your contribution included in a future
-version of this library licensed under a future version of the GPL
-as released by the Free Software Foundation.
+This library is distributed under the terms of both the
+MIT license and the Apache License (Version 2.0). By contributing, you agree
+to license your contribution under these terms.
+
+See [LICENSE-APACHE](../LICENSE-APACHE), [LICENSE-MIT](../LICENSE-MIT), for details.
 
 ## Credits
 
