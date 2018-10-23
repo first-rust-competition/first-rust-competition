@@ -74,11 +74,11 @@ RUN set -eux; \
 RUN set -eux; \
     rustup target add arm-unknown-linux-gnueabi; \
     rustup component add clippy-preview; \
-    cargo clippy --version;
+    cargo clippy --version; \
+    rustup component add rustfmt-preview; \
+    cargo fmt --version;
 
 # configure the linker
 ENV CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER arm-frc-linux-gnueabi-gcc
-
-RUN rustup component add clippy-preview
 
 COPY . ./first-rust-competition
