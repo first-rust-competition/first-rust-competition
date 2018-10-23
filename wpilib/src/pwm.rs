@@ -8,16 +8,6 @@
 use sensor_util;
 use wpilib_sys::*;
 
-pub struct PWM {
-    channel: i32,
-    handle: HAL_DigitalHandle,
-}
-
-pub struct PwmSpeedController {
-    pwm: PWM,
-    inverted: bool,
-}
-
 /// Represents the amount to multiply the minimum servo-pulse pwm period by.
 pub enum PeriodMultiplier {
     /// Don't skip pulses. PWM pulses occur every 5.005 ms
@@ -28,62 +18,9 @@ pub enum PeriodMultiplier {
     Multiplier4x = 3,
 }
 
-impl PwmSpeedController {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(channel: i32) -> HalResult<Self> {
-        Ok(PwmSpeedController {
-            pwm: PWM::new(channel)?,
-            inverted: false,
-        })
-    }
-
-    /// Creates a PwmMotorController which is configured as a talonSRX
-    pub fn new_talon(channel: i32) -> HalResult<PwmSpeedController> {
-        let mut pwm = PWM::new(channel)?;
-        pwm.set_bounds(2.004, 1.52, 1.5, 1.48, 0.997)?;
-        pwm.set_period_multiplier(PeriodMultiplier::Multiplier1x)?;
-        pwm.set_speed(0.0)?;
-        pwm.set_zero_latch()?;
-        report_usage(
-            resource_type!(PWMTalonSRX),
-            channel as UsageResourceInstance,
-        );
-        Ok(PwmSpeedController {
-            pwm,
-            inverted: false,
-        })
-    }
-
-    /// Set the PWM value. The PWM value is set using a range of -1.0 to 1.0, appropriately scaling
-    /// the value for the FPGA.
-    pub fn set(&mut self, speed: f64) -> HalResult<()> {
-        self.pwm
-            .set_speed(if self.inverted { -speed } else { speed })
-    }
-
-    /// Get the recently set value of the PWM.
-    pub fn get(&self) -> HalResult<f64> {
-        if self.inverted {
-            Ok(-self.pwm.get_speed()?)
-        } else {
-            self.pwm.get_speed()
-        }
-    }
-
-    /// Sets if the provided speed is inverted by default when calling set.
-    pub fn set_inverted(&mut self, inverted: bool) {
-        self.inverted = inverted;
-    }
-
-    /// Gets if the PWM is being inverted.
-    pub fn get_inverted(&self) -> bool {
-        self.inverted
-    }
-
-    /// Disabled the PWM until the next update.
-    pub fn disable(&mut self) -> HalResult<()> {
-        self.pwm.set_disabled()
-    }
+pub struct PWM {
+    channel: i32,
+    handle: HAL_DigitalHandle,
 }
 
 impl PWM {
@@ -95,8 +32,8 @@ impl PWM {
 
         let handle = hal_call!(HAL_InitializePWMPort(HAL_GetPort(channel)))?;
 
-        hal_call!(HAL_SetPWMDisabled(handle));
-        hal_call!(HAL_SetPWMEliminateDeadband(handle, false as i32));
+        hal_call!(HAL_SetPWMDisabled(handle))?;
+        hal_call!(HAL_SetPWMEliminateDeadband(handle, false as i32))?;
 
         report_usage(resource_type!(PWM), channel as UsageResourceInstance);
 
@@ -227,7 +164,70 @@ impl PWM {
 
 impl Drop for PWM {
     fn drop(&mut self) {
-        let _ = hal_call!(HAL_SetPWMDisabled(self.handle));
-        let _ = hal_call!(HAL_FreePWMPort(self.handle));
+        hal_call!(HAL_SetPWMDisabled(self.handle)).ok();
+        hal_call!(HAL_FreePWMPort(self.handle)).ok();
+    }
+}
+
+pub struct PwmSpeedController {
+    pwm: PWM,
+    inverted: bool,
+}
+
+impl PwmSpeedController {
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new(channel: i32) -> HalResult<Self> {
+        Ok(PwmSpeedController {
+            pwm: PWM::new(channel)?,
+            inverted: false,
+        })
+    }
+
+    /// Creates a PwmMotorController which is configured as a talonSRX
+    pub fn new_talon(channel: i32) -> HalResult<PwmSpeedController> {
+        let mut pwm = PWM::new(channel)?;
+        pwm.set_bounds(2.004, 1.52, 1.5, 1.48, 0.997)?;
+        pwm.set_period_multiplier(PeriodMultiplier::Multiplier1x)?;
+        pwm.set_speed(0.0)?;
+        pwm.set_zero_latch()?;
+        report_usage(
+            resource_type!(PWMTalonSRX),
+            channel as UsageResourceInstance,
+        );
+        Ok(PwmSpeedController {
+            pwm,
+            inverted: false,
+        })
+    }
+
+    /// Set the PWM value. The PWM value is set using a range of -1.0 to 1.0, appropriately scaling
+    /// the value for the FPGA.
+    pub fn set(&mut self, speed: f64) -> HalResult<()> {
+        self.pwm
+            .set_speed(if self.inverted { -speed } else { speed })
+    }
+
+    /// Get the recently set value of the PWM.
+    pub fn get(&self) -> HalResult<f64> {
+        if self.inverted {
+            Ok(-self.pwm.get_speed()?)
+        } else {
+            self.pwm.get_speed()
+        }
+    }
+
+    /// Sets if the provided speed is inverted by default when calling set.
+    pub fn set_inverted(&mut self, inverted: bool) {
+        self.inverted = inverted;
+    }
+
+    /// Gets if the PWM is being inverted.
+    pub fn get_inverted(&self) -> bool {
+        self.inverted
+    }
+
+    /// Disabled the PWM until the next update.
+    pub fn disable(&mut self) -> HalResult<()> {
+        self.pwm.set_disabled()
     }
 }
