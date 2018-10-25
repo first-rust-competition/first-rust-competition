@@ -19,6 +19,7 @@ pub mod dio;
 pub mod ds;
 pub mod joystick;
 pub mod pneumatics;
+pub mod pwm;
 pub mod serial;
 pub mod spi;
 pub mod time;
