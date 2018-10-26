@@ -13,6 +13,7 @@ use wpilib_sys::*;
 /// Getting info about a solenoid module, (conceptually a PCM).
 /// Even though each Solenoid will have a different instance, they all will
 /// probably refer to the same piece of hardware.
+#[derive(Debug)]
 pub struct SolenoidModule {
     module: i32,
 }
@@ -64,6 +65,7 @@ impl SolenoidModule {
     }
 }
 
+#[derive(Debug)]
 pub struct Solenoid {
     solenoid_handle: HAL_SolenoidHandle,
     channel: i32,
@@ -146,13 +148,14 @@ impl Drop for Solenoid {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Action {
     Forward,
     Reverse,
     Off,
 }
 
+#[derive(Debug)]
 pub struct DoubleSolenoid {
     forward: Solenoid,
     reverse: Solenoid,
@@ -224,6 +227,7 @@ impl DoubleSolenoid {
     }
 }
 
+#[derive(Debug)]
 pub struct Compressor {
     compressor_handle: HAL_CompressorHandle,
     module: i32,

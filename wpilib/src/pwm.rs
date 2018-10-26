@@ -9,6 +9,7 @@ use sensor_util;
 use wpilib_sys::*;
 
 /// Represents the amount to multiply the minimum servo-pulse pwm period by.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PeriodMultiplier {
     /// Don't skip pulses. PWM pulses occur every 5.005 ms
     Multiplier1x = 0,
@@ -18,6 +19,7 @@ pub enum PeriodMultiplier {
     Multiplier4x = 3,
 }
 
+#[derive(Debug)]
 pub struct PWM {
     channel: i32,
     handle: HAL_DigitalHandle,
@@ -169,6 +171,7 @@ impl Drop for PWM {
     }
 }
 
+#[derive(Debug)]
 pub struct PwmSpeedController {
     pwm: PWM,
     inverted: bool,

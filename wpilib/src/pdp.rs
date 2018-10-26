@@ -35,6 +35,7 @@ use std::f64::NAN;
 use wpilib_sys::*;
 
 /// An interface to the PDP for getting information about robot power.
+#[derive(Debug)]
 pub struct PowerDistributionPanel {
     handle: HAL_PDPHandle,
 }

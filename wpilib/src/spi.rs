@@ -7,7 +7,7 @@
 
 use wpilib_sys::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Port {
     OnboardCS0 = 0,
     OnboardCS1 = 1,
@@ -17,6 +17,7 @@ pub enum Port {
 }
 
 /// Spi for driver writers. Currenltly does not include an accumulator.
+#[derive(Debug)]
 pub struct Spi {
     port: HAL_SPIPort,
     msb_first: bool,

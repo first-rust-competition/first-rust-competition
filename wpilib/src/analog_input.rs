@@ -33,6 +33,7 @@ use std::{thread, time};
 use wpilib_sys::*;
 
 /// An analog input on the RoboRIO
+#[derive(Debug)]
 pub struct AnalogInput {
     channel: i32,
     port: HAL_AnalogInputHandle,

@@ -31,6 +31,7 @@ except according to those terms.
 */
 
 /// Handles only doing some task once per set interval.
+#[derive(Debug)]
 pub struct Throttler<T, S> {
     next_send: T,
     interval: S,
