@@ -100,10 +100,7 @@ impl<T> HalMaybe<T> {
 
     /// Returns true if there is an error
     pub fn has_err(&self) -> bool {
-        match self.err {
-            Some(_) => true,
-            None => false,
-        }
+        self.err.is_some()
     }
 
     /// Access the potential error.
