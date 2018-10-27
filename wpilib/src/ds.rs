@@ -229,7 +229,7 @@ impl DriverStation {
     }
 
     /// Get an axis on a joystick, in the range of [-1, 1].
-    pub fn get_joystick_axis(&self, stick: usize, axis: usize) -> Result<f32, JoystickError> {
+    pub fn joystick_axis(&self, stick: usize, axis: usize) -> Result<f32, JoystickError> {
         if stick >= JOYSTICK_PORTS {
             // self.report_throttled(true, "Bad joystick");
             Err(JoystickError::JoystickDNE)
@@ -248,7 +248,7 @@ impl DriverStation {
     }
 
     /// Get the position of a POV switch, in degrees.
-    pub fn get_joystick_pov(&self, stick: usize, pov: usize) -> Result<i16, JoystickError> {
+    pub fn joystick_pov(&self, stick: usize, pov: usize) -> Result<i16, JoystickError> {
         if stick >= JOYSTICK_POVS {
             // self.report_throttled(true, "Bad joystick");
             Err(JoystickError::JoystickDNE)
@@ -267,7 +267,7 @@ impl DriverStation {
     }
 
     /// Get the state of a button on a joystick.
-    pub fn get_joystick_button(&self, stick: usize, button: usize) -> Result<bool, JoystickError> {
+    pub fn joystick_button(&self, stick: usize, button: usize) -> Result<bool, JoystickError> {
         if stick >= JOYSTICK_POVS {
             // self.report_throttled(true, "Bad joystick");
             Err(JoystickError::JoystickDNE)
@@ -289,7 +289,7 @@ impl DriverStation {
 
     /// Get the alliance the robot is on.
     #[allow(non_upper_case_globals)]
-    pub fn get_alliance(&self) -> HalResult<Alliance> {
+    pub fn alliance(&self) -> HalResult<Alliance> {
         match hal_call!(HAL_GetAllianceStation())? {
             HAL_AllianceStationID_HAL_AllianceStationID_kRed1
             | HAL_AllianceStationID_HAL_AllianceStationID_kRed2
@@ -303,7 +303,7 @@ impl DriverStation {
 
     /// Get the id for the station the driver station is at, as an integer.
     #[allow(non_upper_case_globals)]
-    pub fn get_station(&self) -> HalResult<u32> {
+    pub fn station(&self) -> HalResult<u32> {
         match hal_call!(HAL_GetAllianceStation())? {
             HAL_AllianceStationID_HAL_AllianceStationID_kRed1
             | HAL_AllianceStationID_HAL_AllianceStationID_kBlue1 => Ok(1),
@@ -352,7 +352,7 @@ impl DriverStation {
     }
 
     /// Get the state of the robot.
-    pub fn get_state(&self) -> RobotState {
+    pub fn state(&self) -> RobotState {
         self.state
     }
 }

@@ -48,11 +48,11 @@ pub enum JoystickSide {
 /// public trait that lays down base methods for joysticks
 pub trait JoystickBase {
     /// get raw axis value from driverstation
-    fn get_raw_axis(&self, axis: usize) -> Result<f32, JoystickError>;
+    fn raw_axis(&self, axis: usize) -> Result<f32, JoystickError>;
     /// get raw button value from driverstation
-    fn get_raw_button(&self, button: usize) -> Result<bool, JoystickError>;
+    fn raw_button(&self, button: usize) -> Result<bool, JoystickError>;
     /// get raw pov value from driverstation
-    fn get_pov(&self, pov: usize) -> Result<i16, JoystickError>;
+    fn pov(&self, pov: usize) -> Result<i16, JoystickError>;
     /// set joystick output through hal
     fn set_output(&mut self, output_number: i32, value: bool);
     /// set joystick outputs through hal
@@ -73,7 +73,7 @@ pub struct Joystick {
 impl Joystick {
     /// user creates a Joystick object here
     pub fn new(rbase: &RobotBase, port: usize) -> Joystick {
-        Self::new_raw_ds(rbase.get_ds_instance(), port)
+        Self::new_raw_ds(rbase.ds_instance(), port)
     }
 
     pub fn new_raw_ds(ds: ThreadSafeDs, port: usize) -> Joystick {
@@ -88,19 +88,19 @@ impl Joystick {
 }
 
 impl JoystickBase for Joystick {
-    fn get_raw_axis(&self, axis: usize) -> Result<f32, JoystickError> {
+    fn raw_axis(&self, axis: usize) -> Result<f32, JoystickError> {
         let read_lock = self.ds.read().map_err(|_| JoystickError::DsUnreachable)?;
-        read_lock.get_joystick_axis(self.port, axis)
+        read_lock.joystick_axis(self.port, axis)
     }
 
-    fn get_raw_button(&self, button: usize) -> Result<bool, JoystickError> {
+    fn raw_button(&self, button: usize) -> Result<bool, JoystickError> {
         let read_lock = self.ds.read().map_err(|_| JoystickError::DsUnreachable)?;
-        read_lock.get_joystick_button(self.port, button)
+        read_lock.joystick_button(self.port, button)
     }
 
-    fn get_pov(&self, pov: usize) -> Result<i16, JoystickError> {
+    fn pov(&self, pov: usize) -> Result<i16, JoystickError> {
         let read_lock = self.ds.read().map_err(|_| JoystickError::DsUnreachable)?;
-        read_lock.get_joystick_pov(self.port, pov)
+        read_lock.joystick_pov(self.port, pov)
     }
 
     fn set_output(&mut self, output_number: i32, value: bool) {

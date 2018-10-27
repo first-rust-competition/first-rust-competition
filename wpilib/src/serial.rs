@@ -118,7 +118,7 @@ impl SerialPort {
         hal_call!(HAL_DisableSerialTermination(self.port as HAL_SerialPort))
     }
 
-    pub fn get_bytes_received(&mut self) -> HalResult<i32> {
+    pub fn bytes_received(&mut self) -> HalResult<i32> {
         hal_call!(HAL_GetSerialBytesReceived(self.port as HAL_SerialPort))
     }
 

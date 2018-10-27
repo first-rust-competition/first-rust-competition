@@ -54,7 +54,7 @@ impl PowerDistributionPanel {
     }
 
     /// Get the voltage going into the PDP.
-    pub fn get_voltage(&self) -> HalMaybe<f64> {
+    pub fn voltage(&self) -> HalMaybe<f64> {
         maybe_hal_call!(HAL_GetPDPVoltage(self.handle))
     }
 
@@ -63,7 +63,7 @@ impl PowerDistributionPanel {
     /// The `HalMaybe` returned will have an error most commonly
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
-    pub fn get_temperature(&self) -> HalMaybe<f64> {
+    pub fn temperature(&self) -> HalMaybe<f64> {
         maybe_hal_call!(HAL_GetPDPTemperature(self.handle))
     }
 
@@ -76,7 +76,7 @@ impl PowerDistributionPanel {
     /// The `HalMaybe` returned will have an error most commonly
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
-    pub fn get_current(&self, channel: i32) -> HalMaybe<f64> {
+    pub fn current(&self, channel: i32) -> HalMaybe<f64> {
         if !sensor_util::check_pdp_channel(channel) {
             return HalMaybe::new(NAN, Some(HalError(0)));
         }
@@ -89,7 +89,7 @@ impl PowerDistributionPanel {
     /// The `HalMaybe` returned will have an error most commonly
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
-    pub fn get_total_current(&self) -> HalMaybe<f64> {
+    pub fn total_current(&self) -> HalMaybe<f64> {
         maybe_hal_call!(HAL_GetPDPTotalCurrent(self.handle))
     }
 
@@ -98,7 +98,7 @@ impl PowerDistributionPanel {
     /// The `HalMaybe` returned will have an error most commonly
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
-    pub fn get_total_power(&self) -> HalMaybe<f64> {
+    pub fn total_power(&self) -> HalMaybe<f64> {
         maybe_hal_call!(HAL_GetPDPTotalPower(self.handle))
     }
 
@@ -107,7 +107,7 @@ impl PowerDistributionPanel {
     /// The `HalMaybe` returned will have an error most commonly
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
-    pub fn get_total_energy(&self) -> HalMaybe<f64> {
+    pub fn total_energy(&self) -> HalMaybe<f64> {
         maybe_hal_call!(HAL_GetPDPTotalEnergy(self.handle))
     }
 

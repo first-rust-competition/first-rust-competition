@@ -21,38 +21,38 @@ pub struct SolenoidModule {
 impl SolenoidModule {
     /// Gets the state of each solenoid on the module with the given number.
     /// Returns a bit mask.
-    pub fn get_all_with_module(module: i32) -> HalResult<i32> {
+    pub fn all_with_module(module: i32) -> HalResult<i32> {
         hal_call!(HAL_GetAllSolenoids(module))
     }
 
-    /// Is the same as `get_all_with_module`, but on the module this instance
+    /// Is the same as `all_with_module`, but on the module this instance
     /// refers to.
-    pub fn get_all(&self) -> HalResult<i32> {
-        Self::get_all_with_module(self.module)
+    pub fn all(&self) -> HalResult<i32> {
+        Self::all_with_module(self.module)
     }
 
-    pub fn get_pcm_solenoid_blacklist_with_module(module: i32) -> i32 {
+    pub fn pcm_solenoid_blacklist_with_module(module: i32) -> i32 {
         maybe_hal_call!(HAL_GetPCMSolenoidBlackList(module)).ok()
     }
 
-    pub fn get_pcm_solenoid_blacklist(&self) -> i32 {
-        Self::get_pcm_solenoid_blacklist_with_module(self.module)
+    pub fn pcm_solenoid_blacklist(&self) -> i32 {
+        Self::pcm_solenoid_blacklist_with_module(self.module)
     }
 
-    pub fn get_pcm_solenoid_voltage_sticky_fault_with_module(module: i32) -> bool {
+    pub fn pcm_solenoid_voltage_sticky_fault_with_module(module: i32) -> bool {
         maybe_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(module)).ok() != 0
     }
 
-    pub fn get_pcm_solenoid_voltage_sticky_fault(&self) -> bool {
-        Self::get_pcm_solenoid_voltage_sticky_fault_with_module(self.module)
+    pub fn pcm_solenoid_voltage_sticky_fault(&self) -> bool {
+        Self::pcm_solenoid_voltage_sticky_fault_with_module(self.module)
     }
 
-    pub fn get_pcm_solenoid_voltage_fault_with_module(module: i32) -> bool {
+    pub fn pcm_solenoid_voltage_fault_with_module(module: i32) -> bool {
         maybe_hal_call!(HAL_GetPCMSolenoidVoltageFault(module)).ok() != 0
     }
 
-    pub fn get_pcm_solenoid_voltage_fault(&self) -> bool {
-        Self::get_pcm_solenoid_voltage_fault_with_module(self.module)
+    pub fn pcm_solenoid_voltage_fault(&self) -> bool {
+        Self::pcm_solenoid_voltage_fault_with_module(self.module)
     }
 
     pub fn clear_all_pcm_sticky_faults_with_module(module: i32) {
@@ -123,7 +123,7 @@ impl Solenoid {
     }
 
     pub fn is_blacklisted(&self) -> bool {
-        (self.module.get_pcm_solenoid_blacklist() & (1 << self.channel)) != 0
+        (self.module.pcm_solenoid_blacklist() & (1 << self.channel)) != 0
     }
 
     pub fn set_pulse_duration(&self, seconds: f64) -> HalResult<()> {
@@ -263,19 +263,19 @@ impl Compressor {
         maybe_hal_call!(HAL_GetCompressor(self.compressor_handle)).ok() != 0
     }
 
-    pub fn get_pressure_switch_value(&self) -> bool {
+    pub fn pressure_switch_value(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorPressureSwitch(self.compressor_handle)).ok() != 0
     }
 
-    pub fn get_compressor_current(&self) -> f64 {
+    pub fn compressor_current(&self) -> f64 {
         maybe_hal_call!(HAL_GetCompressorCurrent(self.compressor_handle)).ok()
     }
 
-    pub fn get_closed_loop_control(&self) -> bool {
+    pub fn closed_loop_control(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorClosedLoopControl(self.compressor_handle)).ok() != 0
     }
 
-    pub fn get_compressor_current_too_high_fault(&self) -> bool {
+    pub fn compressor_current_too_high_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
             self.compressor_handle
         ))
@@ -283,7 +283,7 @@ impl Compressor {
             != 0
     }
 
-    pub fn get_compressor_current_too_high_sticky_fault(&self) -> bool {
+    pub fn compressor_current_too_high_sticky_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
             self.compressor_handle
         ))
@@ -291,15 +291,15 @@ impl Compressor {
             != 0
     }
 
-    pub fn get_compressor_shorted_sticky_fault(&self) -> bool {
+    pub fn compressor_shorted_sticky_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorShortedStickyFault(self.compressor_handle)).ok() != 0
     }
 
-    pub fn get_compressor_shorted_fault(&self) -> bool {
+    pub fn compressor_shorted_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorShortedFault(self.compressor_handle)).ok() != 0
     }
 
-    pub fn get_compressor_not_connected_sticky_fault(&self) -> bool {
+    pub fn compressor_not_connected_sticky_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorNotConnectedStickyFault(
             self.compressor_handle
         ))
@@ -307,7 +307,7 @@ impl Compressor {
             != 0
     }
 
-    pub fn get_compressor_not_connected_fault(&self) -> bool {
+    pub fn compressor_not_connected_fault(&self) -> bool {
         maybe_hal_call!(HAL_GetCompressorNotConnectedFault(self.compressor_handle)).ok() != 0
     }
 

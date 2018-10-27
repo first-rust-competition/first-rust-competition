@@ -155,7 +155,7 @@ impl Spi {
         ))
     }
 
-    pub fn get_auto_dropped_count(&mut self) -> HalResult<i32> {
+    pub fn auto_dropped_count(&mut self) -> HalResult<i32> {
         hal_call!(HAL_GetSPIAutoDroppedCount(self.port))
     }
 }

@@ -63,27 +63,27 @@ impl AnalogInput {
     }
 
     /// Read a value from the analog input.
-    pub fn get_value(&self) -> HalResult<i32> {
+    pub fn value(&self) -> HalResult<i32> {
         hal_call!(HAL_GetAnalogValue(self.port))
     }
 
     /// Read the average value of the analog input over some defined time period.
-    pub fn get_average_value(&self) -> HalResult<i32> {
+    pub fn average_value(&self) -> HalResult<i32> {
         hal_call!(HAL_GetAnalogAverageValue(self.port))
     }
 
     /// Read the raw value of the analog input in volts.
-    pub fn get_voltage(&self) -> HalResult<f64> {
+    pub fn voltage(&self) -> HalResult<f64> {
         hal_call!(HAL_GetAnalogVoltage(self.port))
     }
 
     /// Read the average raw value of the analog input in volts over some defined time period.
-    pub fn get_average_voltage(&self) -> HalResult<f64> {
+    pub fn average_voltage(&self) -> HalResult<f64> {
         hal_call!(HAL_GetAnalogAverageVoltage(self.port))
     }
 
     /// Get the channel number for this analog input.
-    pub fn get_channel(&self) -> i32 {
+    pub fn channel(&self) -> i32 {
         self.channel
     }
 
@@ -93,7 +93,7 @@ impl AnalogInput {
     }
 
     /// Get the previously-set number of average bits.
-    pub fn get_average_bits(&self) -> HalResult<i32> {
+    pub fn average_bits(&self) -> HalResult<i32> {
         hal_call!(HAL_GetAnalogAverageBits(self.port))
     }
 
@@ -104,19 +104,19 @@ impl AnalogInput {
     }
 
     /// Get the previously-set number of oversample bits.
-    pub fn get_oversample_bits(&self) -> HalResult<i32> {
+    pub fn oversample_bits(&self) -> HalResult<i32> {
         hal_call!(HAL_GetAnalogOversampleBits(self.port))
     }
 
     /// Get the factory scaling LSB weight constant:
     /// voltage = ((lsb_weight * 1e-9) * raw) - (offset * 1e-9)
-    pub fn get_lsb_weight(&self) -> HalResult<i32> {
+    pub fn lsb_weight(&self) -> HalResult<i32> {
         hal_call!(HAL_GetAnalogLSBWeight(self.port))
     }
 
     /// Get the factory scaling offset constant:
     /// voltage = ((lsb_weight * 1e-9) * raw) - (offset * 1e-9)
-    pub fn get_offset(&self) -> HalResult<i32> {
+    pub fn offset(&self) -> HalResult<i32> {
         hal_call!(HAL_GetAnalogOffset(self.port))
     }
 
@@ -140,9 +140,9 @@ impl AnalogInput {
     pub fn reset_accumulator(&mut self) -> HalResult<()> {
         hal_call!(HAL_ResetAccumulator(self.port))?;
 
-        let sample_time = 1f64 / AnalogInput::get_sample_rate()?;
-        let over_samples = 1 << self.get_oversample_bits()?;
-        let average_samples = 1 << self.get_average_bits()?;
+        let sample_time = 1f64 / AnalogInput::sample_rate()?;
+        let over_samples = 1 << self.oversample_bits()?;
+        let average_samples = 1 << self.average_bits()?;
         thread::sleep(time::Duration::from_micros(
             1000 * 1000 * over_samples * average_samples * sample_time as u64,
         ));
@@ -162,18 +162,18 @@ impl AnalogInput {
     }
 
     /// Get a value from the accumulator.
-    pub fn get_accumulator_value(&self) -> HalResult<i64> {
+    pub fn accumulator_value(&self) -> HalResult<i64> {
         hal_call!(HAL_GetAccumulatorValue(self.port))
     }
 
     /// Get the number of accumulated values.
-    pub fn get_accumulator_count(&self) -> HalResult<i64> {
+    pub fn accumulator_count(&self) -> HalResult<i64> {
         hal_call!(HAL_GetAccumulatorCount(self.port))
     }
 
     /// Read the accumulator's value and the count of samples at the same time.
     /// Returns a tuple of `(value, count)`.
-    pub fn get_accumulator_output(&self) -> HalResult<(i64, i64)> {
+    pub fn accumulator_output(&self) -> HalResult<(i64, i64)> {
         let value: i64 = 0;
         let count: i64 = 0;
         hal_call!(HAL_GetAccumulatorOutput(
@@ -190,7 +190,7 @@ impl AnalogInput {
     }
 
     /// Get the sample rate for analog inputs.
-    pub fn get_sample_rate() -> HalResult<f64> {
+    pub fn sample_rate() -> HalResult<f64> {
         hal_call!(HAL_GetAnalogSampleRate())
     }
 }
