@@ -45,13 +45,13 @@ const JOYSTICK_PORTS: usize = 6;
 const JOYSTICK_AXES: usize = 12;
 const JOYSTICK_POVS: usize = 12;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Alliance {
     Red,
     Blue,
 }
 
-// #[derive(Debug, Copy, Clone)]
+// #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 // enum MatchType {
 //     None,
 //     Practice,
@@ -59,7 +59,7 @@ pub enum Alliance {
 //     Elimination,
 // }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum RobotState {
     Disabled,
     Autonomous,
@@ -69,6 +69,7 @@ pub enum RobotState {
 }
 
 // TODO: implement matchinfo data
+// #[derive(Debug)]
 // struct MatchInfoData {
 //     event_name: String,
 //     game_specific_message: String,
@@ -77,7 +78,7 @@ pub enum RobotState {
 //     match_type: MatchType,
 // }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct Joysticks {
     axes: [HAL_JoystickAxes; JOYSTICK_PORTS],
     povs: [HAL_JoystickPOVs; JOYSTICK_PORTS],
@@ -85,7 +86,7 @@ struct Joysticks {
     descriptor: [HAL_JoystickDescriptor; JOYSTICK_PORTS],
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum JoystickError {
     JoystickDNE,
     ChannelUnplugged,
@@ -93,6 +94,7 @@ pub enum JoystickError {
     DsUnreachable,
 }
 
+#[derive(Debug)]
 pub struct DriverStation {
     joysticks: Joysticks,
     control_word: HAL_ControlWord,

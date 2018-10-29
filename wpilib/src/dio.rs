@@ -35,6 +35,7 @@ use wpilib_sys::*;
 
 /// A digital output used to control lights, etc from the RoboRIO.
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct DigitalOutput {
     channel: i32,
     handle: HAL_DigitalHandle,
@@ -154,6 +155,7 @@ impl Drop for DigitalOutput {
  * implemented anywhere else.
  */
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct DigitalInput {
     channel: i32,
     handle: HAL_DigitalHandle,

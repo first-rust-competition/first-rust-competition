@@ -37,7 +37,7 @@ use wpilib_sys::*;
 const RUMBLE_BASE: i32 = 65535;
 
 /// Enum for accessing elements of XBox controller by side
-#[derive(PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum JoystickSide {
     /// left side of joystick while held upright
     LeftHand,
@@ -62,6 +62,7 @@ pub trait JoystickBase {
 }
 
 /// stuct for almost any FRC legal joystick
+#[derive(Debug)]
 pub struct Joystick {
     port: usize,
     ds: ThreadSafeDs,

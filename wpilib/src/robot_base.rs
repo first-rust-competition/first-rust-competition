@@ -35,6 +35,7 @@ use std::sync::*;
 use std::time::Duration;
 use wpilib_sys::*;
 
+#[derive(Debug)]
 pub struct RobotBase {
     ds: ThreadSafeDs,
 }
