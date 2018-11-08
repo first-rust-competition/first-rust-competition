@@ -5,7 +5,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![feature(concat_idents)]
 pub mod bindings;
 pub mod hal_call;
 pub mod usage;
