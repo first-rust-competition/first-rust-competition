@@ -9,6 +9,9 @@
 .PHONY: all wpilib_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo
 
 all: load_headers libs
+	cargo build
+	cargo clippy --all-targets --all-features -- -D warnings
+	cargo fmt --all -- --check
 
 wpilib_compile: allwpilib_repo
 	cd allwpilib; ./gradlew --console=plain halAthenaSharedLibrary -PreleaseBuild

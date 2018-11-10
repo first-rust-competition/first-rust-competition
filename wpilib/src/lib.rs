@@ -15,13 +15,16 @@ mod pdp;
 mod robot_base;
 mod sensor_util;
 
+pub mod analog_input;
 pub mod dio;
 pub mod ds;
 pub mod pneumatics;
+pub mod pwm;
 pub mod serial;
 pub mod spi;
 pub mod time;
 
+pub use self::analog_input::*;
 pub use self::dio::{DigitalInput, DigitalOutput};
 pub use self::pdp::*;
 pub use self::robot_base::*;

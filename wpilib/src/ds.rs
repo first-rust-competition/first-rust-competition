@@ -98,7 +98,7 @@ impl JoystickPOV {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Alliance {
     Red,
     Blue,
@@ -112,7 +112,7 @@ enum MatchType {
     Elimination,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum RobotState {
     Disabled,
     Autonomous,

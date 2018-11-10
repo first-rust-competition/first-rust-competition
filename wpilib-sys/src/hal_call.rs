@@ -81,6 +81,7 @@ pub type HalResult<T> = Result<T, HalError>;
 /// the way the WPILib HAL handles things, this comes up a lot.
 /// Like `Result`, `HalMaybe` must be used.
 #[must_use]
+#[derive(Copy, Clone, Debug)]
 pub struct HalMaybe<T> {
     ret: T,
     err: Option<HalError>,
@@ -99,10 +100,7 @@ impl<T> HalMaybe<T> {
 
     /// Returns true if there is an error
     pub fn has_err(&self) -> bool {
-        match self.err {
-            Some(_) => true,
-            None => false,
-        }
+        self.err.is_some()
     }
 
     /// Access the potential error.

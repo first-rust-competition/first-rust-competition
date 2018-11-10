@@ -47,6 +47,8 @@ pub type UsageResourceInstance = nUsageReporting_tInstances;
 /// Currently, the identifier for a digital output is
 /// `nUsageReporting_tResourceType_kResourceType_DigitalOutput`.
 /// This is equivalent to `resource_type!(DigitalOutput)`.
+///
+/// This currently requires the `concat_idents` feature.
 #[macro_export]
 macro_rules! resource_type {
     ($resource_name:ident) => {
@@ -58,6 +60,8 @@ macro_rules! resource_type {
 /// Currently, the identifier for the C++ language is
 /// `nUsageReporting_tInstances_kLanguage_CPlusPlus`.
 /// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
+///
+/// This currently requires the `concat_idents` feature.
 #[macro_export]
 macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {

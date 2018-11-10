@@ -12,6 +12,7 @@ all: build
 build:
 	cargo build
 	cargo clippy --all-targets --all-features -- -D warnings
+	cargo fmt --all -- --check
 
 clean:
 	cargo clean

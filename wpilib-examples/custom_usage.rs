@@ -5,17 +5,24 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-extern crate wpilib;
+// Required to use the resource_type! and resource_instance! macros.
+#![feature(concat_idents)]
 
+#[macro_use]
 extern crate wpilib_sys;
 
+// Pull in the usage reporting constants themselves.
+use wpilib_sys::bindings::*;
 use wpilib_sys::usage::*;
 
 struct UsageReported {}
 
 impl UsageReported {
     pub fn new() -> Self {
-        report_usage(9999, 9999);
+        report_usage(
+            resource_type!(Language),
+            resource_instance!(Language, CPlusPlus),
+        );
         unsafe { report_usage_extras(9998, 9998, 9997, b"FEATURE".as_ptr()) };
         Self {}
     }

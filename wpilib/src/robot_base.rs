@@ -87,7 +87,7 @@ impl RobotBase {
     ///
     /// For now, expect this to be competition year.
     #[inline(always)]
-    pub fn get_fpga_version() -> HalResult<i32> {
+    pub fn fpga_version() -> HalResult<i32> {
         hal_call!(HAL_GetFPGAVersion())
     }
 
@@ -97,7 +97,7 @@ impl RobotBase {
     /// Major Revision. The next 8 bits are the Minor Revision. The 12 least
     /// significant bits are the Build Number.
     #[inline(always)]
-    pub fn get_fpga_revision() -> HalResult<i64> {
+    pub fn fpga_revision() -> HalResult<i64> {
         hal_call!(HAL_GetFPGARevision())
     }
 
@@ -138,7 +138,7 @@ impl RobotBase {
     }
 
     /// Get the robot's current battery voltage.
-    pub fn get_battery_voltage() -> HalResult<f64> {
+    pub fn battery_voltage() -> HalResult<f64> {
         hal_call!(HAL_GetVinVoltage())
     }
 }

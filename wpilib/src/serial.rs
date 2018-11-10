@@ -22,7 +22,7 @@ type byte = i8;
 
 // all of these enums use magic numbers from wpilibc SerialPort.h
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Port {
     Onboard = 0,
     MXP = 1,
@@ -30,7 +30,7 @@ pub enum Port {
     USB2 = 3,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Parity {
     None = 0,
     Odd = 1,
@@ -39,19 +39,20 @@ pub enum Parity {
     Space = 4,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum StopBits {
     One = 10,
     OnePointFive = 15,
     Two = 20,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum WriteBufferMode {
     FlushOnAcces = 1,
     FlushWhenFull = 2,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum FlowControl {
     None = 0,
     XonXoff = 1,
@@ -118,7 +119,7 @@ impl SerialPort {
         hal_call!(HAL_DisableSerialTermination(self.port as HAL_SerialPort))
     }
 
-    pub fn get_bytes_received(&mut self) -> HalResult<i32> {
+    pub fn bytes_received(&mut self) -> HalResult<i32> {
         hal_call!(HAL_GetSerialBytesReceived(self.port as HAL_SerialPort))
     }
 
