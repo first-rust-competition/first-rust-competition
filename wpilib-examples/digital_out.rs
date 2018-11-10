@@ -14,10 +14,10 @@ fn main() {
     RobotBase::start_competition();
 
     let mut val;
-    let ds = robot.ds_instance();
+    let ds = robot.make_ds();
     loop {
         {
-            val = match ds.read().unwrap().state() {
+            val = match ds.robot_state() {
                 ds::RobotState::Disabled => true,
                 _ => false,
             }

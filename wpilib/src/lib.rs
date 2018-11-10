@@ -6,6 +6,7 @@
 // except according to those terms.
 
 #![feature(concat_idents)]
+#![feature(self_struct_ctor)]
 
 extern crate lazy_static;
 extern crate wpilib_sys;
@@ -17,7 +18,6 @@ mod sensor_util;
 pub mod analog_input;
 pub mod dio;
 pub mod ds;
-pub mod joystick;
 pub mod pneumatics;
 pub mod pwm;
 pub mod serial;
