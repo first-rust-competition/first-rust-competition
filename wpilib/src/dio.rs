@@ -85,12 +85,12 @@ impl DigitalOutput {
     }
 
     /// Get the channel for this DIO.
-    pub fn get_channel(&self) -> i32 {
+    pub fn channel(&self) -> i32 {
         self.channel
     }
 
     /// Get a handle to this DIO.
-    pub fn get_handle(&self) -> HAL_DigitalHandle {
+    pub fn handle(&self) -> HAL_DigitalHandle {
         self.handle
     }
 
@@ -187,7 +187,7 @@ impl DigitalInput {
         Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
     }
 
-    pub fn get_channel(&self) -> i32 {
+    pub fn channel(&self) -> i32 {
         self.channel
     }
 }

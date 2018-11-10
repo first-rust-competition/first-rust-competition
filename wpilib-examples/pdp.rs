@@ -31,11 +31,11 @@ fn print_pdp_info(pdp: &PowerDistributionPanel) {
         Current on 1: {} Amps
         Total Power: {} Watts
         Total Energy: {} Joules",
-        pdp.get_voltage().ok(),
-        pdp.get_temperature().ok(),
-        pdp.get_total_current().ok(),
-        pdp.get_current(1).ok(),
-        pdp.get_total_power().ok(),
-        pdp.get_total_energy().ok()
+        pdp.voltage().ok(),
+        pdp.temperature().ok(),
+        pdp.total_current().ok(),
+        pdp.current(1).ok(),
+        pdp.total_power().ok(),
+        pdp.total_energy().ok()
     );
 }

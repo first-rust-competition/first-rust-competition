@@ -48,7 +48,7 @@ impl PWM {
     }
 
     /// Get the PWM value directly from the hardware.
-    pub fn get_raw(&self) -> HalResult<i32> {
+    pub fn raw(&self) -> HalResult<i32> {
         hal_call!(HAL_GetPWMRaw(self.handle))
     }
 
@@ -58,7 +58,7 @@ impl PWM {
     }
 
     /// Get the PWM value in terms of a position.
-    pub fn get_position(&self) -> HalResult<f64> {
+    pub fn position(&self) -> HalResult<f64> {
         hal_call!(HAL_GetPWMPosition(self.handle))
     }
 
@@ -68,7 +68,7 @@ impl PWM {
     }
 
     /// Get the PWM value in terms of speed.
-    pub fn get_speed(&self) -> HalResult<f64> {
+    pub fn speed(&self) -> HalResult<f64> {
         hal_call!(HAL_GetPWMSpeed(self.handle))
     }
 
@@ -140,7 +140,7 @@ impl PWM {
     /// Get the bounds on the PWM values. This Gets the bounds on the PWM values for a particular
     /// each type of controller. The values determine the upper and lower speeds as well as the
     /// deadband bracket.
-    pub fn get_raw_bounds(
+    pub fn raw_bounds(
         &self,
         max: &mut i32,
         deadband_max: &mut i32,
@@ -159,7 +159,7 @@ impl PWM {
     }
 
     /// Get the channel of this device.
-    pub fn get_channel(&self) -> i32 {
+    pub fn channel(&self) -> i32 {
         self.channel
     }
 }
@@ -213,9 +213,9 @@ impl PwmSpeedController {
     /// Get the recently set value of the PWM.
     pub fn get(&self) -> HalResult<f64> {
         if self.inverted {
-            Ok(-self.pwm.get_speed()?)
+            Ok(-self.pwm.speed()?)
         } else {
-            self.pwm.get_speed()
+            self.pwm.speed()
         }
     }
 
@@ -225,7 +225,7 @@ impl PwmSpeedController {
     }
 
     /// Gets if the PWM is being inverted.
-    pub fn get_inverted(&self) -> bool {
+    pub fn inverted(&self) -> bool {
         self.inverted
     }
 
