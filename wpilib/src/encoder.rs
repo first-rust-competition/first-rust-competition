@@ -34,7 +34,6 @@ License version 3 as published by the Free Software Foundation. See
 use wpilib_sys::*;
 
 use crate::dio::DigitalInput;
-use std::mem;
 use std::ptr;
 
 /// The indexing type for an encoder
@@ -91,6 +90,7 @@ pub struct Encoder {
 impl Encoder {
     /// Create a new encoder given two channels and an encoding type, returning an error if
     /// initialization fails.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(channel_a: i32, channel_b: i32, encoding: EncodingType) -> HalResult<Encoder> {
         let source_a = DigitalInput::new(channel_a)?;
         let source_b = DigitalInput::new(channel_b)?;
