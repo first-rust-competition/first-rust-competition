@@ -10,7 +10,7 @@
 all: build
 
 build:
-	cargo build
+	cargo build --features dev
 	cargo clippy --all-targets --all-features -- -D warnings
 	cargo fmt --all -- --check
 

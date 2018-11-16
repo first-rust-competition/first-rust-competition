@@ -18,6 +18,7 @@ mod sensor_util;
 pub mod analog_input;
 pub mod dio;
 pub mod ds;
+pub mod encoder;
 pub mod pneumatics;
 pub mod pwm;
 pub mod serial;

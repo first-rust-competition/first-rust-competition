@@ -94,7 +94,7 @@ fn generate_bindings() {
     let bindings = bindgen::Builder::default()
         .derive_default(true)
         .rustfmt_bindings(false)
-        .header(format!("{}{}", INCLUDE_DIR, "/hal/HAL.h"))
+        .header("HAL_Wrapper.h")
         .whitelist_type(SYMBOL_REGEX)
         .whitelist_function(SYMBOL_REGEX)
         .whitelist_var(SYMBOL_REGEX)

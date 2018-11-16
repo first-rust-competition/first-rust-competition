@@ -31,17 +31,17 @@ except according to those terms.
 */
 
 #![macro_use]
-use super::bindings::nUsageReporting_tInstances;
-use super::bindings::nUsageReporting_tResourceType;
+use super::bindings::HALUsageReporting_tInstances;
+use super::bindings::HALUsageReporting_tResourceType;
 use super::bindings::HAL_Report;
 use std::os::raw;
 use std::ptr;
 
 /// Wraps the ugly type rust-bindgen generates for usage reporting types.
-pub type UsageResourceType = nUsageReporting_tResourceType;
+pub type UsageResourceType = HALUsageReporting_tResourceType;
 
 /// Wraps the ugly type rust-bindgen generates for usage reporting instances.
-pub type UsageResourceInstance = nUsageReporting_tInstances;
+pub type UsageResourceInstance = HALUsageReporting_tInstances;
 
 /// A utility macro for referencing rust-bindgen's generated names for usage types.
 /// Currently, the identifier for a digital output is
@@ -52,7 +52,10 @@ pub type UsageResourceInstance = nUsageReporting_tInstances;
 #[macro_export]
 macro_rules! resource_type {
     ($resource_name:ident) => {
-        concat_idents!(nUsageReporting_tResourceType_kResourceType_, $resource_name)
+        concat_idents!(
+            HALUsageReporting_tResourceType_kResourceType_,
+            $resource_name
+        )
     };
 }
 
@@ -66,7 +69,7 @@ macro_rules! resource_type {
 macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {
         concat_idents!(
-            nUsageReporting_tInstances_k,
+            HALUsageReporting_tInstances_k,
             $resource_name,
             _,
             $instance_name

@@ -14,20 +14,25 @@ all: load_headers libs
 	cargo fmt --all -- --check
 
 wpilib_compile: allwpilib_repo
-	cd allwpilib; ./gradlew --console=plain halAthenaSharedLibrary -PreleaseBuild
+	cd allwpilib; ./gradlew :hal:halSharedLibrary -PreleaseBuild -PonlyAthena --console=plain
 
 libs: wpilib_compile
-	cp ./allwpilib/ni-libraries/lib/* ./lib/
-	cp ./allwpilib/hal/build/libs/hal/shared/athena/*.so ./lib/
-	cp ./allwpilib/wpiutil/build/libs/wpiutil/shared/athena/*.so ./lib/
+	cp ./allwpilib/hal/build/libs/hal/shared/*.so ./lib/
+	cp ./allwpilib/wpiutil/build/libs/wpiutil/shared/*.so ./lib/
+	cp ./allwpilib/build/tmp/expandedArchives/chipobject*/linux/athena/shared/* ./lib/
+	cp ./allwpilib/build/tmp/expandedArchives/netcomm*/linux/athena/shared/* ./lib/
+
 	# strip version tags
 	rename -f 's/.so.*/.so/' ./lib/*
 
-load_headers: allwpilib_repo
+load_headers: allwpilib_repo wpilib_compile
 	cp -R ./allwpilib/hal/src/main/native/include/hal ./include/
-	cp -R ./allwpilib/ni-libraries/include/* ./include/
+	cp -R ./allwpilib/hal/build/generated/headers/hal ./include/
 	cp -R ./allwpilib/wpiutil/src/main/native/include/* ./include/
 	cp -R ./allwpilib/ntcore/src/main/native/include/* ./include/
+
+	cp -R ./allwpilib/build/tmp/expandedArchives/chipobject*headers*/* ./include
+	cp -R ./allwpilib/build/tmp/expandedArchives/netcomm*headers*/* ./include
 
 	# TODO(lytigas) move this functionality into the python script
 	# TODO(lytigas) find a better method for selecting the include dir than the one without version information

@@ -187,6 +187,10 @@ impl DigitalInput {
         Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
     }
 
+    pub fn handle(&self) -> HAL_DigitalHandle {
+        self.handle
+    }
+
     pub fn channel(&self) -> i32 {
         self.channel
     }
