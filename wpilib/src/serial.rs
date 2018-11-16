@@ -132,7 +132,7 @@ impl SerialPort {
     }
 
     pub fn read_len(&mut self, buf: &mut [byte], len: usize) -> HalResult<i32> {
-        let len = ::std::cmp::max(len, buf.len());
+        let len = len.min(buf.len());
         hal_call!(HAL_ReadSerial(
             self.port as HAL_SerialPort,
             buf.as_mut_ptr(),
