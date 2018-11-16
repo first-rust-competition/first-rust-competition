@@ -97,9 +97,9 @@ impl Encoder {
 
         let handle = hal_call!(HAL_InitializeEncoder(
             source_a.handle(),
-            mem::transmute(0),
+            0i32,
             source_b.handle(),
-            mem::transmute(0),
+            0i32,
             false as i32,
             encoding.into_hal()
         ))?;
