@@ -30,6 +30,3 @@ dev = []
 [dependencies]
 lazy_static = "1.1.0"
 wpilib-sys = {path = "../wpilib-sys", version = "0.2.3"}
-
-[build-dependencies]
-bindgen = "0.37.4"

@@ -89,8 +89,6 @@ fn always_run() {
 fn generate_bindings() {
     const INCLUDE_DIR: &'static str = "include";
     const SYMBOL_REGEX: &'static str = "HAL_[A-Za-z0-9]+";
-    // Not needed due to `always-run()`
-    // println!("cargo:rerun-if-changed={}/*", INCLUDE_DIR);
     let bindings = bindgen::Builder::default()
         .derive_default(true)
         .rustfmt_bindings(false)

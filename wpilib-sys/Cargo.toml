@@ -28,4 +28,4 @@ include = [
 dev = []
 
 [build-dependencies]
-bindgen = "0.37.4"
+bindgen = "0.43.1"
