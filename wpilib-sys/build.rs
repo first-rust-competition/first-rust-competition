@@ -99,6 +99,7 @@ fn generate_bindings() {
         // usage reporting enums
         .whitelist_type(".*tInstances")
         .whitelist_type(".*tResourceType")
+        .constified_enum_module("*")
         .clang_arg(format!("-I{}", INCLUDE_DIR))
         .clang_arg("-x")
         .clang_arg("c++")

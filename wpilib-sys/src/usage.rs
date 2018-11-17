@@ -38,10 +38,10 @@ use std::os::raw;
 use std::ptr;
 
 /// Wraps the ugly type rust-bindgen generates for usage reporting types.
-pub type UsageResourceType = HALUsageReporting_tResourceType;
+pub type UsageResourceType = HALUsageReporting_tResourceType::Type;
 
 /// Wraps the ugly type rust-bindgen generates for usage reporting instances.
-pub type UsageResourceInstance = HALUsageReporting_tInstances;
+pub type UsageResourceInstance = HALUsageReporting_tInstances::Type;
 
 /// A utility macro for referencing rust-bindgen's generated names for usage types.
 /// Currently, the identifier for a digital output is
@@ -54,16 +54,18 @@ macro_rules! resource_type {
     ($resource_name:ident) => {{
         use $crate::bindings::*;
         concat_idents!(
-            HALUsageReporting_tResourceType_kResourceType_,
+            $crate::bindings::HALUsageReporting_tResourceType::kResourceType_,
             $resource_name
         )
     }};
 }
 
 /// A utility macro for referencing rust-bindgen's generated names for usage instances.
-/// Currently, the identifier for the C++ language is
-/// `HALUsageReporting_tInstances_kLanguage_CPlusPlus`.
-/// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
+///
+/// #```
+/// use bindings::*;
+/// assert_eq!(HALUsageReporting_tInstances::kLanguage_CPlusPlus, resource_instance!(Language, CPlusPlus));
+/// #```
 ///
 /// This currently requires the `concat_idents` feature.
 #[macro_export]
@@ -71,12 +73,20 @@ macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {{
         use $crate::bindings::*;
         concat_idents!(
-            HALUsageReporting_tInstances_k,
+            $crate::bindings::HALUsageReporting_tInstances::k,
             $resource_name,
             _,
             $instance_name
         )
     }};
+}
+
+#[test]
+fn test() {
+    assert_eq!(
+        HALUsageReporting_tInstances::kLanguage_CPlusPlus,
+        resource_instance!(Language, CPlusPlus)
+    );
 }
 
 /// Report the usage of a specific resource type with an `instance` value attached.
