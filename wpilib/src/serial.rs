@@ -5,20 +5,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use std::os::raw::c_char;
 use wpilib_sys::*;
-
-// This is kind of a hack so that IDEs don't bug devs.
-// bindgen rightfully generates a serial interface that uses std::os::raw::c_char
-// but that's a crappy user interface. The problem is that wheter its u8 or i8
-// depends on the platform.
-// Of course, this could change under us at the mere flip of a compiler option.
-#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-#[allow(non_camel_case_types)]
-type byte = u8;
-
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-#[allow(non_camel_case_types)]
-type byte = i8;
 
 // all of these enums use magic numbers from wpilibc SerialPort.h
 
@@ -94,9 +82,7 @@ impl SerialPort {
         serial_port.set_timeout(5.0)?;
         serial_port.set_write_buf_mode(WriteBufferMode::FlushOnAcces)?;
 
-        #[allow(clippy::unnecessary_cast)]
-        // silence clippy when casting to byte is already u8
-        serial_port.enable_termination(b'\n' as byte)?;
+        serial_port.enable_termination(b'\n')?;
         report_usage(resource_type!(SerialPort), 0);
         Ok(serial_port)
     }
@@ -108,10 +94,11 @@ impl SerialPort {
         ))
     }
 
-    pub fn enable_termination(&mut self, terminator: byte) -> HalResult<()> {
+    #[allow(clippy::unnecessary_cast)]
+    pub fn enable_termination(&mut self, terminator: u8) -> HalResult<()> {
         hal_call!(HAL_EnableSerialTermination(
             self.port as HAL_SerialPort,
-            terminator
+            terminator as c_char
         ))
     }
 
@@ -123,29 +110,31 @@ impl SerialPort {
         hal_call!(HAL_GetSerialBytesReceived(self.port as HAL_SerialPort))
     }
 
-    pub fn read(&mut self, buf: &mut [byte]) -> HalResult<i32> {
+    #[allow(clippy::unnecessary_cast)]
+    pub fn read(&mut self, buf: &mut [u8]) -> HalResult<i32> {
         hal_call!(HAL_ReadSerial(
             self.port as HAL_SerialPort,
-            buf.as_mut_ptr(),
+            buf.as_mut_ptr() as *mut c_char,
             buf.len() as i32
         ))
     }
 
-    pub fn read_len(&mut self, buf: &mut [byte], len: usize) -> HalResult<i32> {
+    #[allow(clippy::unnecessary_cast)]
+    pub fn read_len(&mut self, buf: &mut [u8], len: usize) -> HalResult<i32> {
         let len = len.min(buf.len());
         hal_call!(HAL_ReadSerial(
             self.port as HAL_SerialPort,
-            buf.as_mut_ptr(),
+            buf.as_mut_ptr() as *mut c_char,
             len as i32
         ))
     }
 
     /// # Returns
     /// Then number of bytes actually written to the buffer.
-    pub fn write(&mut self, buf: &[byte]) -> HalResult<i32> {
+    pub fn write(&mut self, buf: &[u8]) -> HalResult<i32> {
         hal_call!(HAL_WriteSerial(
             self.port as HAL_SerialPort,
-            buf.as_ptr(),
+            buf.as_ptr() as *const c_char,
             buf.len() as i32
         ))
     }
