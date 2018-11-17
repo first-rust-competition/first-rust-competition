@@ -7,7 +7,7 @@
 
 extern crate wpilib;
 use std::{thread, time};
-use wpilib::*;
+use wpilib::{ds, pneumatics, RobotBase};
 
 fn main() {
     let robot = RobotBase::new().expect("HAL FAILED");

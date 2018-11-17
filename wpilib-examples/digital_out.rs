@@ -6,7 +6,7 @@
 // except according to those terms.
 extern crate wpilib;
 use std::{thread, time};
-use wpilib::*;
+use wpilib::{dio::DigitalOutput, ds, RobotBase};
 
 fn main() {
     let robot = RobotBase::new().expect("HAL FAILED");

@@ -11,23 +11,20 @@
 extern crate lazy_static;
 extern crate wpilib_sys;
 
-mod pdp;
-mod robot_base;
 mod sensor_util;
 
-pub mod analog_input;
+mod analog_input;
+pub use self::analog_input::AnalogInput;
+mod pdp;
+pub use self::pdp::PowerDistributionPanel;
 pub mod dio;
 pub mod ds;
 pub mod encoder;
 pub mod pneumatics;
 pub mod pwm;
+mod robot_base;
+pub use self::robot_base::*;
 pub mod serial;
 pub mod spi;
-pub mod time;
-
-pub use self::analog_input::*;
-pub use self::dio::{DigitalInput, DigitalOutput};
-pub use self::pdp::*;
-pub use self::robot_base::*;
 
 pub use wpilib_sys::hal_call::{HalError, HalMaybe, HalResult};
