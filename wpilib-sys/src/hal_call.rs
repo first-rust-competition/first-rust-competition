@@ -77,9 +77,8 @@ impl From<i32> for HalError {
 pub type HalResult<T> = Result<T, HalError>;
 
 /// Represents the result of a function call that could error,
-/// but even if it does, the result is still usable. Unfortunately,
-/// the way the WPILib HAL handles things, this comes up a lot.
-/// Like `Result`, `HalMaybe` must be used.
+/// but even if it does, the result is still usable.
+/// Like `HalResult<T>`, `HalMaybe<T>` must be used.
 #[must_use]
 #[derive(Copy, Clone, Debug)]
 pub struct HalMaybe<T> {
@@ -120,7 +119,7 @@ impl<T> HalMaybe<T> {
     }
 }
 
-/// Wraps a C/C++ HAL function call that looks like `T foo(arg1, arg2, arg3, ... , int32_t* status)
+/// Wraps a C/C++ HAL function call that looks like `T foo(arg1, arg2, arg3, ... , int32_t* status)`
 /// and turns that status into a `HALResult<T>`, with a non-zero status code returning in
 /// the `Err` variant.
 #[macro_export]

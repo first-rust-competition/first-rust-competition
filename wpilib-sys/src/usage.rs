@@ -45,7 +45,7 @@ pub type UsageResourceInstance = HALUsageReporting_tInstances;
 
 /// A utility macro for referencing rust-bindgen's generated names for usage types.
 /// Currently, the identifier for a digital output is
-/// `nUsageReporting_tResourceType_kResourceType_DigitalOutput`.
+/// `HALUsageReporting_tResourceType_kResourceType_DigitalOutput`.
 /// This is equivalent to `resource_type!(DigitalOutput)`.
 ///
 /// This currently requires the `concat_idents` feature.
@@ -61,7 +61,7 @@ macro_rules! resource_type {
 
 /// A utility macro for referencing rust-bindgen's generated names for usage instances.
 /// Currently, the identifier for the C++ language is
-/// `nUsageReporting_tInstances_kLanguage_CPlusPlus`.
+/// `HALUsageReporting_tInstances_kLanguage_CPlusPlus`.
 /// This is equivalent to `resource_instance!(Language, CPlusPLus)`.
 ///
 /// This currently requires the `concat_idents` feature.
