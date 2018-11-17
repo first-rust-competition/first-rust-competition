@@ -37,7 +37,7 @@ use crate::dio::DigitalInput;
 use std::ptr;
 
 /// The indexing type for an encoder
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum IndexingType {
     ResetWhileHigh,
     ResetWhileLow,
@@ -58,7 +58,7 @@ impl IndexingType {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum EncodingType {
     K1X,
     K2X,
@@ -80,6 +80,7 @@ impl EncodingType {
 ///
 /// Uses quadrature on two separate channels to read the distance and direction travelled by a
 /// shaft. All integration is done by the FPGA.
+#[derive(Debug)]
 pub struct Encoder {
     _source_a: DigitalInput,
     _source_b: DigitalInput,

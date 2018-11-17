@@ -37,7 +37,7 @@ use wpilib_sys::*;
 
 const JOYSTICK_PORTS: usize = 6;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum JoystickError {
     PortDNE,
     ButtonUnplugged,

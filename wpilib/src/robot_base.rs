@@ -36,7 +36,7 @@ use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
 use std::time::Duration;
 use wpilib_sys::*;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum RobotBaseInitError {
     HalInitFailed,
     AlreadyInit,
