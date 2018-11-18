@@ -23,7 +23,8 @@ impl UsageReported {
             resource_type!(Language),
             resource_instance!(Language, CPlusPlus),
         );
-        unsafe { report_usage_extras(9998, 9998, 9997, b"FEATURE".as_ptr()) };
+        report_usage_context(666, 0, 123);
+        report_usage_extras(9998, 9998, 9997, b"FEATURE");
         Self {}
     }
 }
