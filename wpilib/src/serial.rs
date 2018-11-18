@@ -186,6 +186,7 @@ impl SerialPort {
 }
 
 use std::io;
+/// Delegates to the [`SerialPort::write`] method and is affected in the same way by automatic terminators, buffering, and other behavior.
 impl io::Write for SerialPort {
     #[inline]
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
@@ -198,6 +199,7 @@ impl io::Write for SerialPort {
     }
 }
 
+/// Delegates to the [`SerialPort::read`] method and is affected in the same way by buffering and other behavior.
 impl io::Read for SerialPort {
     #[inline]
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
