@@ -188,25 +188,25 @@ impl SerialPort {
 use std::io;
 impl io::Write for SerialPort {
     #[inline]
-    fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         hal_to_io_len(self.write(buf))
     }
 
     #[inline]
-    fn flush(&mut self) -> Result<(), io::Error> {
+    fn flush(&mut self) -> io::Result<()> {
         hal_to_io(self.flush())
     }
 }
 
 impl io::Read for SerialPort {
     #[inline]
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize, io::Error> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         hal_to_io_len(self.read(buf))
     }
 }
 
 #[inline]
-fn hal_to_io_len(r: HalResult<i32>) -> Result<usize, io::Error> {
+fn hal_to_io_len(r: HalResult<i32>) -> io::Result<usize> {
     match r {
         Ok(x) => Ok(x as usize),
         Err(t) => Err(io::Error::new(io::ErrorKind::Other, t)),
@@ -214,7 +214,7 @@ fn hal_to_io_len(r: HalResult<i32>) -> Result<usize, io::Error> {
 }
 
 #[inline]
-fn hal_to_io<T>(r: HalResult<T>) -> Result<T, io::Error> {
+fn hal_to_io<T>(r: HalResult<T>) -> io::Result<T> {
     match r {
         Ok(x) => Ok(x),
         Err(t) => Err(io::Error::new(io::ErrorKind::Other, t)),
