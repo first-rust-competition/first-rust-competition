@@ -35,7 +35,6 @@ use super::bindings::HALUsageReporting_tInstances;
 use super::bindings::HALUsageReporting_tResourceType;
 use super::bindings::HAL_Report;
 use std::ffi::CStr;
-use std::os::raw;
 use std::ptr;
 
 /// Wraps the ugly type rust-bindgen generates for usage reporting types.
@@ -97,12 +96,18 @@ pub fn report_usage_context(
 }
 
 /// This is provided as a utility for library developers.
-pub fn report_usage_extras(
+/// Designed to be used with null-terminated byte string literals like `b"message\0"`
+///
+/// # Panics
+/// If the underlying byte slice is not null-terminated, the function will panic
+pub fn report_usage_extras<F: AsRef<[u8]>>(
     resource: UsageResourceType,
     instance: UsageResourceInstance,
     context: i32,
-    feature: impl Into<AsRef<CStr>>,
+    feature: F,
 ) -> i64 {
-    let feature = feature.into().as_ref();
-    unsafe { HAL_Report(resource as i32, instance as i32, context, feature.as_ptr()) }
+    // local binding just to be safe with lifetimes, see https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.as_ptr
+    let cstr = CStr::from_bytes_with_nul(feature.as_ref())
+        .expect("report_usage_extras features must be null-terminated!");
+    unsafe { HAL_Report(resource as i32, instance as i32, context, cstr.as_ptr()) }
 }
