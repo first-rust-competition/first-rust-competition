@@ -9,6 +9,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 #![allow(non_upper_case_globals)]
+#![allow(intra_doc_link_resolution_failure)]
 #![allow(clippy::useless_transmute)]
 #![allow(clippy::cast_lossless)]
 #![allow(clippy::trivially_copy_pass_by_ref)]
