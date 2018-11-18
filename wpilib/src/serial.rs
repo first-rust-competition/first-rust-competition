@@ -5,20 +5,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use std::os::raw::c_char;
 use wpilib_sys::*;
-
-macro_rules! arm_call {
-    ($($other:tt)*) => {{
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-        {
-            Err(HalError(0))
-        }
-        #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-        {
-            hal_call!($($other)*)
-        }
-    }};
-}
 
 // all of these enums use magic numbers from wpilibc SerialPort.h
 
@@ -106,10 +94,11 @@ impl SerialPort {
         ))
     }
 
+    #[allow(clippy::unnecessary_cast)]
     pub fn enable_termination(&mut self, terminator: u8) -> HalResult<()> {
         hal_call!(HAL_EnableSerialTermination(
             self.port as HAL_SerialPort,
-            terminator as std::os::raw::c_char
+            terminator as c_char
         ))
     }
 
@@ -121,32 +110,31 @@ impl SerialPort {
         hal_call!(HAL_GetSerialBytesReceived(self.port as HAL_SerialPort))
     }
 
-    #[allow(unused_variables)] // vars go unused on x86
+    #[allow(clippy::unnecessary_cast)]
     pub fn read(&mut self, buf: &mut [u8]) -> HalResult<i32> {
-        arm_call!(HAL_ReadSerial(
+        hal_call!(HAL_ReadSerial(
             self.port as HAL_SerialPort,
-            buf.as_mut_ptr(),
+            buf.as_mut_ptr() as *mut c_char,
             buf.len() as i32
         ))
     }
 
-    #[allow(unused_variables)] // vars go unused on x86
+    #[allow(clippy::unnecessary_cast)]
     pub fn read_len(&mut self, buf: &mut [u8], len: usize) -> HalResult<i32> {
         let len = len.min(buf.len());
-        arm_call!(HAL_ReadSerial(
+        hal_call!(HAL_ReadSerial(
             self.port as HAL_SerialPort,
-            buf.as_mut_ptr(),
+            buf.as_mut_ptr() as *mut c_char,
             len as i32
         ))
     }
 
     /// # Returns
     /// Then number of bytes actually written to the buffer.
-    #[allow(unused_variables)] // vars go unused on x86
     pub fn write(&mut self, buf: &[u8]) -> HalResult<i32> {
-        arm_call!(HAL_WriteSerial(
+        hal_call!(HAL_WriteSerial(
             self.port as HAL_SerialPort,
-            buf.as_ptr(),
+            buf.as_ptr() as *const c_char,
             buf.len() as i32
         ))
     }
