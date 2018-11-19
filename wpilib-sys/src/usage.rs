@@ -51,12 +51,13 @@ pub type UsageResourceInstance = HALUsageReporting_tInstances;
 /// This currently requires the `concat_idents` feature.
 #[macro_export]
 macro_rules! resource_type {
-    ($resource_name:ident) => {
+    ($resource_name:ident) => {{
+        use $crate::bindings::*;
         concat_idents!(
             HALUsageReporting_tResourceType_kResourceType_,
             $resource_name
         )
-    };
+    }};
 }
 
 /// A utility macro for referencing rust-bindgen's generated names for usage instances.
@@ -67,14 +68,15 @@ macro_rules! resource_type {
 /// This currently requires the `concat_idents` feature.
 #[macro_export]
 macro_rules! resource_instance {
-    ($resource_name:ident, $instance_name:ident) => {
+    ($resource_name:ident, $instance_name:ident) => {{
+        use $crate::bindings::*;
         concat_idents!(
             HALUsageReporting_tInstances_k,
             $resource_name,
             _,
             $instance_name
         )
-    };
+    }};
 }
 
 /// Report the usage of a specific resource type with an `instance` value attached.

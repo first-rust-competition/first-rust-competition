@@ -11,8 +11,6 @@
 #[macro_use]
 extern crate wpilib_sys;
 
-// Pull in the usage reporting constants themselves.
-use wpilib_sys::bindings::*;
 use wpilib_sys::usage::*;
 
 struct UsageReported {}
