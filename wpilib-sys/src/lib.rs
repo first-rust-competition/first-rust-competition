@@ -15,3 +15,7 @@ pub mod usage;
 pub use self::bindings::*;
 pub use self::hal_call::*;
 pub use self::usage::*;
+
+// version.rs is created by the makefile
+mod version;
+pub use version::*;

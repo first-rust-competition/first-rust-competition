@@ -6,3 +6,4 @@
 # except according to those terms.
 
 HAL_bindings_temp.rs
+src/version.rs

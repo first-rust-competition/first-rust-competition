@@ -8,7 +8,7 @@
 # compile libs and assemble an include dir for rust-bindgen
 .PHONY: all wpilib_compile libs load_headers clean clean_local clean_wpilib allwpilib_repo
 
-all: load_headers libs
+all: load_headers libs gen_version
 	cargo build
 	cargo clippy --all-targets --all-features -- -D warnings
 	cargo fmt --all -- --check
@@ -48,6 +48,9 @@ load_headers: allwpilib_repo wpilib_compile
 	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -name "glob.h" | xargs dirname | xargs -I '{}' cp -R '{}/bits' ./include/
 	# stddef.h
 	python load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -path "*/include/stddef.h" | xargs -I '{}' cp -R '{}' ./include/
+
+gen_version: allwpilib_repo
+	echo "pub static WPILIB_COMMIT_HASH: &str = \"$(shell git ls-files -s ./allwpilib | cut -d ' ' -f 2)\";" > src/version.rs
 
 clean: clean_local clean_wpilib
 
