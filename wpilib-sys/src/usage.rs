@@ -44,49 +44,39 @@ pub type UsageResourceType = HALUsageReporting_tResourceType::Type;
 pub type UsageResourceInstance = HALUsageReporting_tInstances::Type;
 
 /// A utility macro for referencing rust-bindgen's generated names for usage types.
-/// Currently, the identifier for a digital output is
-/// `HALUsageReporting_tResourceType_kResourceType_DigitalOutput`.
-/// This is equivalent to `resource_type!(DigitalOutput)`.
+///
+/// ```
+/// assert_eq!(
+///   HALUsageReporting_tResourceType::kResourceType_DigitalOutput,
+///   resource_type!(DigitalOutput)
+/// );
+/// ```
 ///
 /// This currently requires the `concat_idents` feature.
 #[macro_export]
 macro_rules! resource_type {
     ($resource_name:ident) => {{
-        use $crate::bindings::*;
-        concat_idents!(
-            $crate::bindings::HALUsageReporting_tResourceType::kResourceType_,
-            $resource_name
-        )
+        use $crate::bindings::HALUsageReporting_tResourceType::*;
+        concat_idents!(kResourceType_, $resource_name)
     }};
 }
 
 /// A utility macro for referencing rust-bindgen's generated names for usage instances.
 ///
-/// #```
-/// use bindings::*;
-/// assert_eq!(HALUsageReporting_tInstances::kLanguage_CPlusPlus, resource_instance!(Language, CPlusPlus));
-/// #```
+/// ```
+/// assert_eq!(
+///   HALUsageReporting_tInstances::kLanguage_CPlusPlus,
+///   resource_instance!(Language, CPlusPlus)
+/// );
+/// ```
 ///
 /// This currently requires the `concat_idents` feature.
 #[macro_export]
 macro_rules! resource_instance {
     ($resource_name:ident, $instance_name:ident) => {{
-        use $crate::bindings::*;
-        concat_idents!(
-            $crate::bindings::HALUsageReporting_tInstances::k,
-            $resource_name,
-            _,
-            $instance_name
-        )
+        use $crate::bindings::HALUsageReporting_tInstances::*;
+        concat_idents!(k, $resource_name, _, $instance_name)
     }};
-}
-
-#[test]
-fn test() {
-    assert_eq!(
-        HALUsageReporting_tInstances::kLanguage_CPlusPlus,
-        resource_instance!(Language, CPlusPlus)
-    );
 }
 
 /// Report the usage of a specific resource type with an `instance` value attached.
