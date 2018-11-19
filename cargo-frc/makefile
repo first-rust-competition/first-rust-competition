@@ -10,4 +10,4 @@
 all:
 	cargo build
 	cargo clippy --all-targets --all-features -- -D warnings
-	cargo fmt --all -- --check
+	cargo fmt -- --check

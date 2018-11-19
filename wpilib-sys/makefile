@@ -11,7 +11,7 @@
 all: load_headers libs gen_version
 	cargo build
 	cargo clippy --all-targets --all-features -- -D warnings
-	cargo fmt --all -- --check
+	cargo fmt -- --check
 
 wpilib_compile: allwpilib_repo
 	cd allwpilib; ./gradlew :hal:halSharedLibrary -PreleaseBuild -PonlyAthena --console=plain
