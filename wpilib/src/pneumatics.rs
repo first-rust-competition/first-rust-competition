@@ -6,7 +6,6 @@
 // except according to those terms.
 
 use super::sensor_util;
-use std::ptr;
 use wpilib_sys::*;
 
 /// Corresponds to WPILibC's SolenoidBase, and is responsible for
@@ -95,14 +94,11 @@ impl Solenoid {
             channel
         )))?;
 
-        unsafe {
-            report_usage_extras(
-                resource_type!(Solenoid),
-                channel as UsageResourceType,
-                module_number,
-                ptr::null(),
-            );
-        }
+        report_usage_context(
+            resource_type!(Solenoid),
+            channel as UsageResourceType,
+            module_number,
+        );
 
         Ok(Solenoid {
             solenoid_handle: handle,

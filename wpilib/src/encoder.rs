@@ -34,7 +34,6 @@ License version 3 as published by the Free Software Foundation. See
 use wpilib_sys::*;
 
 use crate::dio::DigitalInput;
-use std::ptr;
 
 /// The indexing type for an encoder
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -111,14 +110,11 @@ impl Encoder {
             encoder: handle,
         };
 
-        unsafe {
-            report_usage_extras(
-                resource_type!(Encoder),
-                encoder.fpga_index()? as u32,
-                encoding.into_hal(),
-                ptr::null(),
-            );
-        }
+        report_usage_context(
+            resource_type!(Encoder),
+            encoder.fpga_index()? as u32,
+            encoding.into_hal(),
+        );
 
         Ok(encoder)
     }
