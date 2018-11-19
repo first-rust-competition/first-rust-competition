@@ -62,19 +62,22 @@ impl SerialPort {
         parity: Parity,
         stopbits: StopBits,
     ) -> HalResult<Self> {
-        hal_call!(HAL_InitializeSerialPort(port as HAL_SerialPort))?;
+        hal_call!(HAL_InitializeSerialPort(port as HAL_SerialPort::Type))?;
 
         hal_call!(HAL_SetSerialBaudRate(
-            port as HAL_SerialPort,
+            port as HAL_SerialPort::Type,
             baud_rate as i32
         ))?;
         hal_call!(HAL_SetSerialDataBits(
-            port as HAL_SerialPort,
+            port as HAL_SerialPort::Type,
             databits as i32
         ))?;
-        hal_call!(HAL_SetSerialParity(port as HAL_SerialPort, parity as i32))?;
+        hal_call!(HAL_SetSerialParity(
+            port as HAL_SerialPort::Type,
+            parity as i32
+        ))?;
         hal_call!(HAL_SetSerialStopBits(
-            port as HAL_SerialPort,
+            port as HAL_SerialPort::Type,
             stopbits as i32
         ))?;
 
@@ -89,7 +92,7 @@ impl SerialPort {
 
     pub fn set_flow_control(&mut self, flow_control: FlowControl) -> HalResult<()> {
         hal_call!(HAL_SetSerialFlowControl(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             flow_control as i32
         ))
     }
@@ -97,23 +100,27 @@ impl SerialPort {
     #[allow(clippy::unnecessary_cast)]
     pub fn enable_termination(&mut self, terminator: u8) -> HalResult<()> {
         hal_call!(HAL_EnableSerialTermination(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             terminator as c_char
         ))
     }
 
     pub fn disable_termination(&mut self) -> HalResult<()> {
-        hal_call!(HAL_DisableSerialTermination(self.port as HAL_SerialPort))
+        hal_call!(HAL_DisableSerialTermination(
+            self.port as HAL_SerialPort::Type
+        ))
     }
 
     pub fn bytes_received(&mut self) -> HalResult<i32> {
-        hal_call!(HAL_GetSerialBytesReceived(self.port as HAL_SerialPort))
+        hal_call!(HAL_GetSerialBytesReceived(
+            self.port as HAL_SerialPort::Type
+        ))
     }
 
     #[allow(clippy::unnecessary_cast)]
     pub fn read(&mut self, buf: &mut [u8]) -> HalResult<i32> {
         hal_call!(HAL_ReadSerial(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             buf.as_mut_ptr() as *mut c_char,
             buf.len() as i32
         ))
@@ -123,7 +130,7 @@ impl SerialPort {
     pub fn read_len(&mut self, buf: &mut [u8], len: usize) -> HalResult<i32> {
         let len = len.min(buf.len());
         hal_call!(HAL_ReadSerial(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             buf.as_mut_ptr() as *mut c_char,
             len as i32
         ))
@@ -133,43 +140,46 @@ impl SerialPort {
     /// Then number of bytes actually written to the buffer.
     pub fn write(&mut self, buf: &[u8]) -> HalResult<i32> {
         hal_call!(HAL_WriteSerial(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             buf.as_ptr() as *const c_char,
             buf.len() as i32
         ))
     }
 
     pub fn set_timeout(&mut self, seconds: f64) -> HalResult<()> {
-        hal_call!(HAL_SetSerialTimeout(self.port as HAL_SerialPort, seconds))
+        hal_call!(HAL_SetSerialTimeout(
+            self.port as HAL_SerialPort::Type,
+            seconds
+        ))
     }
 
     pub fn set_read_buf_size(&mut self, size: u32) -> HalResult<()> {
         hal_call!(HAL_SetSerialReadBufferSize(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             size as i32
         ))
     }
 
     pub fn set_write_buf_size(&mut self, size: u32) -> HalResult<()> {
         hal_call!(HAL_SetSerialWriteBufferSize(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             size as i32
         ))
     }
 
     pub fn set_write_buf_mode(&mut self, mode: WriteBufferMode) -> HalResult<()> {
         hal_call!(HAL_SetSerialWriteMode(
-            self.port as HAL_SerialPort,
+            self.port as HAL_SerialPort::Type,
             mode as i32
         ))
     }
 
     pub fn flush(&mut self) -> HalResult<()> {
-        hal_call!(HAL_FlushSerial(self.port as HAL_SerialPort))
+        hal_call!(HAL_FlushSerial(self.port as HAL_SerialPort::Type))
     }
 
     pub fn reset(&mut self) -> HalResult<()> {
-        hal_call!(HAL_ClearSerial(self.port as HAL_SerialPort))
+        hal_call!(HAL_ClearSerial(self.port as HAL_SerialPort::Type))
     }
 }
 
@@ -213,6 +223,6 @@ fn hal_to_io<T>(r: HalResult<T>) -> io::Result<T> {
 
 impl Drop for SerialPort {
     fn drop(&mut self) {
-        hal_call!(HAL_CloseSerial(self.port as HAL_SerialPort)).ok();
+        hal_call!(HAL_CloseSerial(self.port as HAL_SerialPort::Type)).ok();
     }
 }

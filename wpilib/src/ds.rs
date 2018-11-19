@@ -138,6 +138,7 @@ impl From<HAL_MatchInfo> for MatchInfoData {
         let mut cs = info.eventName;
         cs[cs.len() - 1] = 0;
 
+        use self::HAL_MatchType::*;
         Self {
             event_name: unsafe { CStr::from_ptr(&cs as *const c_char) }
                 .to_string_lossy()
@@ -148,9 +149,9 @@ impl From<HAL_MatchInfo> for MatchInfoData {
             match_number: info.matchNumber,
             replay_number: info.replayNumber,
             match_type: match info.matchType {
-                HAL_MatchType_HAL_kMatchType_practice => MatchType::Practice,
-                HAL_MatchType_HAL_kMatchType_qualification => MatchType::Qualification,
-                HAL_MatchType_HAL_kMatchType_elimination => MatchType::Elimination,
+                HAL_kMatchType_practice => MatchType::Practice,
+                HAL_kMatchType_qualification => MatchType::Qualification,
+                HAL_kMatchType_elimination => MatchType::Elimination,
                 _ => MatchType::None,
             },
         }
@@ -229,13 +230,14 @@ impl<'a> DriverStation<'a> {
     /// The alliance the robot is on.
     #[allow(non_upper_case_globals)]
     pub fn alliance(&self) -> HalResult<Alliance> {
+        use self::HAL_AllianceStationID::*;
         match hal_call!(HAL_GetAllianceStation())? {
-            HAL_AllianceStationID_HAL_AllianceStationID_kRed1
-            | HAL_AllianceStationID_HAL_AllianceStationID_kRed2
-            | HAL_AllianceStationID_HAL_AllianceStationID_kRed3 => Ok(Alliance::Red),
-            HAL_AllianceStationID_HAL_AllianceStationID_kBlue1
-            | HAL_AllianceStationID_HAL_AllianceStationID_kBlue2
-            | HAL_AllianceStationID_HAL_AllianceStationID_kBlue3 => Ok(Alliance::Blue),
+            HAL_AllianceStationID_kRed1
+            | HAL_AllianceStationID_kRed2
+            | HAL_AllianceStationID_kRed3 => Ok(Alliance::Red),
+            HAL_AllianceStationID_kBlue1
+            | HAL_AllianceStationID_kBlue2
+            | HAL_AllianceStationID_kBlue3 => Ok(Alliance::Blue),
             _ => Err(HalError(0)),
         }
     }
@@ -243,13 +245,11 @@ impl<'a> DriverStation<'a> {
     /// The id for the station the driver station is at, as an integer.
     #[allow(non_upper_case_globals)]
     pub fn station(&self) -> HalResult<u32> {
+        use self::HAL_AllianceStationID::*;
         match hal_call!(HAL_GetAllianceStation())? {
-            HAL_AllianceStationID_HAL_AllianceStationID_kRed1
-            | HAL_AllianceStationID_HAL_AllianceStationID_kBlue1 => Ok(1),
-            HAL_AllianceStationID_HAL_AllianceStationID_kRed2
-            | HAL_AllianceStationID_HAL_AllianceStationID_kBlue2 => Ok(2),
-            HAL_AllianceStationID_HAL_AllianceStationID_kRed3
-            | HAL_AllianceStationID_HAL_AllianceStationID_kBlue3 => Ok(3),
+            HAL_AllianceStationID_kRed1 | HAL_AllianceStationID_kBlue1 => Ok(1),
+            HAL_AllianceStationID_kRed2 | HAL_AllianceStationID_kBlue2 => Ok(2),
+            HAL_AllianceStationID_kRed3 | HAL_AllianceStationID_kBlue3 => Ok(3),
             _ => Err(HalError(0)),
         }
     }
