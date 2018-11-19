@@ -19,7 +19,7 @@ pub enum Port {
 /// Spi for driver writers. Currenltly does not include an accumulator.
 #[derive(Debug)]
 pub struct Spi {
-    port: HAL_SPIPort,
+    port: HAL_SPIPort::Type,
     msb_first: bool,
     sample_on_trailing: bool,
     clk_idle_high: bool,
@@ -28,10 +28,10 @@ pub struct Spi {
 impl Spi {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(port: Port) -> HalResult<Self> {
-        hal_call!(HAL_InitializeSPI(port as HAL_SPIPort))?;
+        hal_call!(HAL_InitializeSPI(port as HAL_SPIPort::Type))?;
         report_usage(resource_type!(SPI), 1);
         Ok(Spi {
-            port: port as HAL_SPIPort,
+            port: port as HAL_SPIPort::Type,
             msb_first: false,
             sample_on_trailing: false,
             clk_idle_high: false,

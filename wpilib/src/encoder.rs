@@ -47,13 +47,13 @@ pub enum IndexingType {
 
 impl IndexingType {
     #[allow(dead_code)]
-    pub(crate) fn into_hal(self) -> HAL_EncoderIndexingType {
+    pub(crate) fn into_hal(self) -> HAL_EncoderIndexingType::Type {
         use self::IndexingType::*;
         match self {
-            ResetWhileHigh => HAL_EncoderIndexingType_HAL_kResetWhileHigh,
-            ResetWhileLow => HAL_EncoderIndexingType_HAL_kResetWhileLow,
-            ResetOnFallingEdge => HAL_EncoderIndexingType_HAL_kResetOnFallingEdge,
-            ResetOnRisingEdge => HAL_EncoderIndexingType_HAL_kResetOnRisingEdge,
+            ResetWhileHigh => HAL_EncoderIndexingType::HAL_kResetWhileHigh,
+            ResetWhileLow => HAL_EncoderIndexingType::HAL_kResetWhileLow,
+            ResetOnFallingEdge => HAL_EncoderIndexingType::HAL_kResetOnFallingEdge,
+            ResetOnRisingEdge => HAL_EncoderIndexingType::HAL_kResetOnRisingEdge,
         }
     }
 }
@@ -66,12 +66,12 @@ pub enum EncodingType {
 }
 
 impl EncodingType {
-    pub(crate) fn into_hal(self) -> HAL_EncoderEncodingType {
+    pub(crate) fn into_hal(self) -> HAL_EncoderEncodingType::Type {
         use self::EncodingType::*;
         match self {
-            K1X => HAL_EncoderEncodingType_HAL_Encoder_k1X,
-            K2X => HAL_EncoderEncodingType_HAL_Encoder_k2X,
-            K4X => HAL_EncoderEncodingType_HAL_Encoder_k4X,
+            K1X => HAL_EncoderEncodingType::HAL_Encoder_k1X,
+            K2X => HAL_EncoderEncodingType::HAL_Encoder_k2X,
+            K4X => HAL_EncoderEncodingType::HAL_Encoder_k4X,
         }
     }
 }
