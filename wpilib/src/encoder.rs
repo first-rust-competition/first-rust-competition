@@ -37,42 +37,20 @@ use crate::dio::DigitalInput;
 
 /// The indexing type for an encoder
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[repr(i32)]
 pub enum IndexingType {
-    ResetWhileHigh,
-    ResetWhileLow,
-    ResetOnFallingEdge,
-    ResetOnRisingEdge,
-}
-
-impl IndexingType {
-    #[allow(dead_code)]
-    pub(crate) fn into_hal(self) -> HAL_EncoderIndexingType::Type {
-        use self::IndexingType::*;
-        match self {
-            ResetWhileHigh => HAL_EncoderIndexingType::HAL_kResetWhileHigh,
-            ResetWhileLow => HAL_EncoderIndexingType::HAL_kResetWhileLow,
-            ResetOnFallingEdge => HAL_EncoderIndexingType::HAL_kResetOnFallingEdge,
-            ResetOnRisingEdge => HAL_EncoderIndexingType::HAL_kResetOnRisingEdge,
-        }
-    }
+    ResetWhileHigh = HAL_EncoderIndexingType::HAL_kResetWhileHigh,
+    ResetWhileLow = HAL_EncoderIndexingType::HAL_kResetWhileLow,
+    ResetOnFallingEdge = HAL_EncoderIndexingType::HAL_kResetOnFallingEdge,
+    ResetOnRisingEdge = HAL_EncoderIndexingType::HAL_kResetOnRisingEdge,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[repr(i32)]
 pub enum EncodingType {
-    K1X,
-    K2X,
-    K4X,
-}
-
-impl EncodingType {
-    pub(crate) fn into_hal(self) -> HAL_EncoderEncodingType::Type {
-        use self::EncodingType::*;
-        match self {
-            K1X => HAL_EncoderEncodingType::HAL_Encoder_k1X,
-            K2X => HAL_EncoderEncodingType::HAL_Encoder_k2X,
-            K4X => HAL_EncoderEncodingType::HAL_Encoder_k4X,
-        }
-    }
+    K1X = HAL_EncoderEncodingType::HAL_Encoder_k1X,
+    K2X = HAL_EncoderEncodingType::HAL_Encoder_k2X,
+    K4X = HAL_EncoderEncodingType::HAL_Encoder_k4X,
 }
 
 /// An encoder.
@@ -101,7 +79,7 @@ impl Encoder {
             source_b.handle(),
             0i32,
             false as i32,
-            encoding.into_hal()
+            encoding as HAL_EncoderEncodingType::Type
         ))?;
         let encoder = Encoder {
             _source_a: source_a,
@@ -113,7 +91,7 @@ impl Encoder {
         report_usage_context(
             resource_type!(Encoder),
             encoder.fpga_index()? as u32,
-            encoding.into_hal(),
+            encoding as HAL_EncoderEncodingType::Type,
         );
 
         Ok(encoder)

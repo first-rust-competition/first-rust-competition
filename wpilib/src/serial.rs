@@ -11,11 +11,12 @@ use wpilib_sys::*;
 // all of these enums use magic numbers from wpilibc SerialPort.h
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[repr(i32)]
 pub enum Port {
-    Onboard = 0,
-    MXP = 1,
-    USB1 = 2,
-    USB2 = 3,
+    Onboard = HAL_SerialPort::HAL_SerialPort_Onboard,
+    MXP = HAL_SerialPort::HAL_SerialPort_MXP,
+    USB1 = HAL_SerialPort::HAL_SerialPort_USB1,
+    USB2 = HAL_SerialPort::HAL_SerialPort_USB2,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]

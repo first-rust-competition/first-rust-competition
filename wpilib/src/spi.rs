@@ -8,12 +8,13 @@
 use wpilib_sys::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[repr(i32)]
 pub enum Port {
-    OnboardCS0 = 0,
-    OnboardCS1 = 1,
-    OnboardCS2 = 2,
-    OnboardCS3 = 3,
-    MXP = 4,
+    OnboardCS0 = HAL_SPIPort::HAL_SPI_kOnboardCS0,
+    OnboardCS1 = HAL_SPIPort::HAL_SPI_kOnboardCS1,
+    OnboardCS2 = HAL_SPIPort::HAL_SPI_kOnboardCS2,
+    OnboardCS3 = HAL_SPIPort::HAL_SPI_kOnboardCS3,
+    MXP = HAL_SPIPort::HAL_SPI_kMXP,
 }
 
 /// Spi for driver writers. Currenltly does not include an accumulator.
