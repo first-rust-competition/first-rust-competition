@@ -22,7 +22,7 @@ impl UsageReported {
             resource_instance!(Language, CPlusPlus),
         );
         report_usage_context(666, 0, 123);
-        report_usage_extras(9998, 9998, 9997, b"FEATURE\0");
+        report_usage_extras(9998, 9998, 9997, CStr::from_bytes_with_nul("FEATURE\0").unwrap();
         Self {}
     }
 }
