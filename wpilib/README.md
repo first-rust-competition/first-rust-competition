@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/wpilib.svg)](https://crates.io/crates/wpilib/)
 [![Docs.rs](https://docs.rs/wpilib/badge.svg)](https://docs.rs/wpilib)
 
-Rewrite it in rust. Not ready for any non-dev use.
+Program your FRC robot in rust.
 
 ## Getting started
 
@@ -28,6 +28,7 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     Mine is at `/usr/bin/arm-frc-linux-gnueabi-gcc` on Ubuntu.
 5. Run `rustup target add arm-unknown-linux-gnueabi` to install the Rust stdlib for ARM-based Linux.
 6. Add `wpilib = ...` to `[dependencies]` in `Cargo.toml`.
+7. Do deploy code, check out [cargo-frc](https://crates.io/crates/cargo-frc)
 
 ## Building for Development
 
