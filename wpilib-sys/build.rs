@@ -13,10 +13,6 @@ use std::os::unix::fs::symlink;
 use std::os::windows::fs::symlink_dir;
 use std::path::*;
 
-fn output() -> PathBuf {
-    PathBuf::from(env::var("OUT_DIR").unwrap())
-}
-
 /// announce our lib dir with a symlink cargo-frc to copy
 fn announce_lib() {
     #![allow(unreachable_code)] // compile-dependent panic for not windows or unix platform
