@@ -27,8 +27,7 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     ```
     Mine is at `/usr/bin/arm-frc-linux-gnueabi-gcc` on Ubuntu.
 5. Run `rustup target add arm-unknown-linux-gnueabi` to install the Rust stdlib for ARM-based Linux.
-6. Install the [requirements of `bindgen`](https://rust-lang-nursery.github.io/rust-bindgen/requirements.html), with Clang 3.9 or higher for better C++ support.
-7. Add `wpilib = ...` to `[dependencies]` in `Cargo.toml`.
+6. Add `wpilib = ...` to `[dependencies]` in `Cargo.toml`.
 
 ## Building for Development
 
