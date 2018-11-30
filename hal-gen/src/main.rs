@@ -18,8 +18,8 @@ fn wpilib_sys_dir() -> PathBuf {
 }
 
 fn generate_bindings() {
-    const INCLUDE_DIR: &'static str = "include";
-    const SYMBOL_REGEX: &'static str = "HAL_[A-Za-z0-9]+";
+    const INCLUDE_DIR: &str = "include";
+    const SYMBOL_REGEX: &str = "HAL_[A-Za-z0-9]+";
     let bindings = bindgen::Builder::default()
         .derive_default(true)
         .rustfmt_bindings(false)
@@ -49,7 +49,7 @@ fn generate_bindings() {
     out.write_to_file(output_dir().join("hal_bindings.rs"))
         .expect("Couldn't write bindings!");
 
-    print!("\n");
+    println!();
 }
 
 fn main() {
