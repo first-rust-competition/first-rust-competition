@@ -16,6 +16,7 @@ cargo-frc:
 	cd cargo-frc; make all
 
 wpilib:
+	cd wpilib-sys; make load_headers
 	cd hal-gen; make all
 	cd wpilib-sys; make all
 	cd wpilib; make all
