@@ -5,7 +5,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-extern crate bindgen;
 use std::env;
 use std::fs;
 #[cfg(unix)]
@@ -85,45 +84,8 @@ fn always_run() {
     println!("cargo:rerun-if-changed=*");
 }
 
-/// Code-generation for the HAL
-fn generate_bindings() {
-    const INCLUDE_DIR: &'static str = "include";
-    const SYMBOL_REGEX: &'static str = "HAL_[A-Za-z0-9]+";
-    let bindings = bindgen::Builder::default()
-        .derive_default(true)
-        .rustfmt_bindings(false)
-        .header("HAL_Wrapper.h")
-        .whitelist_type(SYMBOL_REGEX)
-        .whitelist_function(SYMBOL_REGEX)
-        .whitelist_var(SYMBOL_REGEX)
-        // usage reporting enums
-        .whitelist_type(".*tInstances")
-        .whitelist_type(".*tResourceType")
-        .constified_enum_module("*")
-        .clang_arg(format!("-I{}", INCLUDE_DIR))
-        .clang_arg("-x")
-        .clang_arg("c++")
-        .clang_arg("-nostdinc")
-        .clang_arg("-nostdinc++")
-        .clang_arg("-std=c++14");
-    println!("builder_args: {:?}", bindings.command_line_flags());
-    let out = bindings.generate().expect("Unable to generate bindings");
-
-    out.write_to_file(output().join("hal_bindings.rs"))
-        .expect("Couldn't write bindings!");
-
-    // write the bindings to a file for viewing
-    #[cfg(feature = "dev")]
-    {
-        let dev_dir = env::current_dir().unwrap();
-        out.write_to_file(dev_dir.join("HAL_bindings_temp.rs"))
-            .expect("Couldn't write bindings to temporary file!");
-    }
-}
-
 fn main() {
     always_run();
     announce_lib();
-    generate_bindings();
     link();
 }

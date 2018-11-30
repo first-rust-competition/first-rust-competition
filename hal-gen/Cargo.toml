@@ -5,11 +5,12 @@
 # option. This file may not be copied, modified, or distributed
 # except according to those terms.
 
-[workspace]
-members = [
-    "wpilib",
-    "cargo-frc",
-    "wpilib-examples",
-    "wpilib-sys",
-    "hal-gen"
-]
+[package]
+name = "hal-gen"
+version = "0.0.0"
+authors = ["Josh Hejna <josh.hejna@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+bindgen = "0.43.1"

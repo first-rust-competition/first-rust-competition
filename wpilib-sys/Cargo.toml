@@ -21,12 +21,7 @@ include = [
     "Cargo.toml",
     "build.rs",
     "WPILIB_LICENSE",
-    "HAL_Wrapper.h",
-    "include/**/*",
     "lib/**/*",]
 
 [features]
 dev = []
-
-[build-dependencies]
-bindgen = "0.43.1"

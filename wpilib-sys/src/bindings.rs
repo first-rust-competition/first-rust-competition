@@ -17,7 +17,7 @@
 use std::ffi;
 use std::fmt;
 
-include!(concat!(env!("OUT_DIR"), "/hal_bindings.rs"));
+include!("./hal_bindings.rs");
 
 impl fmt::Debug for HAL_JoystickDescriptor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

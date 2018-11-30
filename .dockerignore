@@ -20,6 +20,8 @@
 !cargo-frc
 cargo-frc/target
 
+!hal-gen
+
 !wpilib-examples
 
 !wpilib

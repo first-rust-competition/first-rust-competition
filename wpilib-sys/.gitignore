@@ -7,3 +7,4 @@
 
 HAL_bindings_temp.rs
 src/version.rs
+src/hal_bindings.rs

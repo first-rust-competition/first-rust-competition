@@ -5,11 +5,9 @@
 # option. This file may not be copied, modified, or distributed
 # except according to those terms.
 
-[workspace]
-members = [
-    "wpilib",
-    "cargo-frc",
-    "wpilib-examples",
-    "wpilib-sys",
-    "hal-gen"
-]
+.PHONY: all
+
+all:
+	cargo run
+	cargo clippy --all-targets --all-features -- -D warnings
+	cargo fmt -- --check
