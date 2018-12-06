@@ -6,7 +6,6 @@
 // except according to those terms.
 
 #![feature(concat_idents)]
-#![feature(self_struct_ctor)]
 
 extern crate lazy_static;
 extern crate wpilib_sys;
