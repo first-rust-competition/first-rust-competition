@@ -232,12 +232,8 @@ impl<'a> DriverStation<'a> {
     pub fn alliance(&self) -> HalResult<Alliance> {
         use self::HAL_AllianceStationID::*;
         match hal_call!(HAL_GetAllianceStation())? {
-            HAL_AllianceStationID_kRed1
-            | HAL_AllianceStationID_kRed2
-            | HAL_AllianceStationID_kRed3 => Ok(Alliance::Red),
-            HAL_AllianceStationID_kBlue1
-            | HAL_AllianceStationID_kBlue2
-            | HAL_AllianceStationID_kBlue3 => Ok(Alliance::Blue),
+            kRed1 | kRed2 | kRed3 => Ok(Alliance::Red),
+            kBlue1 | kBlue2 | kBlue3 => Ok(Alliance::Blue),
             _ => Err(HalError(0)),
         }
     }
@@ -247,9 +243,9 @@ impl<'a> DriverStation<'a> {
     pub fn station(&self) -> HalResult<u32> {
         use self::HAL_AllianceStationID::*;
         match hal_call!(HAL_GetAllianceStation())? {
-            HAL_AllianceStationID_kRed1 | HAL_AllianceStationID_kBlue1 => Ok(1),
-            HAL_AllianceStationID_kRed2 | HAL_AllianceStationID_kBlue2 => Ok(2),
-            HAL_AllianceStationID_kRed3 | HAL_AllianceStationID_kBlue3 => Ok(3),
+            kRed1 | kBlue1 => Ok(1),
+            kRed2 | kBlue2 => Ok(2),
+            kRed3 | kBlue3 => Ok(3),
             _ => Err(HalError(0)),
         }
     }

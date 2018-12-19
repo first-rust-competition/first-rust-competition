@@ -17,12 +17,37 @@ fn wpilib_sys_dir() -> PathBuf {
     PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("../wpilib-sys")
 }
 
+#[derive(Debug)]
+struct BindgenCallbacks;
+
+impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
+    fn enum_variant_name(
+        &self,
+        enum_name: Option<&str>,
+        original_variant_name: &str,
+        _variant_value: bindgen::callbacks::EnumVariantValue,
+    ) -> Option<String> {
+        match enum_name {
+            Some("tResourceType") => {
+                Some(original_variant_name["kResourceType_".len()..].to_owned())
+            }
+            Some(enum_name) => {
+                if original_variant_name.starts_with(enum_name) {
+                    Some(original_variant_name[enum_name.len() + 1..].to_owned())
+                } else {
+                    None
+                }
+            }
+            None => None,
+        }
+    }
+}
+
 fn generate_bindings() {
     const INCLUDE_DIR: &str = "include";
     const SYMBOL_REGEX: &str = "HAL_[A-Za-z0-9]+";
     let bindings = bindgen::Builder::default()
         .derive_default(true)
-        .rustfmt_bindings(false)
         .header(format!(
             "{}",
             wpilib_sys_dir().join("HAL_Wrapper.h").display()
@@ -30,16 +55,14 @@ fn generate_bindings() {
         .whitelist_type(SYMBOL_REGEX)
         .whitelist_function(SYMBOL_REGEX)
         .whitelist_var(SYMBOL_REGEX)
-        // usage reporting enums
-        .whitelist_type(".*tInstances")
-        .whitelist_type(".*tResourceType")
-        .constified_enum_module("*")
+        .whitelist_type("HALUsageReporting::.*")
+        .default_enum_style(bindgen::EnumVariation::ModuleConsts)
+        .parse_callbacks(Box::new(BindgenCallbacks))
         .clang_arg(format!(
             "-I{}",
             wpilib_sys_dir().join(INCLUDE_DIR).display()
         ))
-        .clang_arg("-x")
-        .clang_arg("c++")
+        .clang_arg("-xc++")
         .clang_arg("-nostdinc")
         .clang_arg("-nostdinc++")
         .clang_arg("-std=c++14");

@@ -13,10 +13,10 @@ use wpilib_sys::*;
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 #[repr(i32)]
 pub enum Port {
-    Onboard = HAL_SerialPort::HAL_SerialPort_Onboard,
-    MXP = HAL_SerialPort::HAL_SerialPort_MXP,
-    USB1 = HAL_SerialPort::HAL_SerialPort_USB1,
-    USB2 = HAL_SerialPort::HAL_SerialPort_USB2,
+    Onboard = HAL_SerialPort::Onboard,
+    MXP = HAL_SerialPort::MXP,
+    USB1 = HAL_SerialPort::USB1,
+    USB2 = HAL_SerialPort::USB2,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
