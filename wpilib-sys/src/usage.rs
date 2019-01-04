@@ -31,43 +31,38 @@ except according to those terms.
 */
 
 #![macro_use]
-use super::bindings::HALUsageReporting_tInstances;
-use super::bindings::HALUsageReporting_tResourceType;
 use super::bindings::HAL_Report;
 use std::ffi::CStr;
 use std::ptr;
 
+pub use super::bindings::HALUsageReporting_tInstances as instances;
+pub use super::bindings::HALUsageReporting_tResourceType as resource_types;
+
 /// Wraps the ugly type rust-bindgen generates for usage reporting types.
-pub type UsageResourceType = HALUsageReporting_tResourceType::Type;
+pub type UsageResourceType = resource_types::Type;
 
 /// Wraps the ugly type rust-bindgen generates for usage reporting instances.
-pub type UsageResourceInstance = HALUsageReporting_tInstances::Type;
+pub type UsageResourceInstance = instances::Type;
 
 /// A utility macro for referencing rust-bindgen's generated names for usage types.
 ///
-/// ```
-/// assert_eq!(
-///   HALUsageReporting_tResourceType::kResourceType_DigitalOutput,
-///   resource_type!(DigitalOutput)
-/// );
-/// ```
+/// Preserved for backwards compatibility. Users are recommended to
+/// reference `resource_types` directly.
 ///
-/// This currently requires the `concat_idents` feature.
+/// ```
+/// assert_eq!(resource_types::DigitalOutput, resource_type!(DigitalOutput));
+/// ```
 #[macro_export]
 macro_rules! resource_type {
-    ($resource_name:ident) => {{
-        use $crate::bindings::HALUsageReporting_tResourceType::*;
-        concat_idents!(kResourceType_, $resource_name)
-    }};
+    ($resource_name:ident) => {
+        $crate::bindings::HALUsageReporting_tResourceType::$resource_name
+    };
 }
 
 /// A utility macro for referencing rust-bindgen's generated names for usage instances.
 ///
 /// ```
-/// assert_eq!(
-///   HALUsageReporting_tInstances::kLanguage_CPlusPlus,
-///   resource_instance!(Language, CPlusPlus)
-/// );
+/// assert_eq!(instances::kLanguage_CPlusPlus, resource_instance!(Language, CPlusPlus));
 /// ```
 ///
 /// This currently requires the `concat_idents` feature.
