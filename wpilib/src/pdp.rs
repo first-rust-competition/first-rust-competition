@@ -32,6 +32,7 @@ except according to those terms.
 
 use super::sensor_util;
 use std::f64::NAN;
+use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
 /// An interface to the PDP for getting information about robot power.
@@ -50,7 +51,7 @@ impl PowerDistributionPanel {
     /// Create a new PDP interface on the specified module.
     pub fn new_with_module(module: i32) -> HalResult<PowerDistributionPanel> {
         let handle = hal_call!(HAL_InitializePDP(module))?;
-        report_usage(resource_type!(PDP), module as UsageResourceInstance);
+        report_usage(resource_types::PDP, module as instances::Type);
         Ok(PowerDistributionPanel { handle })
     }
 

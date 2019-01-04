@@ -6,6 +6,7 @@
 // except according to those terms.
 
 use sensor_util;
+use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
 /// Represents the amount to multiply the minimum servo-pulse pwm period by.
@@ -37,7 +38,7 @@ impl PWM {
         hal_call!(HAL_SetPWMDisabled(handle))?;
         hal_call!(HAL_SetPWMEliminateDeadband(handle, false as i32))?;
 
-        report_usage(resource_type!(PWM), channel as UsageResourceInstance);
+        report_usage(resource_types::PWM, channel as instances::Type);
 
         Ok(PWM { channel, handle })
     }
@@ -193,10 +194,7 @@ impl PwmSpeedController {
         pwm.set_period_multiplier(PeriodMultiplier::Multiplier1x)?;
         pwm.set_speed(0.0)?;
         pwm.set_zero_latch()?;
-        report_usage(
-            resource_type!(PWMTalonSRX),
-            channel as UsageResourceInstance,
-        );
+        report_usage(resource_types::PWMTalonSRX, channel as instances::Type);
         Ok(PwmSpeedController {
             pwm,
             inverted: false,

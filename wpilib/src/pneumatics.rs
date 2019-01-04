@@ -6,6 +6,7 @@
 // except according to those terms.
 
 use super::sensor_util;
+use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
 /// Corresponds to WPILibC's SolenoidBase, and is responsible for
@@ -95,8 +96,8 @@ impl Solenoid {
         )))?;
 
         report_usage_context(
-            resource_type!(Solenoid),
-            channel as UsageResourceType,
+            resource_types::Solenoid,
+            channel as instances::Type,
             module_number,
         );
 

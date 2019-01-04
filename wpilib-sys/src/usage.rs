@@ -38,46 +38,10 @@ use std::ptr;
 pub use super::bindings::HALUsageReporting_tInstances as instances;
 pub use super::bindings::HALUsageReporting_tResourceType as resource_types;
 
-/// Wraps the ugly type rust-bindgen generates for usage reporting types.
-pub type UsageResourceType = resource_types::Type;
-
-/// Wraps the ugly type rust-bindgen generates for usage reporting instances.
-pub type UsageResourceInstance = instances::Type;
-
-/// A utility macro for referencing rust-bindgen's generated names for usage types.
-///
-/// Preserved for backwards compatibility. Users are recommended to
-/// reference `resource_types` directly.
-///
-/// ```
-/// assert_eq!(resource_types::DigitalOutput, resource_type!(DigitalOutput));
-/// ```
-#[macro_export]
-macro_rules! resource_type {
-    ($resource_name:ident) => {
-        $crate::bindings::HALUsageReporting_tResourceType::$resource_name
-    };
-}
-
-/// A utility macro for referencing rust-bindgen's generated names for usage instances.
-///
-/// ```
-/// assert_eq!(instances::kLanguage_CPlusPlus, resource_instance!(Language, CPlusPlus));
-/// ```
-///
-/// This currently requires the `concat_idents` feature.
-#[macro_export]
-macro_rules! resource_instance {
-    ($resource_name:ident, $instance_name:ident) => {{
-        use $crate::bindings::HALUsageReporting_tInstances::*;
-        concat_idents!(k, $resource_name, _, $instance_name)
-    }};
-}
-
 /// Report the usage of a specific resource type with an `instance` value attached.
 ///
 /// This is provided as a utility for library developers.
-pub fn report_usage(resource: UsageResourceType, instance: UsageResourceInstance) -> i64 {
+pub fn report_usage(resource: resource_types::Type, instance: instances::Type) -> i64 {
     report_usage_context(resource, instance, 0)
 }
 
@@ -85,8 +49,8 @@ pub fn report_usage(resource: UsageResourceType, instance: UsageResourceInstance
 ///
 /// This is provided as a utility for library developers.
 pub fn report_usage_context(
-    resource: UsageResourceType,
-    instance: UsageResourceInstance,
+    resource: resource_types::Type,
+    instance: instances::Type,
     context: i32,
 ) -> i64 {
     unsafe { HAL_Report(resource as i32, instance as i32, context, ptr::null()) }
@@ -98,8 +62,8 @@ pub fn report_usage_context(
 /// # Panics
 /// If the underlying byte slice is not null-terminated, the function will panic
 pub fn report_usage_extras<F: AsRef<[u8]>>(
-    resource: UsageResourceType,
-    instance: UsageResourceInstance,
+    resource: resource_types::Type,
+    instance: instances::Type,
     context: i32,
     feature: F,
 ) -> i64 {

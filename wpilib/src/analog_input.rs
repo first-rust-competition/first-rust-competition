@@ -30,6 +30,7 @@ License version 3 as published by the Free Software Foundation. See
 
 use super::sensor_util;
 use std::{thread, time};
+use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
 /// An analog input on the RoboRIO
@@ -54,7 +55,7 @@ impl AnalogInput {
 
         let port = hal_call!(HAL_InitializeAnalogInputPort(HAL_GetPort(channel)))?;
 
-        report_usage(resource_type!(AnalogChannel), channel as u32);
+        report_usage(resource_types::AnalogChannel, channel as instances::Type);
 
         Ok(AnalogInput {
             channel,

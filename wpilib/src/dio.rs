@@ -31,6 +31,7 @@ except according to those terms.
 */
 
 use super::sensor_util;
+use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
 /// A digital output used to control lights, etc from the RoboRIO.
@@ -56,10 +57,7 @@ impl DigitalOutput {
             false as i32 // for input?
         ))?;
 
-        report_usage(
-            resource_type!(DigitalOutput),
-            channel as UsageResourceInstance,
-        );
+        report_usage(resource_types::DigitalOutput, channel as instances::Type);
 
         Ok(DigitalOutput {
             channel,
@@ -174,10 +172,7 @@ impl DigitalInput {
             true as i32 // for input?
         ))?;
 
-        report_usage(
-            resource_type!(DigitalInput),
-            channel as UsageResourceInstance,
-        );
+        report_usage(resource_types::DigitalInput, channel as instances::Type);
 
         Ok(DigitalInput { channel, handle })
     }

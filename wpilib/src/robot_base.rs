@@ -63,7 +63,7 @@ impl RobotBase {
             return Err(RobotBaseInitError::HalInitFailed);
         }
 
-        report_usage(resource_type!(Language), unsafe {
+        report_usage(usage::resource_types::Language, unsafe {
             mem::transmute(*b"Rust")
         });
         println!("\n********** Hardware Init **********\n");

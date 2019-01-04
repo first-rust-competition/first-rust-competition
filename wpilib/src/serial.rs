@@ -87,7 +87,7 @@ impl SerialPort {
         serial_port.set_write_buf_mode(WriteBufferMode::FlushOnAcces)?;
 
         serial_port.enable_termination(b'\n')?;
-        report_usage(resource_type!(SerialPort), 0);
+        report_usage(usage::resource_types::SerialPort, 0);
         Ok(serial_port)
     }
 
