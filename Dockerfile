@@ -6,7 +6,7 @@
 # except according to those terms.
 
 # A container with all the build dependencies:
-# * Rust nightly
+# * Rust stable
 # * arm-frc-linux-gnueabi-gcc > 5.0
 # * libclang / clang / llvm
 # * JDK
@@ -14,7 +14,7 @@
 #
 # Check the apt-get commands for the canonical list
 
-# Begin with rust-nightly image but based on ubuntu xenial
+# Begin with rust-stable image but based on ubuntu xenial
 FROM ubuntu:xenial
 
 # install dev utils
@@ -40,7 +40,7 @@ RUN set -eux; \
     frc-toolchain \
     ;
 
-# begin rust nightly
+# begin rust stable
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH
@@ -57,7 +57,7 @@ RUN set -eux; \
     url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \
     wget "$url"; \
     chmod +x rustup-init; \
-    ./rustup-init -y --no-modify-path --default-toolchain nightly; \
+    ./rustup-init -y --no-modify-path --default-toolchain stable; \
     rm rustup-init; \
     chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
     rustup --version; \
@@ -68,7 +68,7 @@ RUN set -eux; \
     wget \
     ; \
     rm -rf /var/lib/apt/lists/*;
-# end rust nightly
+# end rust stable
 
 # add arm target and clippy
 RUN set -eux; \
