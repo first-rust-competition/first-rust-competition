@@ -59,7 +59,7 @@ impl JoystickPort {
         if port as usize >= JOYSTICK_PORTS {
             Err(JoystickError::PortDNE)
         } else {
-            Ok(Self(i32::from(port)))
+            Ok(JoystickPort(i32::from(port)))
         }
     }
 }
@@ -76,7 +76,7 @@ impl JoystickAxis {
         if u32::from(axis) >= HAL_kMaxJoystickAxes {
             Err(JoystickError::PortDNE)
         } else {
-            Ok(Self(usize::from(axis)))
+            Ok(JoystickAxis(usize::from(axis)))
         }
     }
 }
@@ -93,7 +93,7 @@ impl JoystickPOV {
         if u32::from(pov) >= HAL_kMaxJoystickPOVs {
             Err(JoystickError::PovDNE)
         } else {
-            Ok(Self(usize::from(pov)))
+            Ok(JoystickPOV(usize::from(pov)))
         }
     }
 }
@@ -172,7 +172,7 @@ impl<'a> DriverStation<'a> {
         if unsafe { HAL_Initialize(500, 0) } == 0 {
             Err(())
         } else {
-            Ok(Self(base))
+            Ok(DriverStation(base))
         }
     }
 
