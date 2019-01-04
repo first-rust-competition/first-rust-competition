@@ -26,7 +26,7 @@ If you want to go further with Rust development for FRC, check out these other c
 
 ## Building
 
-Verify you can build `wpilib`, then run `make all`. `cargo-frc` should build out of the box, but you should `cargo install` it
+Verify you can build `wpilib`, (see its [README](wpilib/README.md)) then run `make all`. `cargo-frc` should build out of the box, but you should `cargo install` it
 to [use it properly](cargo-frc/README.md).
 
 For a full list of requirements, see the [Dockerfile](Dockerfile) used for Travis CI.

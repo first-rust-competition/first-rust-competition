@@ -11,10 +11,9 @@ This repository is designed to be compiled for a [RoboRIO](http://sine.ni.com/ni
 processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, you have to do a few things:
 
 1. Install [Rustup](https://www.rustup.rs/) to help manage Rust toolchains.
-2. Rust-bindgen requires rust nightly. You can configure this with the following:
+2. Only the latest rust stable is guaranteed to work. Ensure you are up to date:
     ```bash
-    rustup toolchain install nightly
-    rustup default nightly
+    rustup update stable
     ```
 3. Install some variant of `arm-linux-gnueabi-gcc`. For example, the official FRC toolchain
     (`arm-frc-linux-gnueabi-gcc`) is available for various platforms [here](http://first.wpi.edu/FRC/roborio/toolchains/), or you
@@ -26,6 +25,7 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
     linker = "<path-to-arm-linux-gnueabi-gcc>"
     ```
     Mine is at `/usr/bin/arm-frc-linux-gnueabi-gcc` on Ubuntu.
+    You can also use the name of the command, provided it's in the PATH.
 5. Run `rustup target add arm-unknown-linux-gnueabi` to install the Rust stdlib for ARM-based Linux.
 6. Add `wpilib = ...` to `[dependencies]` in `Cargo.toml`.
 7. Do deploy code, check out [cargo-frc](https://crates.io/crates/cargo-frc)
@@ -43,7 +43,7 @@ Setup:
     3. Generate the rust-bindings and build the library.
 
 After the initial `make all`, use `cargo` (with two caveats, see below) to build as normal. If the WPILib submodule updates, run `make all` again.
-Pull-requests to make the build process more cross platform are welcome.
+Pull-requests to make the build process more cross platform are welcome. If you want to contribute but can't get the build working, you can use the CI docker image by invoking the `.ci/pull-request.sh` script.
 
 This project includes a build script that generates bindings on top of WPIlib, handles linking, *and exposes its shared libs with a symlink for cargo-frc to consume*. Because of this, the script is by default configured only to run when it needs to update the
 symlink (another version of this crate has changed it). During development, to force the script to run use
@@ -60,13 +60,12 @@ Also note that using `cargo build` in the workspace root will always fail, becau
 - [x] Write abstractions over the HAL.
   - [x] A way to run code when a DS packet is recieved.
   - [x] Structs for things like solenoids / analog in / etc.
-  - [ ] Quadrature Encoders
+  - [x] Quadrature Encoders
   - [ ] etc.
 - [x] Integrate with a build system to make bootstrapping a new project easy and deploying to the RIO simple. ~~Probably a fork of GradleRIO, because it seems like all build tools run on the JVM.~~ Work has begun on `cargo-frc`, the third-party cargo subcommand for this project.
 - [ ] ~~Look into FFI bindings and a abstractions for [CTRE Pheonix](https://github.com/CrossTheRoadElec/Phoenix-frc-lib)
     and the [NavX](https://github.com/kauailabs/navxmxp). Both of these libraries will play very nicely with rust-bindgen's C++ support. Neither is too heavy in inheritance, neither uses templates, and neither throws exceptions. However, the question of how each of them interacts with NI's dynamic libs is yet to be seen. Getting them to behave at link-time and run-time might be hard.~~ Check out [CTRE-rs](https://github.com/auscompgeek/ctre-rs) for a CAN interface to the Talon and Victor SPX. At some point, the NavX serial protocol (for MXP and USB) will be re-implemented on top of our own serial port.
-- [ ] *Re-write* Team 114's 2018 codebase *in rust.*
-- [ ] Test robustness at an offseason competition.
+- [ ] Use rust in the 2019 FRC season
 
 ## License
 
