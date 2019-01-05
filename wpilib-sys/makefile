@@ -14,11 +14,11 @@ all: load_headers libs gen_version
 	cargo fmt -- --check
 
 wpilib_compile: allwpilib_repo
-	cd allwpilib; ./gradlew :hal:halSharedLibrary -PreleaseBuild -PonlyAthena --console=plain
+	cd allwpilib; ./gradlew :hal:halReleaseSharedLibrary -PreleaseBuild -PonlyAthena --console=plain
 
 libs: wpilib_compile
-	cp ./allwpilib/hal/build/libs/hal/shared/*.so ./lib/
-	cp ./allwpilib/wpiutil/build/libs/wpiutil/shared/*.so ./lib/
+	cp ./allwpilib/hal/build/libs/hal/shared/release/*.so ./lib/
+	cp ./allwpilib/wpiutil/build/libs/wpiutil/shared/release/*.so ./lib/
 	cp ./allwpilib/build/tmp/expandedArchives/chipobject*/linux/athena/shared/* ./lib/
 	cp ./allwpilib/build/tmp/expandedArchives/netcomm*/linux/athena/shared/* ./lib/
 
