@@ -7,15 +7,21 @@
 
 # A container with all the build dependencies:
 # * Rust stable
-# * arm-frc-linux-gnueabi-gcc > 5.0
+# * make
+# * git
 # * libclang / clang / llvm
-# * JDK
+# * OpenJDK 11
 # * Python 2.7
+# * arm-frc2019-linux-gnueabi-gcc/g++
 #
 # Check the apt-get commands for the canonical list
 
-# Begin with rust-stable image but based on ubuntu xenial
-FROM ubuntu:xenial
+# Begin with rust-stable image
+FROM rust:latest
+
+# Add debian stretch backports for OpenJDK 11 and Clang 5.0
+RUN set -eux; \
+    echo 'deb http://deb.debian.org/debian stretch-backports main' > /etc/apt/sources.list.d/backports.list
 
 # install dev utils
 RUN set -eux; \
@@ -23,62 +29,37 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
     make \
     git \
-    default-jdk \
+    openjdk-11-jdk-headless \
     llvm-5.0-dev \
     libclang-5.0-dev \
     clang-5.0 \
     python \
     ;
 
-# install frc arm compiler
+# workaround for java cacerts issue https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=894979
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends software-properties-common; \
-    apt-add-repository ppa:wpilib/toolchain; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-    frc-toolchain \
-    ;
+    apt-get install -y --no-install-recommends openjdk-8-jre-headless; \
+    rm /etc/ssl/certs/java/cacerts; \
+    update-ca-certificates --fresh; \
+    apt-get purge -y openjdk-8-jre-headless
 
-# begin rust stable
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH
-
+# add the frc2019 compiler
 RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-    ca-certificates \
-    gcc \
-    libc6-dev \
-    wget \
-    ; \
-    \
-    url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \
-    wget "$url"; \
-    chmod +x rustup-init; \
-    ./rustup-init -y --no-modify-path --default-toolchain stable; \
-    rm rustup-init; \
-    chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
-    rustup --version; \
-    cargo --version; \
-    rustc --version; \
-    \
-    apt-get remove -y --auto-remove \
-    wget \
-    ; \
-    rm -rf /var/lib/apt/lists/*;
-# end rust stable
+    wget -qO- https://github.com/wpilibsuite/toolchain-builder/releases/download/v2019-3/FRC-2019-Linux-Toolchain-6.3.0.tar.gz \
+    | tar xvz -C /
 
-# add arm target and clippy
+ENV PATH /frc2019/roborio/bin/:$PATH
+
+# add arm target and clippy/rustfmt
 RUN set -eux; \
     rustup target add arm-unknown-linux-gnueabi; \
     rustup component add clippy-preview; \
     cargo clippy --version; \
     rustup component add rustfmt-preview; \
-    cargo fmt --version;
+    cargo fmt --version
 
 # configure the linker
-ENV CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER arm-frc-linux-gnueabi-gcc
+ENV CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER arm-frc2019-linux-gnueabi-gcc
 
 COPY . ./first-rust-competition

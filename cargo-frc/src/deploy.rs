@@ -225,6 +225,6 @@ fn deploy_libs(target_address: &str) -> Result<(), String> {
         })
         .collect();
     trace!("Deploying libs at paths {:?}", libs);
-    scp(&libs[..], target_address, "/usr/local/frc/lib")?;
+    scp(&libs[..], target_address, "/usr/local/frc/third-party/lib")?;
     Ok(())
 }

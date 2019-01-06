@@ -15,7 +15,7 @@ from os import getenv
 def main():
     regex = '(?:#include ["<]\.\.\.[">] search starts here:\n){2}((?:(?:.*?)\n)*)(?:End of search list\.)'
 
-    compiler = getenv("CXX_FRC", 'arm-frc-linux-gnueabi-g++')
+    compiler = getenv("CXX_FRC", 'arm-frc2019-linux-gnueabi-g++')
     # print compiler
 
     p = Popen([compiler, '-E', '-Wp,-v', '-'], stdin=PIPE,

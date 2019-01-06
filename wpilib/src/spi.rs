@@ -148,7 +148,7 @@ impl Spi {
         hal_call!(HAL_ForceSPIAutoRead(self.port))
     }
 
-    pub fn read_auto_recieved_data(&mut self, to_read: &mut [u8], timeout: f64) -> HalResult<i32> {
+    pub fn read_auto_received_data(&mut self, to_read: &mut [u32], timeout: f64) -> HalResult<i32> {
         hal_call!(HAL_ReadSPIAutoReceivedData(
             self.port,
             to_read.as_mut_ptr(),
