@@ -7,7 +7,7 @@
 
 .PHONY: all cargo-frc wpilib ci
 
-all: cargo-frc wpilib
+all: wpilib cargo-frc
 
 ci: cargo-frc wpilib
 	sh publish.sh
