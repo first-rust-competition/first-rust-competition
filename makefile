@@ -5,19 +5,20 @@
 # option. This file may not be copied, modified, or distributed
 # except according to those terms.
 
-.PHONY: all cargo-frc wpilib ci
+include wpilib/wpilib.mk
+include cargo-frc/cargo-frc.mk
+include hal-gen/hal-gen.mk
+include wpilib-sys/wpilib-sys.mk
+include wpilib-examples/wpilib-examples.mk
 
-all: wpilib cargo-frc
+.PHONY: all build ci clean
 
-ci: cargo-frc wpilib
+all: build
+
+ci: $(ci)
 	sh publish.sh
 
-cargo-frc:
-	cd cargo-frc; make all
+build: $(build)
 
-wpilib:
-	cd wpilib-sys; make load_headers
-	cd hal-gen; make all
-	cd wpilib-sys; make all
-	cd wpilib; make all
-	cd wpilib-examples; make all
+clean: $(clean)
+	cargo clean
