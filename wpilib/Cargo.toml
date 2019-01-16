@@ -7,7 +7,7 @@
 
 [package]
 name = "wpilib"
-version = "0.3.1"
+version = "0.4.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 description = "FRC's WPILib written in Rust."
 repository = "https://github.com/Lytigas/first-rust-competition"
@@ -29,4 +29,4 @@ dev = []
 
 [dependencies]
 lazy_static = "1.1.0"
-wpilib-sys = {path = "../wpilib-sys", version = "0.3.1"}
+wpilib-sys = {path = "../wpilib-sys", version = "0.4.0"}

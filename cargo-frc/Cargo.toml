@@ -7,7 +7,7 @@
 
 [package]
 name = "cargo-frc"
-version = "0.3.1"
+version = "0.4.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 description = "A cargo extension for deploying rust code to FRC robots."
 # documentation = "..."
