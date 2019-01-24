@@ -17,6 +17,7 @@ pub use self::pdp::PowerDistributionPanel;
 pub mod dio;
 pub mod ds;
 pub mod encoder;
+pub mod joystick;
 pub mod pneumatics;
 pub mod pwm;
 mod robot_base;
