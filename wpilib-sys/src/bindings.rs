@@ -13,6 +13,7 @@
 #![allow(clippy::useless_transmute)]
 #![allow(clippy::cast_lossless)]
 #![allow(clippy::trivially_copy_pass_by_ref)]
+#![allow(clippy::unreadable_literal)]
 
 use std::ffi;
 use std::fmt;
