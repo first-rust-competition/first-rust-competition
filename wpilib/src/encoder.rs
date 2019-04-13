@@ -31,7 +31,6 @@ License version 3 as published by the Free Software Foundation. See
 // TODO: documentation
 
 // TODO: fix variables
-use wpilib_sys::usage::resource_types;
 use wpilib_sys::*;
 
 use crate::dio::DigitalInput;
@@ -89,8 +88,8 @@ impl Encoder {
             encoder: handle,
         };
 
-        report_usage_context(
-            resource_types::Encoder,
+        usage::report_context(
+            usage::resource_types::Encoder,
             encoder.fpga_index()? as u32,
             encoding as HAL_EncoderEncodingType::Type,
         );

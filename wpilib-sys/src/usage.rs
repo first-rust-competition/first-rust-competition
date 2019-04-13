@@ -30,7 +30,8 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-#![macro_use]
+//! Lightweight wrappers around usage reporting.
+
 use super::bindings::HAL_Report;
 use std::ffi::CStr;
 use std::ptr;
@@ -41,14 +42,14 @@ pub use super::bindings::HALUsageReporting_tResourceType as resource_types;
 /// Report the usage of a specific resource type with an `instance` value attached.
 ///
 /// This is provided as a utility for library developers.
-pub fn report_usage(resource: resource_types::Type, instance: instances::Type) -> i64 {
-    report_usage_context(resource, instance, 0)
+pub fn report(resource: resource_types::Type, instance: instances::Type) -> i64 {
+    report_context(resource, instance, 0)
 }
 
 /// Report usage of a resource with additional context.
 ///
 /// This is provided as a utility for library developers.
-pub fn report_usage_context(
+pub fn report_context(
     resource: resource_types::Type,
     instance: instances::Type,
     context: i32,
@@ -61,7 +62,7 @@ pub fn report_usage_context(
 ///
 /// # Panics
 /// If the underlying byte slice is not null-terminated, the function will panic
-pub fn report_usage_extras<F: AsRef<[u8]>>(
+pub fn report_extras<F: AsRef<[u8]>>(
     resource: resource_types::Type,
     instance: instances::Type,
     context: i32,

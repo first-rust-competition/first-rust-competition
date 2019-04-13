@@ -95,7 +95,7 @@ impl Solenoid {
             channel
         )))?;
 
-        report_usage_context(
+        usage::report_context(
             resource_types::Solenoid,
             channel as instances::Type,
             module_number,

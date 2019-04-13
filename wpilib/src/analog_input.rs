@@ -55,7 +55,7 @@ impl AnalogInput {
 
         let port = hal_call!(HAL_InitializeAnalogInputPort(HAL_GetPort(channel)))?;
 
-        report_usage(resource_types::AnalogChannel, channel as instances::Type);
+        usage::report(resource_types::AnalogChannel, channel as instances::Type);
 
         Ok(AnalogInput {
             channel,

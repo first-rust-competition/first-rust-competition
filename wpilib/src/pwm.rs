@@ -38,7 +38,7 @@ impl PWM {
         hal_call!(HAL_SetPWMDisabled(handle))?;
         hal_call!(HAL_SetPWMEliminateDeadband(handle, false as i32))?;
 
-        report_usage(resource_types::PWM, channel as instances::Type);
+        usage::report(resource_types::PWM, channel as instances::Type);
 
         Ok(PWM { channel, handle })
     }
@@ -194,7 +194,7 @@ impl PwmSpeedController {
         pwm.set_period_multiplier(PeriodMultiplier::Multiplier1x)?;
         pwm.set_speed(0.0)?;
         pwm.set_zero_latch()?;
-        report_usage(resource_types::PWMTalonSRX, channel as instances::Type);
+        usage::report(resource_types::PWMTalonSRX, channel as instances::Type);
         Ok(PwmSpeedController {
             pwm,
             inverted: false,

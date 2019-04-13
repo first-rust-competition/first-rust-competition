@@ -51,7 +51,7 @@ impl PowerDistributionPanel {
     /// Create a new PDP interface on the specified module.
     pub fn new_with_module(module: i32) -> HalResult<PowerDistributionPanel> {
         let handle = hal_call!(HAL_InitializePDP(module))?;
-        report_usage(resource_types::PDP, module as instances::Type);
+        usage::report(resource_types::PDP, module as instances::Type);
         Ok(PowerDistributionPanel { handle })
     }
 
