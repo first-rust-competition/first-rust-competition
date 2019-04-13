@@ -32,14 +32,10 @@ impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
             Some("tResourceType") => {
                 Some(original_variant_name["kResourceType_".len()..].to_owned())
             }
-            Some(enum_name) => {
-                if original_variant_name.starts_with(enum_name) {
-                    Some(original_variant_name[enum_name.len() + 1..].to_owned())
-                } else {
-                    None
-                }
+            Some(enum_name) if original_variant_name.starts_with(enum_name) => {
+                Some(original_variant_name[enum_name.len() + 1..].to_owned())
             }
-            None => None,
+            _ => None,
         }
     }
 
