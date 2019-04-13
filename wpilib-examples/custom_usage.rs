@@ -7,6 +7,7 @@
 
 extern crate wpilib_sys;
 
+use std::ffi::CString;
 use wpilib_sys::usage::*;
 
 struct UsageReported {}
@@ -15,7 +16,7 @@ impl UsageReported {
     pub fn new() -> Self {
         report(resource_types::Language, instances::kLanguage_CPlusPlus);
         report_context(666, 0, 123);
-        report_extras(9998, 9998, 9997, b"FEATURE\0");
+        report_feature(9998, 9998, 9997, CString::new("FEATURE").unwrap());
         Self {}
     }
 }

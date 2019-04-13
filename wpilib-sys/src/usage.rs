@@ -57,19 +57,21 @@ pub fn report_context(
     unsafe { HAL_Report(resource as i32, instance as i32, context, ptr::null()) }
 }
 
-/// This is provided as a utility for library developers.
-/// Designed to be used with null-terminated byte string literals like `b"message\0"`
+/// Report usage of a resource with context and a feature string.
 ///
-/// # Panics
-/// If the underlying byte slice is not null-terminated, the function will panic
-pub fn report_extras<F: AsRef<[u8]>>(
+/// This is provided as a utility for library developers.
+pub fn report_feature(
     resource: resource_types::Type,
     instance: instances::Type,
     context: i32,
-    feature: F,
+    feature: impl AsRef<CStr>,
 ) -> i64 {
-    // local binding just to be safe with lifetimes, see https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.as_ptr
-    let cstr = CStr::from_bytes_with_nul(feature.as_ref())
-        .expect("report_usage_extras features must be null-terminated!");
-    unsafe { HAL_Report(resource as i32, instance as i32, context, cstr.as_ptr()) }
+    unsafe {
+        HAL_Report(
+            resource as i32,
+            instance as i32,
+            context,
+            feature.as_ref().as_ptr(),
+        )
+    }
 }
