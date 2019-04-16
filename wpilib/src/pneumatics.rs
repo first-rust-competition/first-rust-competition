@@ -108,7 +108,6 @@ pub struct Solenoid {
 
 impl Solenoid {
     /// Create a new solenoid on the default PCM with the given channel.
-    #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Solenoid> {
         Self::with_module(PneumaticsControlModule::DEFAULT, channel)
     }
