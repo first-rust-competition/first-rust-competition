@@ -81,6 +81,22 @@ impl PneumaticsControlModule {
     pub fn clear_all_sticky_faults(&mut self) -> HalResult<()> {
         hal_call!(HAL_ClearAllPCMStickyFaults(self.0))
     }
+
+    pub fn solenoid(self, channel: i32) -> HalResult<Solenoid> {
+        Solenoid::with_module(self, channel)
+    }
+
+    pub fn double_solenoid(
+        self,
+        forward_channel: i32,
+        reverse_channel: i32,
+    ) -> HalResult<DoubleSolenoid> {
+        DoubleSolenoid::with_module(self, forward_channel, reverse_channel)
+    }
+
+    pub fn compressor(self) -> Compressor {
+        Compressor::with_module(self)
+    }
 }
 
 #[derive(Debug)]
