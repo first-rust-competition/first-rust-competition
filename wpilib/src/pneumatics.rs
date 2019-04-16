@@ -5,90 +5,102 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use super::sensor_util;
-use wpilib_sys::usage::{instances, resource_types};
+use lazy_static::lazy_static;
 use wpilib_sys::*;
 
-/// Corresponds to WPILibC's SolenoidBase, and is responsible for
-/// Getting info about a solenoid module, (conceptually a PCM).
-/// Even though each Solenoid will have a different instance, they all will
-/// probably refer to the same piece of hardware.
-#[derive(Debug)]
-pub struct SolenoidModule {
-    module: i32,
+lazy_static! {
+    /// The number of solenoid channels per PCM.
+    pub static ref NUM_SOLENOID_CHANNELS: i32 = unsafe { HAL_GetNumSolenoidChannels() };
+
+    /// The number of possible PCMs.
+    pub static ref NUM_SOLENOID_MODULES: i32 = unsafe { HAL_GetNumPCMModules() };
 }
 
-/// All of these methods are equivalent to their WPILib counterparts.
-impl SolenoidModule {
-    /// Gets the state of each solenoid on the module with the given number.
+/// Check if a solenoid module (PCM) is valid.
+#[inline]
+pub fn check_solenoid_module(module: i32) -> bool {
+    unsafe { HAL_CheckSolenoidModule(module) != 0 }
+}
+
+/// Check if a solenoid channel is valid.
+#[inline]
+pub fn check_solenoid_channel(channel: i32) -> bool {
+    unsafe { HAL_CheckSolenoidChannel(channel) != 0 }
+}
+
+/// Represents a CTRE Pneumatics Control Module.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct PneumaticsControlModule(i32);
+
+impl Default for PneumaticsControlModule {
+    /// Returns a PCM with the default ID of 0.
+    #[inline]
+    fn default() -> Self {
+        PneumaticsControlModule::DEFAULT
+    }
+}
+
+impl PneumaticsControlModule {
+    /// A PCM with the default ID of 0.
+    // 0 is guaranteed to be valid.
+    const DEFAULT: Self = PneumaticsControlModule(0);
+
+    /// Creates a PCM object for a given ID.
+    pub fn new(module_id: i32) -> Option<Self> {
+        if check_solenoid_module(module_id) {
+            Some(PneumaticsControlModule(module_id))
+        } else {
+            None
+        }
+    }
+
+    /// Returns the module ID.
+    #[inline]
+    pub fn number(&self) -> i32 {
+        self.0
+    }
+
+    /// Gets the state of each solenoid on the PCM.
     /// Returns a bit mask.
-    pub fn all_with_module(module: i32) -> HalResult<i32> {
-        hal_call!(HAL_GetAllSolenoids(module))
-    }
-
-    /// Is the same as `all_with_module`, but on the module this instance
-    /// refers to.
     pub fn all(&self) -> HalResult<i32> {
-        Self::all_with_module(self.module)
+        hal_call!(HAL_GetAllSolenoids(self.0))
     }
 
-    pub fn pcm_solenoid_blacklist_with_module(module: i32) -> i32 {
-        maybe_hal_call!(HAL_GetPCMSolenoidBlackList(module)).ok()
+    pub fn solenoid_blacklist(&self) -> i32 {
+        maybe_hal_call!(HAL_GetPCMSolenoidBlackList(self.0)).ok()
     }
 
-    pub fn pcm_solenoid_blacklist(&self) -> i32 {
-        Self::pcm_solenoid_blacklist_with_module(self.module)
+    pub fn solenoid_voltage_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(self.0)).ok() != 0
     }
 
-    pub fn pcm_solenoid_voltage_sticky_fault_with_module(module: i32) -> bool {
-        maybe_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(module)).ok() != 0
+    pub fn solenoid_voltage_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetPCMSolenoidVoltageFault(self.0)).ok() != 0
     }
 
-    pub fn pcm_solenoid_voltage_sticky_fault(&self) -> bool {
-        Self::pcm_solenoid_voltage_sticky_fault_with_module(self.module)
-    }
-
-    pub fn pcm_solenoid_voltage_fault_with_module(module: i32) -> bool {
-        maybe_hal_call!(HAL_GetPCMSolenoidVoltageFault(module)).ok() != 0
-    }
-
-    pub fn pcm_solenoid_voltage_fault(&self) -> bool {
-        Self::pcm_solenoid_voltage_fault_with_module(self.module)
-    }
-
-    pub fn clear_all_pcm_sticky_faults_with_module(module: i32) {
-        maybe_hal_call!(HAL_ClearAllPCMStickyFaults(module)).ok();
-    }
-
-    pub fn clear_all_pcm_sticky_faults(&self) {
-        Self::clear_all_pcm_sticky_faults_with_module(self.module);
+    pub fn clear_all_sticky_faults(&mut self) -> HalResult<()> {
+        hal_call!(HAL_ClearAllPCMStickyFaults(self.0))
     }
 }
 
 #[derive(Debug)]
 pub struct Solenoid {
-    solenoid_handle: HAL_SolenoidHandle,
+    handle: HAL_SolenoidHandle,
     channel: i32,
-    module: SolenoidModule,
+    module: PneumaticsControlModule,
 }
 
 impl Solenoid {
-    /// Make a new solenoid with the given channel.
+    /// Create a new solenoid on the default PCM with the given channel.
     #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Solenoid> {
-        Self::new_with_module(sensor_util::default_solenoid_module(), channel)
+        Self::with_module(PneumaticsControlModule::DEFAULT, channel)
     }
 
     /// If for some reason the Pneumatic Control Module is not on CAN module 0,
     /// you can use this constructor. Most people will never need this.
-    pub fn new_with_module(module_number: i32, channel: i32) -> HalResult<Solenoid> {
-        if !sensor_util::check_solenoid_module(module_number) {
-            return Err(HalError(0));
-        };
-
-        if !sensor_util::check_solenoid_channel(channel) {
-            return Err(HalError(0));
-        };
+    pub fn with_module(module: PneumaticsControlModule, channel: i32) -> HalResult<Solenoid> {
+        let module_number = module.number();
 
         let handle = hal_call!(HAL_InitializeSolenoidPort(HAL_GetPortWithModule(
             module_number,
@@ -96,60 +108,66 @@ impl Solenoid {
         )))?;
 
         usage::report_context(
-            resource_types::Solenoid,
-            channel as instances::Type,
+            usage::resource_types::Solenoid,
+            channel as usage::instances::Type,
             module_number,
         );
 
         Ok(Solenoid {
-            solenoid_handle: handle,
+            handle,
             channel,
-            module: SolenoidModule {
-                module: module_number,
-            },
+            module,
         })
     }
 
     /// Sets the solenoid to on or off
-    pub fn set(&self, on: bool) -> HalResult<()> {
-        hal_call!(HAL_SetSolenoid(self.solenoid_handle, on as i32))
+    pub fn set(&mut self, on: bool) -> HalResult<()> {
+        hal_call!(HAL_SetSolenoid(self.handle, on as HAL_Bool))
     }
 
     /// Gets the state of the solenoid by calling out to the hardware through an FFI.
     /// If you need speed, consider caching the value you set yourself!
     pub fn get(&self) -> HalResult<bool> {
-        Ok(hal_call!(HAL_GetSolenoid(self.solenoid_handle))? != 0)
+        Ok(hal_call!(HAL_GetSolenoid(self.handle))? != 0)
     }
 
     pub fn is_blacklisted(&self) -> bool {
-        (self.module.pcm_solenoid_blacklist() & (1 << self.channel)) != 0
+        (self.module.solenoid_blacklist() & (1 << self.channel)) != 0
     }
 
-    pub fn set_pulse_duration(&self, seconds: f64) -> HalResult<()> {
+    pub fn set_pulse_duration(&mut self, seconds: f64) -> HalResult<()> {
         let duration_ms: i32 = (seconds * 1000.0) as i32;
-        hal_call!(HAL_SetOneShotDuration(self.solenoid_handle, duration_ms))
+        hal_call!(HAL_SetOneShotDuration(self.handle, duration_ms))
     }
 
-    pub fn start_pulse(&self) -> HalResult<()> {
-        hal_call!(HAL_FireOneShot(self.solenoid_handle))
+    pub fn start_pulse(&mut self) -> HalResult<()> {
+        hal_call!(HAL_FireOneShot(self.handle))
     }
 
-    pub fn module(&self) -> &SolenoidModule {
+    pub fn module(&self) -> &PneumaticsControlModule {
         &self.module
     }
 }
 
 impl Drop for Solenoid {
     fn drop(&mut self) {
-        unsafe { HAL_FreeSolenoidPort(self.solenoid_handle) }
+        unsafe { HAL_FreeSolenoidPort(self.handle) }
     }
 }
 
+/// Possible values for a DoubleSolenoid.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Action {
     Forward,
     Reverse,
     Off,
+}
+
+impl Default for Action {
+    #[inline]
+    fn default() -> Self {
+        Action::Off
+    }
 }
 
 #[derive(Debug)]
@@ -159,56 +177,43 @@ pub struct DoubleSolenoid {
 }
 
 impl DoubleSolenoid {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(forward_channel: i32, reverse_channel: i32) -> HalResult<DoubleSolenoid> {
-        Self::new_with_module(
-            sensor_util::default_solenoid_module(),
+    pub fn new(forward: Solenoid, reverse: Solenoid) -> Self {
+        DoubleSolenoid { forward, reverse }
+    }
+
+    pub fn with_channels(forward_channel: i32, reverse_channel: i32) -> HalResult<DoubleSolenoid> {
+        Self::with_module(
+            PneumaticsControlModule::DEFAULT,
             forward_channel,
             reverse_channel,
         )
     }
 
-    pub fn new_with_module(
-        module_number: i32,
+    pub fn with_module(
+        module: PneumaticsControlModule,
         forward_channel: i32,
         reverse_channel: i32,
     ) -> HalResult<DoubleSolenoid> {
         Ok(DoubleSolenoid {
-            forward: Solenoid::new_with_module(module_number, forward_channel)?,
-            reverse: Solenoid::new_with_module(module_number, reverse_channel)?,
+            forward: Solenoid::with_module(module, forward_channel)?,
+            reverse: Solenoid::with_module(module, reverse_channel)?,
         })
     }
 
-    pub fn set(&self, action: Action) -> HalResult<()> {
-        let forward;
-        let reverse;
-        match action {
-            Action::Forward => {
-                forward = true;
-                reverse = false;
-            }
-            Action::Reverse => {
-                forward = false;
-                reverse = true;
-            }
-            Action::Off => {
-                forward = false;
-                reverse = false;
-            }
-        };
-        self.forward.set(forward)?;
-        self.reverse.set(reverse)?;
+    pub fn set(&mut self, action: Action) -> HalResult<()> {
+        self.forward.set(action == Action::Forward)?;
+        self.reverse.set(action == Action::Reverse)?;
         Ok(())
     }
 
     pub fn get(&self) -> HalResult<Action> {
         if self.forward.get()? {
-            return Ok(Action::Forward);
-        };
-        if self.reverse.get()? {
-            return Ok(Action::Reverse);
-        };
-        Ok(Action::Off)
+            Ok(Action::Forward)
+        } else if self.reverse.get()? {
+            Ok(Action::Reverse)
+        } else {
+            Ok(Action::Off)
+        }
     }
 
     pub fn is_fwd_blacklisted(&self) -> bool {
@@ -218,101 +223,87 @@ impl DoubleSolenoid {
     pub fn is_rev_blacklisted(&self) -> bool {
         self.reverse.is_blacklisted()
     }
-
-    pub fn module(&self) -> &SolenoidModule {
-        self.forward.module()
-    }
 }
 
 #[derive(Debug)]
 pub struct Compressor {
-    compressor_handle: HAL_CompressorHandle,
-    module: i32,
+    handle: HAL_CompressorHandle,
+}
+
+impl Default for Compressor {
+    #[inline]
+    fn default() -> Self {
+        Compressor::new()
+    }
 }
 
 impl Compressor {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new() -> HalResult<Self> {
-        Self::new_with_module(sensor_util::default_solenoid_module())
+    pub fn new() -> Self {
+        Self::with_module(PneumaticsControlModule::DEFAULT)
     }
 
-    pub fn new_with_module(module: i32) -> HalResult<Self> {
-        let compressor_handle = hal_call!(HAL_InitializeCompressor(module))?;
-        Ok(Self {
-            compressor_handle,
-            module,
-        })
+    pub fn with_module(module: PneumaticsControlModule) -> Self {
+        // HAL_InitializeCompressor returns an error iff the module number is
+        // invalid, but PneumaticsControlModule already guarantees it's valid.
+        let handle = hal_call!(HAL_InitializeCompressor(module.number())).unwrap();
+        Self { handle }
     }
 
-    pub fn set_closed_loop_control(&self, on: bool) {
+    /// Allow or disallow the compressor to run.
+    pub fn set_closed_loop_control(&mut self, on: bool) -> HalResult<()> {
         hal_call!(HAL_SetCompressorClosedLoopControl(
-            self.compressor_handle,
-            on as i32
+            self.handle,
+            on as HAL_Bool
         ))
-        .ok();
     }
 
-    pub fn start(&self) {
-        self.set_closed_loop_control(true);
+    /// Allow the compressor to start.
+    pub fn start(&mut self) -> HalResult<()> {
+        self.set_closed_loop_control(true)
     }
 
-    pub fn stop(&self) {
-        self.set_closed_loop_control(false);
+    /// Forcibly stop the compressor.
+    pub fn stop(&mut self) -> HalResult<()> {
+        self.set_closed_loop_control(false)
     }
 
     pub fn enabled(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressor(self.compressor_handle)).ok() != 0
+        maybe_hal_call!(HAL_GetCompressor(self.handle)).ok() != 0
     }
 
     pub fn pressure_switch_value(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorPressureSwitch(self.compressor_handle)).ok() != 0
+        maybe_hal_call!(HAL_GetCompressorPressureSwitch(self.handle)).ok() != 0
     }
 
-    pub fn compressor_current(&self) -> f64 {
-        maybe_hal_call!(HAL_GetCompressorCurrent(self.compressor_handle)).ok()
+    pub fn current(&self) -> f64 {
+        maybe_hal_call!(HAL_GetCompressorCurrent(self.handle)).ok()
     }
 
     pub fn closed_loop_control(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorClosedLoopControl(self.compressor_handle)).ok() != 0
+        maybe_hal_call!(HAL_GetCompressorClosedLoopControl(self.handle)).ok() != 0
     }
 
-    pub fn compressor_current_too_high_fault(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
-            self.compressor_handle
-        ))
-        .ok()
-            != 0
+    pub fn current_too_high_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorCurrentTooHighFault(self.handle)).ok() != 0
     }
 
-    pub fn compressor_current_too_high_sticky_fault(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(
-            self.compressor_handle
-        ))
-        .ok()
-            != 0
+    pub fn current_too_high_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorCurrentTooHighStickyFault(self.handle)).ok() != 0
     }
 
-    pub fn compressor_shorted_sticky_fault(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorShortedStickyFault(self.compressor_handle)).ok() != 0
+    pub fn shorted_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorShortedStickyFault(self.handle)).ok() != 0
     }
 
-    pub fn compressor_shorted_fault(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorShortedFault(self.compressor_handle)).ok() != 0
+    pub fn shorted_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorShortedFault(self.handle)).ok() != 0
     }
 
-    pub fn compressor_not_connected_sticky_fault(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorNotConnectedStickyFault(
-            self.compressor_handle
-        ))
-        .ok()
-            != 0
+    pub fn not_connected_sticky_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorNotConnectedStickyFault(self.handle)).ok() != 0
     }
 
-    pub fn compressor_not_connected_fault(&self) -> bool {
-        maybe_hal_call!(HAL_GetCompressorNotConnectedFault(self.compressor_handle)).ok() != 0
-    }
-
-    pub fn clear_all_pcm_sticky_faults(&self) {
-        hal_call!(HAL_ClearAllPCMStickyFaults(self.module)).ok();
+    pub fn not_connected_fault(&self) -> bool {
+        maybe_hal_call!(HAL_GetCompressorNotConnectedFault(self.handle)).ok() != 0
     }
 }
