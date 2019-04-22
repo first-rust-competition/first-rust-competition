@@ -20,6 +20,8 @@ pub mod encoder;
 pub mod notifier;
 pub mod pneumatics;
 pub mod pwm;
+mod robot;
+pub use self::robot::*;
 mod robot_base;
 pub use self::robot_base::*;
 pub mod serial;
