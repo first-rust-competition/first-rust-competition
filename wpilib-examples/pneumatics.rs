@@ -11,7 +11,8 @@ use wpilib::{ds, pneumatics, RobotBase};
 
 fn main() {
     let robot = RobotBase::new().expect("HAL FAILED");
-    let solenoid = pneumatics::DoubleSolenoid::new(4, 5).expect("Could not make DoubleSolenoid");
+    let mut solenoid =
+        pneumatics::DoubleSolenoid::with_channels(4, 5).expect("Could not make DoubleSolenoid");
     RobotBase::start_competition();
 
     let mut val;
