@@ -51,21 +51,13 @@ fn loop_func<T: IterativeRobot>(
     cur_mode: RobotState,
 ) {
     // Check for state transitions
-    match (last_mode, cur_mode) {
-        (Some(RobotState::Disabled), RobotState::Disabled) => (),
-        (_, RobotState::Disabled) => robot.disabled_init(),
-
-        (Some(RobotState::Autonomous), RobotState::Autonomous) => (),
-        (_, RobotState::Autonomous) => robot.autonomous_init(),
-
-        (Some(RobotState::Teleop), RobotState::Teleop) => (),
-        (_, RobotState::Teleop) => robot.teleop_init(),
-
-        (Some(RobotState::Test), RobotState::Test) => (),
-        (_, RobotState::Test) => robot.test_init(),
-
-        // XXX: This really should look the same as disabled
-        (_, RobotState::EStop) => (),
+    if last_mode != Some(cur_mode) {
+        match cur_mode {
+            RobotState::Autonomous => robot.autonomous_init(),
+            RobotState::Teleop => robot.teleop_init(),
+            RobotState::Test => robot.test_init(),
+            _ => robot.disabled_init(),
+        }
     }
 
     // Call the appropriate periodic function
