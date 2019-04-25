@@ -32,21 +32,25 @@ impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
             Some("tResourceType") => {
                 Some(original_variant_name["kResourceType_".len()..].to_owned())
             }
-            Some(enum_name) => {
-                if original_variant_name.starts_with(enum_name) {
-                    Some(original_variant_name[enum_name.len() + 1..].to_owned())
-                } else {
-                    None
-                }
+            Some(enum_name) if original_variant_name.starts_with(enum_name) => {
+                Some(original_variant_name[enum_name.len() + 1..].to_owned())
             }
-            None => None,
+            _ => None,
+        }
+    }
+
+    fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
+        if name.ends_with("_MESSAGE") {
+            bindgen::callbacks::MacroParsingBehavior::Ignore
+        } else {
+            bindgen::callbacks::MacroParsingBehavior::Default
         }
     }
 }
 
 fn generate_bindings() {
     const INCLUDE_DIR: &str = "include";
-    const SYMBOL_REGEX: &str = "HAL_[A-Za-z0-9]+";
+    const SYMBOL_REGEX: &str = r"HAL_\w+";
     let bindings = bindgen::Builder::default()
         .derive_default(true)
         .header(format!(
