@@ -57,7 +57,7 @@ impl DigitalOutput {
             false as i32 // for input?
         ))?;
 
-        report_usage(resource_types::DigitalOutput, channel as instances::Type);
+        usage::report(resource_types::DigitalOutput, channel as instances::Type);
 
         Ok(DigitalOutput {
             channel,
@@ -172,7 +172,7 @@ impl DigitalInput {
             true as i32 // for input?
         ))?;
 
-        report_usage(resource_types::DigitalInput, channel as instances::Type);
+        usage::report(resource_types::DigitalInput, channel as instances::Type);
 
         Ok(DigitalInput { channel, handle })
     }

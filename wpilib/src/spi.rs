@@ -30,7 +30,7 @@ impl Spi {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(port: Port) -> HalResult<Self> {
         hal_call!(HAL_InitializeSPI(port as HAL_SPIPort::Type))?;
-        report_usage(usage::resource_types::SPI, 1);
+        usage::report(usage::resource_types::SPI, 1);
         Ok(Spi {
             port: port as HAL_SPIPort::Type,
             msb_first: false,

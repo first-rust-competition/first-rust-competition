@@ -30,7 +30,8 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-#![macro_use]
+//! Lightweight wrappers around usage reporting.
+
 use super::bindings::HAL_Report;
 use std::ffi::CStr;
 use std::ptr;
@@ -41,14 +42,14 @@ pub use super::bindings::HALUsageReporting_tResourceType as resource_types;
 /// Report the usage of a specific resource type with an `instance` value attached.
 ///
 /// This is provided as a utility for library developers.
-pub fn report_usage(resource: resource_types::Type, instance: instances::Type) -> i64 {
-    report_usage_context(resource, instance, 0)
+pub fn report(resource: resource_types::Type, instance: instances::Type) -> i64 {
+    report_context(resource, instance, 0)
 }
 
 /// Report usage of a resource with additional context.
 ///
 /// This is provided as a utility for library developers.
-pub fn report_usage_context(
+pub fn report_context(
     resource: resource_types::Type,
     instance: instances::Type,
     context: i32,
@@ -56,19 +57,21 @@ pub fn report_usage_context(
     unsafe { HAL_Report(resource as i32, instance as i32, context, ptr::null()) }
 }
 
-/// This is provided as a utility for library developers.
-/// Designed to be used with null-terminated byte string literals like `b"message\0"`
+/// Report usage of a resource with context and a feature string.
 ///
-/// # Panics
-/// If the underlying byte slice is not null-terminated, the function will panic
-pub fn report_usage_extras<F: AsRef<[u8]>>(
+/// This is provided as a utility for library developers.
+pub fn report_feature(
     resource: resource_types::Type,
     instance: instances::Type,
     context: i32,
-    feature: F,
+    feature: impl AsRef<CStr>,
 ) -> i64 {
-    // local binding just to be safe with lifetimes, see https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.as_ptr
-    let cstr = CStr::from_bytes_with_nul(feature.as_ref())
-        .expect("report_usage_extras features must be null-terminated!");
-    unsafe { HAL_Report(resource as i32, instance as i32, context, cstr.as_ptr()) }
+    unsafe {
+        HAL_Report(
+            resource as i32,
+            instance as i32,
+            context,
+            feature.as_ref().as_ptr(),
+        )
+    }
 }
