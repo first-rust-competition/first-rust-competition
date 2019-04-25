@@ -32,7 +32,7 @@ except according to those terms.
 
 use super::ds::*;
 use std::mem;
-use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use wpilib_sys::*;
 
@@ -43,7 +43,7 @@ pub enum RobotBaseInitError {
 }
 
 // Should we give in and use lazy static?
-static ROBOT_INITED: AtomicBool = ATOMIC_BOOL_INIT;
+static ROBOT_INITED: AtomicBool = AtomicBool::new(false);
 
 #[derive(Debug)]
 pub struct RobotBase {}
