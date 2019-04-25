@@ -56,25 +56,25 @@ impl PneumaticsControlModule {
 
     /// Returns the module ID.
     #[inline]
-    pub fn number(&self) -> i32 {
+    pub fn number(self) -> i32 {
         self.0
     }
 
     /// Gets the state of each solenoid on the PCM.
     /// Returns a bit mask.
-    pub fn all(&self) -> HalResult<i32> {
+    pub fn all(self) -> HalResult<i32> {
         hal_call!(HAL_GetAllSolenoids(self.0))
     }
 
-    pub fn solenoid_blacklist(&self) -> i32 {
+    pub fn solenoid_blacklist(self) -> i32 {
         maybe_hal_call!(HAL_GetPCMSolenoidBlackList(self.0)).ok()
     }
 
-    pub fn solenoid_voltage_sticky_fault(&self) -> bool {
+    pub fn solenoid_voltage_sticky_fault(self) -> bool {
         maybe_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(self.0)).ok() != 0
     }
 
-    pub fn solenoid_voltage_fault(&self) -> bool {
+    pub fn solenoid_voltage_fault(self) -> bool {
         maybe_hal_call!(HAL_GetPCMSolenoidVoltageFault(self.0)).ok() != 0
     }
 
