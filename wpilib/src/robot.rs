@@ -12,7 +12,7 @@ use super::{
 };
 use std::time;
 use wpilib_sys::{
-    HAL_ObserveUserProgramAutonomous, HAL_ObserveUserProgramDisabled,
+    usage, HAL_ObserveUserProgramAutonomous, HAL_ObserveUserProgramDisabled,
     HAL_ObserveUserProgramStarting, HAL_ObserveUserProgramTeleop, HAL_ObserveUserProgramTest,
 };
 
@@ -92,6 +92,11 @@ fn loop_func<T: IterativeRobot>(
 pub fn start_iterative<T: IterativeRobot>(robot: &mut T, ds: &DriverStation) {
     let mut last_mode: Option<RobotState> = None;
 
+    usage::report(
+        usage::resource_types::Framework,
+        usage::instances::kFramework_Iterative,
+    );
+
     println!("\n********** Robot program starting **********\n");
     unsafe { HAL_ObserveUserProgramStarting() }
 
@@ -123,6 +128,11 @@ pub fn start_timed_with_period<T: IterativeRobot>(
     let mut last_mode: Option<RobotState> = None;
     let notifier = Alarm::new().expect("Failed to initialize FPGA notifier");
     let period = period.as_micros() as u64;
+
+    usage::report(
+        usage::resource_types::Framework,
+        usage::instances::kFramework_Timed,
+    );
 
     println!("\n********** Robot program starting **********\n");
     unsafe { HAL_ObserveUserProgramStarting() }
