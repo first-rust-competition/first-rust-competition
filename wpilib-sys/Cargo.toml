@@ -15,6 +15,7 @@ repository = "https://github.com/Lytigas/first-rust-competition"
 keywords = ["frc", "roborio", "robotics", "first", "wpilib"]
 categories = ["embedded", "hardware-support", "external-ffi-bindings"]
 license = "MIT OR Apache-2.0"
+edition = "2018"
 
 include = [
     "src/**/*",

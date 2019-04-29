@@ -5,11 +5,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use crate::util::str_map;
 use serde_json;
 use serde_json::Value;
 use std::path::PathBuf;
 use subprocess;
-use util::str_map;
 
 #[derive(Debug)]
 pub struct FrcConfig {

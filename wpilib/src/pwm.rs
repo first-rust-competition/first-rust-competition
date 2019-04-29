@@ -5,7 +5,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use sensor_util;
+use super::sensor_util;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 

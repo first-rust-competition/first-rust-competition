@@ -6,6 +6,7 @@
 // except according to those terms.
 
 use super::config::FrcConfig;
+use crate::util::*;
 use clap::ArgMatches;
 use ref_slice::*;
 use std::env;
@@ -17,7 +18,6 @@ use std::time::Duration;
 use subprocess;
 use subprocess::ExitStatus;
 use tempfile;
-use util::*;
 
 pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     cargo_build(matches, config)?;

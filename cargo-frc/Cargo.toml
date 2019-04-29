@@ -17,6 +17,7 @@ readme = "./README.md"
 keywords = ["frc", "roborio", "robotics", "first"]
 categories = ["development-tools::cargo-plugins", "embedded", "command-line-interface"]
 license = "MIT OR Apache-2.0"
+edition = "2018"
 
 [[bin]]
 name = "cargo-frc"
