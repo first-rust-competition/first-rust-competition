@@ -37,3 +37,7 @@ path = "./pdp.rs"
 [[bin]]
 name = "pneumatics"
 path = "./pneumatics.rs"
+
+[[bin]]
+name = "timed_robot"
+path = "./timed_robot.rs"
