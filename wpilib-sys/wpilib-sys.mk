@@ -21,7 +21,7 @@ sys_ci: sys_build
 
 wpilib_compile: local_dir:=$(local_dir)
 wpilib_compile: wpilib_repo
-	cd $(local_dir)/allwpilib; ./gradlew :hal:halReleaseSharedLibrary -PreleaseBuild -PonlyAthena --console=plain
+	cd $(local_dir)/allwpilib; ./gradlew :hal:halReleaseSharedLibrary -PreleaseBuild -PonlyAthena --console=plain --no-scan
 
 sys_libs: local_dir:=$(local_dir)
 sys_libs: wpilib_compile
