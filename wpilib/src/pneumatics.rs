@@ -5,28 +5,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use lazy_static::lazy_static;
+use sensor_util::check_solenoid_module;
 use wpilib_sys::*;
-
-lazy_static! {
-    /// The number of solenoid channels per PCM.
-    pub static ref NUM_SOLENOID_CHANNELS: i32 = unsafe { HAL_GetNumSolenoidChannels() };
-
-    /// The number of possible PCMs.
-    pub static ref NUM_SOLENOID_MODULES: i32 = unsafe { HAL_GetNumPCMModules() };
-}
-
-/// Check if a solenoid module (PCM) is valid.
-#[inline]
-pub fn check_solenoid_module(module: i32) -> bool {
-    unsafe { HAL_CheckSolenoidModule(module) != 0 }
-}
-
-/// Check if a solenoid channel is valid.
-#[inline]
-pub fn check_solenoid_channel(channel: i32) -> bool {
-    unsafe { HAL_CheckSolenoidChannel(channel) != 0 }
-}
 
 /// Represents a CTRE Pneumatics Control Module.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]

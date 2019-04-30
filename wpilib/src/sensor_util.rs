@@ -44,7 +44,7 @@ lazy_static! {
     /// The number of solenoid channels per PCM.
     pub static ref NUM_SOLENOID_CHANNELS: i32 = unsafe { HAL_GetNumSolenoidChannels() };
 
-    /// ?The number of PCMs?
+    /// The number of possible PCMs
     pub static ref NUM_SOLENOID_MODULES: i32 = unsafe { HAL_GetNumPCMModules() };
 
     /// The number of hardware PWM channels on the RoboRIO.
