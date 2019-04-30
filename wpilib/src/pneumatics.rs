@@ -25,8 +25,12 @@ impl PneumaticsControlModule {
     // 0 is guaranteed to be valid.
     const DEFAULT: Self = PneumaticsControlModule(0);
 
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     /// Creates a PCM object for a given ID.
-    pub fn new(module_id: i32) -> Option<Self> {
+    pub fn with_module(module_id: i32) -> Option<Self> {
         if check_solenoid_module(module_id) {
             Some(PneumaticsControlModule(module_id))
         } else {
@@ -228,13 +232,13 @@ pub struct Compressor {
 impl Default for Compressor {
     #[inline]
     fn default() -> Self {
-        Compressor::new()
+        Self::with_module(PneumaticsControlModule::DEFAULT)
     }
 }
 
 impl Compressor {
     pub fn new() -> Self {
-        Self::with_module(PneumaticsControlModule::DEFAULT)
+        Self::default()
     }
 
     pub fn with_module(module: PneumaticsControlModule) -> Self {
