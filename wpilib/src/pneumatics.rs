@@ -8,7 +8,13 @@
 use super::sensor_util::check_solenoid_module;
 use wpilib_sys::*;
 
-/// Represents a CTRE Pneumatics Control Module.
+/// Represents a CTRE Pneumatics Control Module (PCM).
+///
+/// This struct serves two purposes. First, to check faults on any PCM.
+/// Second, control pnuematic components connected to a PCM that isn't on CAN
+/// module 0 (the default). If your Robot has only one PCM, you will most
+/// likely never need this struct, as all Pneumatic components have
+/// constructors that assume the default PCM.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PneumaticsControlModule(i32);
 
@@ -25,6 +31,7 @@ impl PneumaticsControlModule {
     // 0 is guaranteed to be valid.
     const DEFAULT: Self = PneumaticsControlModule(0);
 
+    /// Returns a PCM with the default ID of 0.
     pub fn new() -> Self {
         Self::default()
     }
@@ -91,7 +98,7 @@ pub struct Solenoid {
 }
 
 impl Solenoid {
-    /// Create a new solenoid on the default PCM with the given channel.
+    /// Creates a new solenoid on the default PCM with the given channel.
     pub fn new(channel: i32) -> HalResult<Solenoid> {
         Self::with_module(PneumaticsControlModule::DEFAULT, channel)
     }
@@ -176,10 +183,21 @@ pub struct DoubleSolenoid {
 }
 
 impl DoubleSolenoid {
+    /// Creates a `DoubleSolenoid`from any two existing Solenoids.
+    ///
+    /// The primary use case for this constructor is the create a
+    /// `DoubleSolenoid` from two solenoids on different PCMs. Otherwise,
+    /// [`::with_channels`](#method.with_channels) or
+    /// [`::with_module`](#method.with_module) should be used instead.
     pub fn new(forward: Solenoid, reverse: Solenoid) -> Self {
         DoubleSolenoid { forward, reverse }
     }
 
+    /// Creates a `DoubleSolenoid` on the default PCM with the given channels.
+    /// This is the most common constructor.
+    ///
+    /// To create a `DoubleSolenoid` not on the default PCM, use
+    /// [`::with_module`](#method.with_module).
     pub fn with_channels(forward_channel: i32, reverse_channel: i32) -> HalResult<DoubleSolenoid> {
         Self::with_module(
             PneumaticsControlModule::DEFAULT,
@@ -188,6 +206,9 @@ impl DoubleSolenoid {
         )
     }
 
+    /// Creates a `DoubleSolenoid`on the given PCM using the given channels.
+    ///
+    /// If each solenoid is connected to a different PCM, use [`::new`](#method.new).
     pub fn with_module(
         module: PneumaticsControlModule,
         forward_channel: i32,
@@ -224,6 +245,9 @@ impl DoubleSolenoid {
     }
 }
 
+/// Represents a compressor hooked up to a PCM.
+/// Note that a Compressor object does not need to created for a compressor to function.
+/// A Compressor object is only used alter the default closed loop behavior.
 #[derive(Debug)]
 pub struct Compressor {
     handle: HAL_CompressorHandle,
@@ -231,16 +255,19 @@ pub struct Compressor {
 
 impl Default for Compressor {
     #[inline]
+    /// Returns the `Compressor` on the default PCM.
     fn default() -> Self {
         Self::with_module(PneumaticsControlModule::DEFAULT)
     }
 }
 
 impl Compressor {
+    /// Returns the `Compressor` on the default PCM.
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Creates a `Compressor` on the given PCM.
     pub fn with_module(module: PneumaticsControlModule) -> Self {
         // HAL_InitializeCompressor returns an error iff the module number is
         // invalid, but PneumaticsControlModule already guarantees it's valid.
