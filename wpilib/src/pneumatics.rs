@@ -189,7 +189,7 @@ impl DoubleSolenoid {
     /// `DoubleSolenoid` from two solenoids on different PCMs. Otherwise,
     /// [`::with_channels`](#method.with_channels) or
     /// [`::with_module`](#method.with_module) should be used instead.
-    pub fn new(forward: Solenoid, reverse: Solenoid) -> Self {
+    pub fn from_solenoids(forward: Solenoid, reverse: Solenoid) -> Self {
         DoubleSolenoid { forward, reverse }
     }
 
@@ -208,7 +208,9 @@ impl DoubleSolenoid {
 
     /// Creates a `DoubleSolenoid`on the given PCM using the given channels.
     ///
-    /// If each solenoid is connected to a different PCM, use [`::new`](#method.new).
+    /// If each solenoid is connected to a different PCM, create each
+    /// `Solenoid` individually and use
+    /// [`::from_solenoids`](#method.from_solenoids).
     pub fn with_module(
         module: PneumaticsControlModule,
         forward_channel: i32,
