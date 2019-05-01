@@ -5,7 +5,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use sensor_util::check_solenoid_module;
+use super::sensor_util::check_solenoid_module;
 use wpilib_sys::*;
 
 /// Represents a CTRE Pneumatics Control Module.
