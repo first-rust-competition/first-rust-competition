@@ -37,7 +37,7 @@ impl PneumaticsControlModule {
     }
 
     /// Creates a PCM object for a given ID.
-    pub fn with_module(module_id: i32) -> Option<Self> {
+    pub fn with_id(module_id: i32) -> Option<Self> {
         if check_solenoid_module(module_id) {
             Some(PneumaticsControlModule(module_id))
         } else {
@@ -47,7 +47,7 @@ impl PneumaticsControlModule {
 
     /// Returns the module ID.
     #[inline]
-    pub fn number(self) -> i32 {
+    pub fn id(self) -> i32 {
         self.0
     }
 
@@ -106,17 +106,16 @@ impl Solenoid {
     /// If for some reason the Pneumatic Control Module is not on CAN module 0,
     /// you can use this constructor. Most people will never need this.
     pub fn with_module(module: PneumaticsControlModule, channel: i32) -> HalResult<Solenoid> {
-        let module_number = module.number();
+        let module_id = module.id();
 
         let handle = hal_call!(HAL_InitializeSolenoidPort(HAL_GetPortWithModule(
-            module_number,
-            channel
+            module_id, channel
         )))?;
 
         usage::report_context(
             usage::resource_types::Solenoid,
             channel as usage::instances::Type,
-            module_number,
+            module_id,
         );
 
         Ok(Solenoid {
@@ -273,7 +272,7 @@ impl Compressor {
     pub fn with_module(module: PneumaticsControlModule) -> Self {
         // HAL_InitializeCompressor returns an error iff the module number is
         // invalid, but PneumaticsControlModule already guarantees it's valid.
-        let handle = hal_call!(HAL_InitializeCompressor(module.number())).unwrap();
+        let handle = hal_call!(HAL_InitializeCompressor(module.id())).unwrap();
         Self { handle }
     }
 
