@@ -5,8 +5,12 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use super::sensor_util::check_solenoid_module;
 use wpilib_sys::*;
+
+/// Check if a solenoid module is valid.
+fn check_solenoid_module(module: i32) -> bool {
+    unsafe { HAL_CheckSolenoidModule(module) != 0 }
+}
 
 /// Represents a CTRE Pneumatics Control Module (PCM).
 ///

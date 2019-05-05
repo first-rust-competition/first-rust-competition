@@ -8,8 +8,6 @@
 extern crate lazy_static;
 extern crate wpilib_sys;
 
-mod sensor_util;
-
 mod analog_input;
 pub use self::analog_input::AnalogInput;
 mod pdp;

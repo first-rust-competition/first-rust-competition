@@ -28,10 +28,14 @@ License version 3 as published by the Free Software Foundation. See
 <https://www.gnu.org/licenses/> for a copy.
 */
 
-use super::sensor_util;
 use std::{thread, time};
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
+
+/// Check if an analog input channel is valid.
+fn check_analog_input_channel(channel: i32) -> bool {
+    unsafe { HAL_CheckAnalogInputChannel(channel) != 0 }
+}
 
 /// An analog input on the RoboRIO
 #[derive(Debug)]
@@ -49,7 +53,7 @@ impl AnalogInput {
     /// Returns `Err(HalError(0))` if the channel is invalid.
     #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<AnalogInput> {
-        if !sensor_util::check_analog_input_channel(channel) {
+        if !check_analog_input_channel(channel) {
             return Err(HalError(0));
         }
 
