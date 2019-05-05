@@ -33,7 +33,7 @@ impl PneumaticsControlModule {
 
     /// Returns a PCM with the default ID of 0.
     pub fn new() -> Self {
-        Self::default()
+        Self::DEFAULT
     }
 
     /// Creates a PCM object for a given ID.
@@ -258,14 +258,14 @@ impl Default for Compressor {
     #[inline]
     /// Returns the `Compressor` on the default PCM.
     fn default() -> Self {
-        Self::with_module(PneumaticsControlModule::DEFAULT)
+        Self::new()
     }
 }
 
 impl Compressor {
     /// Returns the `Compressor` on the default PCM.
     pub fn new() -> Self {
-        Self::default()
+        Self::with_module(PneumaticsControlModule::DEFAULT)
     }
 
     /// Creates a `Compressor` on the given PCM.
