@@ -21,22 +21,27 @@ pub struct CanData {
 }
 
 impl CanData {
+    /// A slice of the actual data read.
     pub fn data(&self) -> &[u8] {
         &self.data[..self.length as usize]
     }
 
+    /// A slice of the entire data array.
     pub fn raw_data(&self) -> &[u8; 8] {
         &self.data
     }
 
+    /// Returns the underlying data array, taking ownership.
     pub fn into_raw_data(self) -> [u8; 8] {
         self.data
     }
 
+    /// Returns the actual number of bytes read.
     pub fn length(&self) -> i32 {
         self.length
     }
 
+    /// A timestamp of when the packet was received, based off `CLOCK_MONOTONIC`.
     pub fn timestamp(&self) -> u64 {
         self.timestamp
     }
