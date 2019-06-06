@@ -5,6 +5,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+//! Provides an interface to the SPI bus and the automatic SPI transfer engine.
+//!
+//! Currently does not implement an accumulator.
+
 use std::io;
 use wpilib_sys::*;
 
@@ -18,7 +22,7 @@ pub enum Port {
     MXP = HAL_SPIPort::HAL_SPI_kMXP,
 }
 
-/// Spi for driver writers. Currenltly does not include an accumulator.
+/// SPI bus interface. Intended to be used by sensor (and other SPI device) drivers.
 #[derive(Debug)]
 pub struct Spi {
     port: HAL_SPIPort::Type,
@@ -28,12 +32,12 @@ pub struct Spi {
 }
 
 impl Spi {
-    #[allow(clippy::new_ret_no_self)]
     pub fn new(port: Port) -> HalResult<Self> {
-        hal_call!(HAL_InitializeSPI(port as HAL_SPIPort::Type))?;
+        let port = port as HAL_SPIPort::Type;
+        hal_call!(HAL_InitializeSPI(port))?;
         usage::report(usage::resource_types::SPI, 1);
         Ok(Spi {
-            port: port as HAL_SPIPort::Type,
+            port,
             msb_first: false,
             sample_on_trailing: false,
             clk_idle_high: false,
@@ -51,9 +55,9 @@ impl Spi {
         unsafe {
             HAL_SetSPIOpts(
                 self.port,
-                if self.msb_first { 1 } else { 0 },
-                if self.sample_on_trailing { 1 } else { 0 },
-                if self.clk_idle_high { 1 } else { 0 },
+                self.msb_first as HAL_Bool,
+                self.sample_on_trailing as HAL_Bool,
+                self.clk_idle_high as HAL_Bool,
             );
         }
     }
