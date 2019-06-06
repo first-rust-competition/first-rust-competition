@@ -184,53 +184,53 @@ impl<'a> DriverStation<'a> {
 
     /// Whether the 0-indexed button `button` is held on the controller on `port`
     /// # Errors
-    /// `ButtonUnplugged` if the requested button does not exist on the controller. This may mean it is
-    /// unplugged
+    /// Returns None if the requested button does not exist on the controller.
+    /// This may mean it is unplugged.
     #[inline]
-    pub fn stick_button(&self, port: JoystickPort, button: u8) -> Result<bool, JoystickError> {
+    pub fn stick_button(&self, port: JoystickPort, button: u8) -> Option<bool> {
         let mut buttons: HAL_JoystickButtons = Default::default();
         unsafe {
             HAL_GetJoystickButtons(port.0, &mut buttons);
         }
 
         if button >= buttons.count {
-            return Err(JoystickError::ButtonUnplugged);
+            return None;
         }
-        Ok(buttons.buttons & (1 << button) != 0)
+        Some(buttons.buttons & (1 << button) != 0)
     }
 
     /// The value of `axis` on the controller on `port`
     /// # Errors
-    /// `AxisUnplugged` if the requested axis does not exist on the controller. This may mean it is
-    /// unplugged
+    /// Returns None if the requested axis does not exist on the controller.
+    /// This may mean it is unplugged.
     #[inline]
-    pub fn stick_axis(&self, port: JoystickPort, axis: JoystickAxis) -> Result<f32, JoystickError> {
+    pub fn stick_axis(&self, port: JoystickPort, axis: JoystickAxis) -> Option<f32> {
         let mut axes: HAL_JoystickAxes = Default::default();
         unsafe {
             HAL_GetJoystickAxes(port.0, &mut axes);
         }
 
         if axis.0 > axes.count as usize {
-            return Err(JoystickError::AxisUnplugged);
+            return None;
         }
-        Ok(axes.axes[axis.0])
+        Some(axes.axes[axis.0])
     }
 
     /// The value of `pov` on the controller on `port`
     /// # Errors
-    /// `AxisUnplugged` if the requested axis does not exist on the controller. This may mean it is
-    /// unplugged
+    /// Returns None if the requested hat does not exist on the controller.
+    /// This may mean it is unplugged.
     #[inline]
-    pub fn stick_pov(&self, port: JoystickPort, pov: JoystickPOV) -> Result<i16, JoystickError> {
+    pub fn stick_pov(&self, port: JoystickPort, pov: JoystickPOV) -> Option<i16> {
         let mut povs: HAL_JoystickPOVs = Default::default();
         unsafe {
             HAL_GetJoystickPOVs(port.0, &mut povs);
         }
 
         if pov.0 > povs.count as usize {
-            return Err(JoystickError::PovUnplugged);
+            return None;
         }
-        Ok(povs.povs[pov.0])
+        Some(povs.povs[pov.0])
     }
 
     /// The alliance the robot is on.
