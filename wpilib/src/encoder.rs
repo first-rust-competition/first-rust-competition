@@ -73,19 +73,27 @@ pub struct Encoder {
 }
 
 impl Encoder {
-    /// Create a new encoder given two channels and an encoding type, returning an error if
-    /// initialization fails.
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(channel_a: i32, channel_b: i32, encoding: EncodingType) -> HalResult<Encoder> {
-        let source_a = DigitalInput::new(channel_a)?;
-        let source_b = DigitalInput::new(channel_b)?;
+    /// Create a new encoder given two DIO pins and an encoding type.
+    pub fn new(
+        source_a: DigitalInput,
+        source_b: DigitalInput,
+        encoding: EncodingType,
+    ) -> HalResult<Self> {
+        Self::with_direction(source_a, source_b, false, encoding)
+    }
 
+    pub fn with_direction(
+        source_a: DigitalInput,
+        source_b: DigitalInput,
+        reverse_direction: bool,
+        encoding: EncodingType,
+    ) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeEncoder(
             source_a.handle(),
             0i32,
             source_b.handle(),
             0i32,
-            false as i32,
+            reverse_direction as HAL_Bool,
             encoding as HAL_EncoderEncodingType::Type
         ))?;
         let encoder = Encoder {
