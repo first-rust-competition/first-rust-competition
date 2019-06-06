@@ -53,6 +53,13 @@ pub enum EncodingType {
     K4X = HAL_EncoderEncodingType::HAL_Encoder_k4X,
 }
 
+impl Default for EncodingType {
+    #[inline]
+    fn default() -> Self {
+        EncodingType::K4X
+    }
+}
+
 /// An encoder.
 ///
 /// Uses quadrature on two separate channels to read the distance and direction travelled by a
