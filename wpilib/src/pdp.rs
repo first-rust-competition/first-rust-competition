@@ -30,8 +30,6 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-use super::sensor_util;
-use std::f64::NAN;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
@@ -79,10 +77,6 @@ impl PowerDistributionPanel {
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
     pub fn current(&self, channel: i32) -> HalMaybe<f64> {
-        if !sensor_util::check_pdp_channel(channel) {
-            return HalMaybe::new(NAN, Some(HalError(0)));
-        }
-
         maybe_hal_call!(HAL_GetPDPChannelCurrent(self.handle, channel))
     }
 
