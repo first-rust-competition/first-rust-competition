@@ -34,6 +34,9 @@ use super::sensor_util;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
+#[cfg(feature = "embedded-hal")]
+use embedded_hal::digital::v2::OutputPin;
+
 /// A digital output used to control lights, etc from the RoboRIO.
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -48,13 +51,9 @@ impl DigitalOutput {
     /// fails.
     #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Self> {
-        if !sensor_util::check_digital_channel(channel) {
-            return Err(HalError(0));
-        }
-
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel as i32),
-            false as i32 // for input?
+            false as HAL_Bool // false for output
         ))?;
 
         usage::report(resource_types::DigitalOutput, channel as instances::Type);
@@ -137,9 +136,20 @@ impl DigitalOutput {
 impl Drop for DigitalOutput {
     fn drop(&mut self) {
         let _ = self.disable_pwm();
-        unsafe {
-            HAL_FreeDIOPort(self.handle);
-        }
+        unsafe { HAL_FreeDIOPort(self.handle) }
+    }
+}
+
+#[cfg(feature = "embedded-hal")]
+impl OutputPin for DigitalOutput {
+    type Error = HalError;
+
+    fn set_low(&mut self) -> HalResult<()> {
+        Ok(self.set(false)?)
+    }
+
+    fn set_high(&mut self) -> HalResult<()> {
+        Ok(self.set(true)?)
     }
 }
 
@@ -152,7 +162,6 @@ impl Drop for DigitalOutput {
  * as required. This class is only for devices like switches etc. that aren't
  * implemented anywhere else.
  */
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct DigitalInput {
     channel: i32,
@@ -163,13 +172,9 @@ pub struct DigitalInput {
 impl DigitalInput {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Self> {
-        if !sensor_util::check_digital_channel(channel) {
-            return Err(HalError(0));
-        }
-
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel as i32),
-            true as i32 // for input?
+            true as HAL_Bool // true for input
         ))?;
 
         usage::report(resource_types::DigitalInput, channel as instances::Type);
@@ -193,8 +198,6 @@ impl DigitalInput {
 
 impl Drop for DigitalInput {
     fn drop(&mut self) {
-        unsafe {
-            HAL_FreeDIOPort(self.handle);
-        }
+        unsafe { HAL_FreeDIOPort(self.handle) }
     }
 }
