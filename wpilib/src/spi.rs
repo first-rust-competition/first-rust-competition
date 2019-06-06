@@ -5,6 +5,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use std::io;
 use wpilib_sys::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -95,28 +96,40 @@ impl Spi {
         hal_call!(HAL_SetSPIChipSelectActiveLow(self.port))
     }
 
-    pub fn write(&mut self, buf: &[u8]) -> i32 {
-        unsafe { HAL_WriteSPI(self.port, buf.as_ptr(), buf.len() as i32) }
+    pub fn write(&mut self, data: &[u8]) -> io::Result<usize> {
+        io_result(unsafe { HAL_WriteSPI(self.port, data.as_ptr(), data.len() as _) })
     }
 
-    pub fn read(&mut self, initiate: bool, buf: &mut [u8]) -> i32 {
+    pub fn read(&mut self, initiate: bool, buf: &mut [u8]) -> io::Result<usize> {
         if initiate {
             let send_data: Vec<u8> = vec![0; buf.len()];
-            return unsafe {
-                HAL_TransactionSPI(
-                    self.port,
-                    send_data.as_ptr(),
-                    buf.as_mut_ptr(),
-                    buf.len() as i32,
-                )
-            };
+            return unsafe { self.transaction_into(&send_data, buf.as_mut_ptr()) };
         }
-        unsafe { HAL_ReadSPI(self.port, buf.as_mut_ptr(), buf.len() as i32) }
+
+        io_result(unsafe { HAL_ReadSPI(self.port, buf.as_mut_ptr(), buf.len() as _) })
     }
 
-    /// Caller must ensure that the slices size is greater than the size parameter
-    pub unsafe fn transaction(&mut self, to_send: &[u8], to_receive: &mut [u8], size: i32) -> i32 {
-        HAL_TransactionSPI(self.port, to_send.as_ptr(), to_receive.as_mut_ptr(), size)
+    /// Performs an SPI send/receive transaction.
+    pub fn transaction(&mut self, to_send: &[u8]) -> io::Result<Vec<u8>> {
+        let size = to_send.len();
+        let mut receive_buf = Vec::with_capacity(size);
+        let read = unsafe { self.transaction_into(to_send, receive_buf.as_mut_ptr()) }?;
+        unsafe { receive_buf.set_len(read) }
+        Ok(receive_buf)
+    }
+
+    pub unsafe fn transaction_into(
+        &mut self,
+        to_send: &[u8],
+        receive_buf: *mut u8,
+    ) -> io::Result<usize> {
+        let size = to_send.len();
+        io_result(HAL_TransactionSPI(
+            self.port,
+            to_send.as_ptr(),
+            receive_buf,
+            size as _,
+        ))
     }
 
     pub fn init_auto(&mut self, buffer_size: i32) -> HalResult<()> {
@@ -165,5 +178,14 @@ impl Spi {
 impl Drop for Spi {
     fn drop(&mut self) {
         unsafe { HAL_CloseSPI(self.port) }
+    }
+}
+
+/// Convert the return value of HAL SPI read/write/transaction to an io::Result.
+fn io_result(rv: i32) -> io::Result<usize> {
+    if rv < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(rv as usize)
     }
 }
