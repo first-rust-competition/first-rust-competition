@@ -105,7 +105,7 @@ impl Encoder {
 
         usage::report_context(
             usage::resource_types::Encoder,
-            encoder.fpga_index()? as u32,
+            encoder.fpga_index() as _,
             encoding as HAL_EncoderEncodingType::Type,
         );
 
@@ -113,8 +113,10 @@ impl Encoder {
     }
 
     /// Get the FPGA index of this encoder.
-    pub fn fpga_index(&self) -> HalResult<i32> {
-        hal_call!(HAL_GetEncoderFPGAIndex(self.encoder))
+    pub fn fpga_index(&self) -> i32 {
+        // The only error HAL_GetEncoderFPGAIndex ever returns is invalid handle.
+        // If our handle is invalid, something's gone terribly wrong.
+        hal_call!(HAL_GetEncoderFPGAIndex(self.encoder)).unwrap()
     }
 
     /// Get the current value read by this encoder, with any scaling factors applied.
