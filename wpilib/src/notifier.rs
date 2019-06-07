@@ -7,6 +7,9 @@
 
 // use std::time::Duration;
 use wpilib_sys::*;
+use std::thread;
+use std::time::Duration;
+use std::sync::Arc;
 
 #[derive(Debug)]
 /// An FPGA notifier alarm.
@@ -54,20 +57,36 @@ impl Drop for Alarm {
     }
 }
 
-/*
 pub struct Notifier {
-    thread: std::thread::Thread,
-    alarm: Alarm,
+    alarm: Arc<Alarm>,
 }
 
 impl Notifier {
-    pub fn new(handler: FnMut(), period: Duration) -> HalResult<Self> {
-        let alarm = Alarm::new(),
-        let thread = std::thread::spawn(|| loop {
-            let cur_time = hal_call!(HAL_WaitForNotifierAlarm(notifier));
-            handler();
+    /// Creates a new thread with timing backed by a notifier alarm
+    ///
+    /// The provided handler will be called with the given period until the notifier is dropped
+    pub fn new(mut handler: impl FnMut() + Send + 'static, period: Duration) -> HalResult<Self> {
+        let alarm = Arc::new(Alarm::new()?);
 
+        let thread_alarm = alarm.clone();
+        thread::spawn(move || {
+            loop {
+                match thread_alarm.wait() {
+                    Ok(cur_time) => {
+                        if cur_time == 0 {
+                            break;
+                        }
+
+                        handler();
+                        let _ = thread_alarm.update(cur_time + period.as_micros() as u64);
+                    }
+                    Err(_) => break,
+                }
+            }
         });
+
+        Ok(Notifier {
+            alarm,
+        })
     }
 }
-*/
