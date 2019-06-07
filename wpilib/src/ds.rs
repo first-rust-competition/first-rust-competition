@@ -30,6 +30,8 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
+//! Interface to data from the driver station.
+
 // TODO(Lytigas) re-architecht the Driverstation
 #![allow(clippy::mutex_atomic)]
 
