@@ -36,8 +36,10 @@ use super::bindings::HAL_Report;
 use std::ffi::CStr;
 use std::ptr;
 
-pub use super::bindings::HALUsageReporting_tInstances as instances;
-pub use super::bindings::HALUsageReporting_tResourceType as resource_types;
+#[allow(non_upper_case_globals)]
+pub mod instances;
+#[allow(non_upper_case_globals)]
+pub mod resource_types;
 
 /// Report the usage of a specific resource type with an `instance` value attached.
 ///
@@ -54,7 +56,7 @@ pub fn report_context(
     instance: instances::Type,
     context: i32,
 ) -> i64 {
-    unsafe { HAL_Report(resource as i32, instance as i32, context, ptr::null()) }
+    unsafe { HAL_Report(resource, instance, context, ptr::null()) }
 }
 
 /// Report usage of a resource with context and a feature string.
@@ -66,12 +68,5 @@ pub fn report_feature(
     context: i32,
     feature: impl AsRef<CStr>,
 ) -> i64 {
-    unsafe {
-        HAL_Report(
-            resource as i32,
-            instance as i32,
-            context,
-            feature.as_ref().as_ptr(),
-        )
-    }
+    unsafe { HAL_Report(resource, instance, context, feature.as_ref().as_ptr()) }
 }

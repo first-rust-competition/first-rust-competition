@@ -7,10 +7,20 @@
 
 use bindgen;
 use std::env;
+use std::fs::File;
+use std::io::{self, prelude::*};
 use std::path::PathBuf;
 
 fn output_dir() -> PathBuf {
     wpilib_sys_dir().join("src")
+}
+
+fn hal_src_dir() -> PathBuf {
+    allwpilib_dir().join("hal/src")
+}
+
+fn allwpilib_dir() -> PathBuf {
+    wpilib_sys_dir().join("allwpilib")
 }
 
 fn wpilib_sys_dir() -> PathBuf {
@@ -67,7 +77,6 @@ fn generate_bindings() {
         .whitelist_type(SYMBOL_REGEX)
         .whitelist_function(SYMBOL_REGEX)
         .whitelist_var(SYMBOL_REGEX)
-        .whitelist_type("HALUsageReporting::.*")
         .default_enum_style(bindgen::EnumVariation::ModuleConsts)
         .parse_callbacks(Box::new(BindgenCallbacks))
         .clang_arg(format!(
@@ -87,6 +96,73 @@ fn generate_bindings() {
     println!();
 }
 
+fn write_usage_const<T: Write>(
+    f: &mut io::BufWriter<T>,
+    name: &str,
+    value: &str,
+) -> io::Result<()> {
+    writeln!(f, "pub const {}: Type = {};", name, value)?;
+    Ok(())
+}
+
+fn generate_usage_resource_types(generate_dir: &PathBuf, usage_out_dir: &PathBuf) {
+    let f =
+        File::open(generate_dir.join("ResourceType.txt")).expect("Could not open resource file");
+    let f = io::BufReader::new(f);
+
+    let fout = File::create(usage_out_dir.join("resource_types.rs"))
+        .expect("Could not create resource file");
+    let mut fout = io::BufWriter::new(fout);
+
+    fout.write_all(b"pub type Type = i32;\n").unwrap();
+
+    for line in f.lines() {
+        let line = line.unwrap();
+
+        assert!(line.starts_with("kResourceType_"));
+        let mut sp = line["kResourceType_".len()..].split(" = ");
+        let name = sp.next().unwrap();
+        let value = sp.next().expect("Expected = in resource types list");
+
+        write_usage_const(&mut fout, name, value).unwrap();
+    }
+}
+
+fn generate_usage_instances(generate_dir: &PathBuf, usage_out_dir: &PathBuf) {
+    let f = File::open(generate_dir.join("Instances.txt")).expect("Could not open instances file");
+    let f = io::BufReader::new(f);
+
+    let fout =
+        File::create(usage_out_dir.join("instances.rs")).expect("Could not create instances file");
+    let mut fout = io::BufWriter::new(fout);
+
+    fout.write_all(b"pub type Type = i32;\n").unwrap();
+
+    for line in f.lines() {
+        let line = line.unwrap();
+
+        assert!(line.starts_with('k'));
+        let mut sp = line.split(" = ");
+        let name = sp.next().unwrap();
+        let value = sp.next().expect("Expected = in instances list");
+
+        write_usage_const(&mut fout, name, value).unwrap();
+    }
+}
+
+fn generate_usage_reporting() {
+    let generate_dir = hal_src_dir().join("generate");
+    let usage_out_dir = output_dir().join("usage");
+    println!(
+        "generate: {}, usage out: {}",
+        generate_dir.display(),
+        usage_out_dir.display()
+    );
+    generate_usage_resource_types(&generate_dir, &usage_out_dir);
+    generate_usage_instances(&generate_dir, &usage_out_dir);
+}
+
 fn main() {
     generate_bindings();
+    generate_usage_reporting();
 }
