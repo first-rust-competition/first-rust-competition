@@ -183,12 +183,11 @@ pub struct PwmSpeedController {
 }
 
 impl PwmSpeedController {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(channel: i32) -> HalResult<Self> {
-        Ok(PwmSpeedController {
-            pwm: PWM::new(channel)?,
+    pub fn new(pwm: PWM) -> Self {
+        PwmSpeedController {
+            pwm,
             inverted: false,
-        })
+        }
     }
 
     /// Creates a PwmMotorController which is configured as a talonSRX
@@ -199,10 +198,7 @@ impl PwmSpeedController {
         pwm.set_speed(0.0)?;
         pwm.set_zero_latch()?;
         usage::report(resource_types::PWMTalonSRX, channel as instances::Type);
-        Ok(PwmSpeedController {
-            pwm,
-            inverted: false,
-        })
+        Ok(PwmSpeedController::new(pwm))
     }
 
     /// Set the PWM value. The PWM value is set using a range of -1.0 to 1.0, appropriately scaling
