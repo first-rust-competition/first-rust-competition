@@ -30,10 +30,14 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-use super::sensor_util;
 use std::f64::NAN;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
+
+/// Check if a PDP channel is valid.
+fn check_pdp_channel(channel: i32) -> bool {
+    unsafe { HAL_CheckPDPModule(channel) != 0 }
+}
 
 /// An interface to the PDP for getting information about robot power.
 #[derive(Debug)]
@@ -79,7 +83,7 @@ impl PowerDistributionPanel {
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
     pub fn current(&self, channel: i32) -> HalMaybe<f64> {
-        if !sensor_util::check_pdp_channel(channel) {
+        if !check_pdp_channel(channel) {
             return HalMaybe::new(NAN, Some(HalError(0)));
         }
 

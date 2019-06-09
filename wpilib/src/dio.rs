@@ -30,9 +30,19 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-use super::sensor_util;
+use lazy_static::lazy_static;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
+
+/// Check if a digital channel is valid.
+fn check_digital_channel(channel: i32) -> bool {
+    unsafe { HAL_CheckDIOChannel(channel) != 0 }
+}
+
+lazy_static! {
+    /// The number of DIOs on the RoboRIO.
+    static ref NUM_DIGITAL_CHANNELS: i32 = unsafe { HAL_GetNumDigitalChannels() };
+}
 
 /// A digital output used to control lights, etc from the RoboRIO.
 #[allow(dead_code)]
@@ -48,7 +58,7 @@ impl DigitalOutput {
     /// fails.
     #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Self> {
-        if !sensor_util::check_digital_channel(channel) {
+        if !check_digital_channel(channel) {
             return Err(HalError(0));
         }
 
@@ -114,10 +124,7 @@ impl DigitalOutput {
     /// Turn off PWM for this output.
     pub fn disable_pwm(&mut self) -> HalResult<()> {
         if let Some(pwm) = self.pwm {
-            hal_call!(HAL_SetDigitalPWMOutputChannel(
-                pwm,
-                *sensor_util::NUM_DIGITAL_CHANNELS
-            ))?;
+            hal_call!(HAL_SetDigitalPWMOutputChannel(pwm, *NUM_DIGITAL_CHANNELS))?;
             hal_call!(HAL_FreeDigitalPWM(pwm))?;
             self.pwm = None;
         }
@@ -163,7 +170,7 @@ pub struct DigitalInput {
 impl DigitalInput {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Self> {
-        if !sensor_util::check_digital_channel(channel) {
+        if !check_digital_channel(channel) {
             return Err(HalError(0));
         }
 

@@ -5,9 +5,13 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use super::sensor_util;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
+
+/// Check if a PWM channel is valid.
+fn check_pwm_channel(channel: i32) -> bool {
+    unsafe { HAL_CheckPWMChannel(channel) != 0 }
+}
 
 /// Represents the amount to multiply the minimum servo-pulse pwm period by.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -29,7 +33,7 @@ pub struct PWM {
 impl PWM {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Self> {
-        if !sensor_util::check_pwm_channel(channel) {
+        if !check_pwm_channel(channel) {
             return Err(HalError(0));
         }
 
