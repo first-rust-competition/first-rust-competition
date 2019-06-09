@@ -11,7 +11,7 @@ local_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 
 wpilib_build: local_dir:=$(local_dir)
 wpilib_build: sys_build
-	cd $(local_dir); cargo build
+	cd $(local_dir); cargo build --all-features
 
 wpilib_ci: local_dir:=$(local_dir)
 wpilib_ci: wpilib_build
