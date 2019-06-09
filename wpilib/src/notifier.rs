@@ -69,13 +69,15 @@ impl Notifier {
         let alarm = Arc::new(Alarm::new()?);
 
         let thread_alarm = alarm.clone();
-        thread::spawn(move || while let Ok(cur_time) = thread_alarm.wait() {
-            if cur_time == 0 {
-                break;
-            }
+        thread::spawn(move || {
+            while let Ok(cur_time) = thread_alarm.wait() {
+                if cur_time == 0 {
+                    break;
+                }
 
-            handler();
-            let _ = thread_alarm.update(cur_time + period.as_micros() as u64);
+                handler();
+                let _ = thread_alarm.update(cur_time + period.as_micros() as u64);
+            }
         });
 
         Ok(Notifier { alarm })
