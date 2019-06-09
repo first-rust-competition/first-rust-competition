@@ -6,7 +6,7 @@
 // except according to those terms.
 
 // use std::time::Duration;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use std::thread;
 use std::time::Duration;
 use wpilib_sys::*;
@@ -57,7 +57,9 @@ impl Drop for Alarm {
     }
 }
 
-pub struct Notifier {}
+pub struct Notifier {
+    alarm: Weak<Alarm>,
+}
 
 impl Notifier {
     /// Creates a new thread with timing backed by a notifier alarm
@@ -78,6 +80,16 @@ impl Notifier {
             }
         });
 
-        Ok(Notifier {})
+        Ok(Notifier {
+            alarm: Arc::downgrade(&alarm),
+        })
+    }
+}
+
+impl Drop for Notifier {
+    fn drop(&mut self) {
+        if let Some(alarm) = self.alarm.upgrade() {
+            let _ = alarm.stop(); // Stops the alarm, which allows the notifier thread to join
+        }
     }
 }
