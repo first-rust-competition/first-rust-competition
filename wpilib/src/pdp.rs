@@ -66,11 +66,7 @@ impl PowerDistributionPanel {
     }
 
     /// Get the current on a specific channel on the PDP, in amps.
-    ///
     /// # Errrors
-    /// If `channel` is invalid, the return value will contain
-    /// `NAN` and `HalError(0).
-    ///
     /// The `HalMaybe` returned will have an error most commonly
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
