@@ -30,14 +30,7 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-use std::f64::NAN;
-use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
-
-/// Check if a PDP channel is valid.
-fn check_pdp_channel(channel: i32) -> bool {
-    unsafe { HAL_CheckPDPModule(channel) != 0 }
-}
 
 /// An interface to the PDP for getting information about robot power.
 #[derive(Debug)]
@@ -46,16 +39,15 @@ pub struct PowerDistributionPanel {
 }
 
 impl PowerDistributionPanel {
-    /// Initalizes a PDP using the default module, which is 0, according to WPILibC.
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new() -> HalResult<PowerDistributionPanel> {
-        Self::new_with_module(0)
+    /// Creates a PDP with the default ID of 0.
+    pub fn new() -> HalResult<Self> {
+        Self::with_id(0)
     }
 
-    /// Create a new PDP interface on the specified module.
-    pub fn new_with_module(module: i32) -> HalResult<PowerDistributionPanel> {
+    /// Creates a new PDP with a specified ID.
+    pub fn with_id(module: i32) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializePDP(module))?;
-        usage::report(resource_types::PDP, module as instances::Type);
+        usage::report(usage::resource_types::PDP, module as _);
         Ok(PowerDistributionPanel { handle })
     }
 
@@ -74,19 +66,11 @@ impl PowerDistributionPanel {
     }
 
     /// Get the current on a specific channel on the PDP, in amps.
-    ///
     /// # Errrors
-    /// If `channel` is invalid, the return value will contain
-    /// `NAN` and `HalError(0).
-    ///
     /// The `HalMaybe` returned will have an error most commonly
     /// in the case of a CAN timeout. (In Fact, this is the only
     /// error WPILib will ever report!).
     pub fn current(&self, channel: i32) -> HalMaybe<f64> {
-        if !check_pdp_channel(channel) {
-            return HalMaybe::new(NAN, Some(HalError(0)));
-        }
-
         maybe_hal_call!(HAL_GetPDPChannelCurrent(self.handle, channel))
     }
 
