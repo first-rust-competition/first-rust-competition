@@ -6,10 +6,10 @@
 // except according to those terms.
 
 // use std::time::Duration;
-use wpilib_sys::*;
+use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
-use std::sync::Arc;
+use wpilib_sys::*;
 
 #[derive(Debug)]
 /// An FPGA notifier alarm.
@@ -69,24 +69,20 @@ impl Notifier {
         let alarm = Arc::new(Alarm::new()?);
 
         let thread_alarm = alarm.clone();
-        thread::spawn(move || {
-            loop {
-                match thread_alarm.wait() {
-                    Ok(cur_time) => {
-                        if cur_time == 0 {
-                            break;
-                        }
-
-                        handler();
-                        let _ = thread_alarm.update(cur_time + period.as_micros() as u64);
+        thread::spawn(move || loop {
+            match thread_alarm.wait() {
+                Ok(cur_time) => {
+                    if cur_time == 0 {
+                        break;
                     }
-                    Err(_) => break,
+
+                    handler();
+                    let _ = thread_alarm.update(cur_time + period.as_micros() as u64);
                 }
+                Err(_) => break,
             }
         });
 
-        Ok(Notifier {
-            alarm,
-        })
+        Ok(Notifier { alarm })
     }
 }
