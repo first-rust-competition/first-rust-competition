@@ -124,7 +124,7 @@ impl<T> HalMaybe<T> {
 /// the `Err` variant.
 #[macro_export]
 macro_rules! hal_call {
-    ($function:ident($($arg:expr),*)) => {{
+    ($function:ident($($arg:expr),* $(,)?)) => {{
         let mut status = 0;
         let result = unsafe { $function($(
             $arg,
@@ -145,7 +145,7 @@ macro_rules! hal_call {
 /// needlessly complicate the public interface.
 #[macro_export]
 macro_rules! maybe_hal_call {
-    ($function:ident($($arg:expr),*)) => {{
+    ($function:ident($($arg:expr),* $(,)?)) => {{
         let mut status = 0;
         let result = unsafe { $function($(
             $arg,

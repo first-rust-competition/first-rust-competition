@@ -12,6 +12,8 @@ mod analog_input;
 pub use self::analog_input::AnalogInput;
 mod pdp;
 pub use self::pdp::PowerDistributionPanel;
+pub mod can;
+pub use self::can::Can;
 pub mod dio;
 pub mod ds;
 pub mod encoder;
