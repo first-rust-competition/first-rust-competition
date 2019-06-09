@@ -57,9 +57,7 @@ impl Drop for Alarm {
     }
 }
 
-pub struct Notifier {
-    alarm: Arc<Alarm>,
-}
+pub struct Notifier {}
 
 impl Notifier {
     /// Creates a new thread with timing backed by a notifier alarm
@@ -80,6 +78,6 @@ impl Notifier {
             }
         });
 
-        Ok(Notifier { alarm })
+        Ok(Notifier {})
     }
 }
