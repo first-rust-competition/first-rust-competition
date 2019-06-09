@@ -27,6 +27,7 @@ test = false
 
 [features]
 dev = []
+default = []
 
 [dependencies]
 lazy_static = "1.1.0"
