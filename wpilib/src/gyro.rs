@@ -1,12 +1,44 @@
 use wpilib_sys::*;
 
 pub trait Gyro {
+    /// Calibrate the gyro by running for a number of samples and computing the
+    /// center value. Then use the center value as the Accumulator center value for
+    /// subsequent measurements. It's important to make sure that the robot is not
+    /// moving while the centering calculations are in progress, this is typically
+    /// done when the robot is first turned on while it's sitting at rest before
+    /// the competition starts.
     fn calibrate(&self) -> HalResult<()>;
 
+    /// Reset the gyro. Resets the gyro to a heading of zero. This can be used if
+    /// there is significant drift in the gyro and it needs to be recalibrated
+    /// after it has been running.
     fn reset(&self) -> HalResult<()>;
 
+    /// Return the actual angle in degrees that the robot is currently facing.
+    ///
+    /// The angle is based on the current accumulator value corrected by the
+    /// oversampling rate, the gyro type and the A/D calibration values. The angle
+    /// is continuous, that is it will continue from 360 to 361 degrees. This
+    /// allows algorithms that wouldn't want to see a discontinuity in the gyro
+    /// output as it sweeps past from 360 to 0 on the second time around.
+    ///
+    /// The angle is expected to increase as the gyro turns clockwise when looked
+    /// at from the top. It needs to follow NED axis conventions in order to work
+    /// properly with dependent control loops.
+    ///
+    /// Returns the current heading of the robot in degrees. This heading is based
+    /// on integration of the returned rate from the gyro.
     fn angle(&self) -> HalResult<f64>;
 
+    /// Return the rate of rotation of the gyro.
+    ///
+    /// The rate is based on the most recent reading of the gyro analog value.
+    ///
+    /// The rate is expected to be positive as the gyro turns clockwise when looked
+    /// at from the top. It needs to follow NED axis conventions in order to work
+    /// properly with dependent control loops.
+    ///
+    /// Returns the current rate in degrees per second
     fn rate(&self) -> HalResult<f64>;
 }
 
@@ -17,6 +49,9 @@ pub struct AnalogGyro {
 }
 
 impl AnalogGyro {
+    /// Creates a new gyro attached to the given analog input channel
+    ///
+    /// Note that gyros can only be used on onboard analog inputs 0 and 1
     pub fn new(channel: i32) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeAnalogGyro(channel))?;
 
@@ -27,10 +62,22 @@ impl AnalogGyro {
         Ok(AnalogGyro { handle })
     }
 
+    /// Return the gyro offset value. If run after calibration,
+    /// the offset value can be used as a preset later.
     pub fn offset(&self) -> HalResult<f64> {
         hal_call!(HAL_GetAnalogGyroOffset(self.handle))
     }
 
+    /// Return the gyro center value. If run after calibration,
+    /// the center value can be used as a preset later.
+    pub fn center(&self) -> HalResult<i32> {
+        hal_call!(HAL_GetAnalogGyroCenter(self.handle))
+    }
+
+    /// Configures the gyro with the given parameters
+    ///
+    /// center is a preset uncalibrated value to use as the accumulator center value
+    /// offset is a preset uncalibrated value to use as the gyro offset
     pub fn set_parameters(&self, center: i32, offset: f64) -> HalResult<()> {
         hal_call!(HAL_SetAnalogGyroParameters(
             self.handle,
@@ -40,6 +87,11 @@ impl AnalogGyro {
         ))
     }
 
+    /// Set the gyro sensitivity.
+    ///
+    /// This takes the number of volts/degree/second sensitivity of the gyro and
+    /// uses it in subsequent calculations to allow the code to work with multiple
+    /// gyros. This value is typically found in the gyro datasheet.
     pub fn set_sensitivity(&self, volts_per_degree_per_second: f64) -> HalResult<()> {
         hal_call!(HAL_SetAnalogGyroVoltsPerDegreePerSecond(
             self.handle,
@@ -47,6 +99,11 @@ impl AnalogGyro {
         ))
     }
 
+    /// Set the size of the neutral zone.
+    ///
+    /// Any voltage from the gyro less than this amount from the center is
+    /// considered stationary.  Setting a deadband will decrease the amount of
+    /// drift when the gyro isn't rotating, but will make it less accurate.
     pub fn set_deadband(&self, volts: f64) -> HalResult<()> {
         hal_call!(HAL_SetAnalogGyroDeadband(self.handle, volts))
     }
