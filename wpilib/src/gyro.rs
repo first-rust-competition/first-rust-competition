@@ -1,18 +1,20 @@
 use wpilib_sys::*;
 
 pub trait Gyro {
+    type Error;
+
     /// Calibrate the gyro by running for a number of samples and computing the
     /// center value. Then use the center value as the Accumulator center value for
     /// subsequent measurements. It's important to make sure that the robot is not
     /// moving while the centering calculations are in progress, this is typically
     /// done when the robot is first turned on while it's sitting at rest before
     /// the competition starts.
-    fn calibrate(&self) -> HalResult<()>;
+    fn calibrate(&self) -> Result<(), Self::Error>;
 
     /// Reset the gyro. Resets the gyro to a heading of zero. This can be used if
     /// there is significant drift in the gyro and it needs to be recalibrated
     /// after it has been running.
-    fn reset(&self) -> HalResult<()>;
+    fn reset(&self) -> Result<(), Self::Error>;
 
     /// Return the actual angle in degrees that the robot is currently facing.
     ///
@@ -28,7 +30,7 @@ pub trait Gyro {
     ///
     /// Returns the current heading of the robot in degrees. This heading is based
     /// on integration of the returned rate from the gyro.
-    fn angle(&self) -> HalResult<f64>;
+    fn angle(&self) -> Result<f64, Self::Error>;
 
     /// Return the rate of rotation of the gyro.
     ///
@@ -39,7 +41,7 @@ pub trait Gyro {
     /// properly with dependent control loops.
     ///
     /// Returns the current rate in degrees per second
-    fn rate(&self) -> HalResult<f64>;
+    fn rate(&self) -> Result<f64, Self::Error>;
 }
 
 const DEFAULT_VOLTS_PER_DEGREE_PER_SECOND: f64 = 0.007;
@@ -110,19 +112,21 @@ impl AnalogGyro {
 }
 
 impl Gyro for AnalogGyro {
-    fn calibrate(&self) -> HalResult<()> {
+    type Error = HalError;
+
+    fn calibrate(&self) -> Result<(), Self::Error> {
         hal_call!(HAL_CalibrateAnalogGyro(self.handle))
     }
 
-    fn reset(&self) -> HalResult<()> {
+    fn reset(&self) -> Result<(), Self::Error> {
         hal_call!(HAL_ResetAnalogGyro(self.handle))
     }
 
-    fn angle(&self) -> HalResult<f64> {
+    fn angle(&self) -> Result<f64, Self::Error> {
         hal_call!(HAL_GetAnalogGyroAngle(self.handle))
     }
 
-    fn rate(&self) -> HalResult<f64> {
+    fn rate(&self) -> Result<f64, Self::Error> {
         hal_call!(HAL_GetAnalogGyroRate(self.handle))
     }
 }
