@@ -35,7 +35,7 @@ impl Spi {
     pub fn new(port: Port) -> HalResult<Self> {
         let port = port as HAL_SPIPort::Type;
         hal_call!(HAL_InitializeSPI(port))?;
-        usage::report(usage::resource_types::SPI, 1);
+        usage::report(usage::resource_types::SPI, port as _);
         Ok(Spi {
             port,
             msb_first: false,
