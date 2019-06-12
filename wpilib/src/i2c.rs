@@ -73,7 +73,7 @@ impl I2C {
 
     pub fn read(&self, register_address: i32, buf: &mut [u8]) -> bool {
         if buf.is_empty() {
-            return Ok(());
+            return true;
         }
 
         self.transaction(&[register_address as u8], buf)
@@ -109,7 +109,7 @@ impl I2C {
 
             let mut buf = vec![0; to_read];
 
-            if self.read(cur_register_address, &mut buf[..]).is_err() {
+            if self.read(cur_register_address, &mut buf[..]) {
                 return false;
             }
 
