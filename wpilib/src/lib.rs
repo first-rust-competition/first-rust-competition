@@ -17,6 +17,7 @@ pub use self::pdp::PowerDistributionPanel;
 pub mod dio;
 pub mod ds;
 pub mod encoder;
+pub mod i2c;
 pub mod notifier;
 pub mod pneumatics;
 pub mod pwm;
