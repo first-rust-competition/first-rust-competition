@@ -22,7 +22,7 @@ impl I2C {
         })
     }
 
-    pub fn transaction(&self, data_to_send: &[u8], data_received: &mut [u8]) -> HalResult<()> {
+    pub fn transaction(&self, data_to_send: &[u8], data_received: &mut [u8]) -> bool {
         let status = unsafe {
             HAL_TransactionI2C(
                 self.port as HAL_I2CPort::Type,
@@ -34,18 +34,14 @@ impl I2C {
             )
         };
 
-        if status < 0 {
-            Ok(())
-        } else {
-            Err(HalError::from(status))
-        }
+        status < 0
     }
 
-    pub fn address_only(&self) -> HalResult<()> {
+    pub fn address_only(&self) -> bool {
         self.transaction(&[], &mut [])
     }
 
-    pub fn write(&self, register_address: i32, data: u8) -> HalResult<()> {
+    pub fn write(&self, register_address: i32, data: u8) -> bool {
         let mut buf = [0u8; 2];
         buf[0] = register_address as u8; // TODO: Is this valid?
         buf[1] = data;
@@ -59,14 +55,10 @@ impl I2C {
             )
         };
 
-        if status < 0 {
-            Ok(())
-        } else {
-            Err(HalError::from(status))
-        }
+        status < 0
     }
 
-    pub fn write_bulk(&self, data: Vec<u8>) -> HalResult<()> {
+    pub fn write_bulk(&self, data: Vec<u8>) -> bool {
         let status = unsafe {
             HAL_WriteI2C(
                 self.port as HAL_I2CPort::Type,
@@ -76,14 +68,10 @@ impl I2C {
             )
         };
 
-        if status < 0 {
-            Ok(())
-        } else {
-            Err(HalError::from(status))
-        }
+        status < 0
     }
 
-    pub fn read(&self, register_address: i32, buf: &mut [u8]) -> HalResult<()> {
+    pub fn read(&self, register_address: i32, buf: &mut [u8]) -> bool {
         if buf.is_empty() {
             return Ok(());
         }
@@ -91,7 +79,7 @@ impl I2C {
         self.transaction(&[register_address as u8], buf)
     }
 
-    pub fn read_only(&self, buf: &mut [u8]) -> HalResult<()> {
+    pub fn read_only(&self, buf: &mut [u8]) -> bool {
         let status = unsafe {
             HAL_ReadI2C(
                 self.port as HAL_I2CPort::Type,
@@ -101,11 +89,7 @@ impl I2C {
             )
         };
 
-        if status < 0 {
-            Ok(())
-        } else {
-            Err(HalError::from(status))
-        }
+        status < 0
     }
 
     pub fn verify_sensor(&self, register_address: i32, expected: &[u8]) -> bool {
