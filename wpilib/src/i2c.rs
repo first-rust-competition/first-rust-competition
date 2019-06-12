@@ -1,3 +1,4 @@
+use std::io;
 use wpilib_sys::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -32,8 +33,8 @@ impl I2C {
     ///
     /// This function will send all the bytes in `data_to_send` and will read data into `data_received`. Callers should make sure these buffers are sized appropriately
     ///
-    /// Returns true if the transfer was aborted, false if the transfer was completed successfully
-    pub fn transaction(&self, data_to_send: &[u8], data_received: &mut [u8]) -> bool {
+    /// Returns a result based on whether the transaction was successful
+    pub fn transaction(&self, data_to_send: &[u8], data_received: &mut [u8]) -> io::Result<usize> {
         let status = unsafe {
             HAL_TransactionI2C(
                 self.port as HAL_I2CPort::Type,
@@ -45,7 +46,7 @@ impl I2C {
             )
         };
 
-        status < 0
+        io_result(status)
     }
 
     /// Attempt to address a device on the I2C bus.
@@ -53,8 +54,8 @@ impl I2C {
     /// This allows you to figure out if there is a device on the I2C bus that
     /// responds to the address specified in the constructor.
     ///
-    /// Returns false if the transaction was successful, true if it was aborted
-    pub fn address_only(&self) -> bool {
+    /// Returns a result based on whether the transaction was successful
+    pub fn address_only(&self) -> io::Result<usize> {
         self.transaction(&[], &mut [])
     }
 
@@ -63,10 +64,10 @@ impl I2C {
     /// Write a single byte to a register on a device and wait until the
     ///   transaction is complete.
     ///
-    /// Returns false if the transaction was successful, true if it was aborted
-    pub fn write(&self, register_address: i32, data: u8) -> bool {
+    /// Returns a result based on whether the transaction was successful
+    pub fn write(&self, register_address: u8, data: u8) -> io::Result<usize> {
         let mut buf = [0u8; 2];
-        buf[0] = register_address as u8; // TODO: Is this valid?
+        buf[0] = register_address;
         buf[1] = data;
 
         let status = unsafe {
@@ -78,7 +79,7 @@ impl I2C {
             )
         };
 
-        status < 0
+        io_result(status)
     }
 
     /// Execute a bulk write transaction with the device.
@@ -86,8 +87,8 @@ impl I2C {
     /// Write multiple bytes to a device and wait until the
     ///   transaction is complete.
     ///
-    /// Returns false if the transfer was successful, true if it was aborted
-    pub fn write_bulk(&self, data: &[u8]) -> bool {
+    /// Returns a result based on whether the transaction was successful
+    pub fn write_bulk(&self, data: &[u8]) -> io::Result<usize> {
         let status = unsafe {
             HAL_WriteI2C(
                 self.port as HAL_I2CPort::Type,
@@ -97,7 +98,7 @@ impl I2C {
             )
         };
 
-        status < 0
+        io_result(status)
     }
 
     /// Execute a read transaction with the device.
@@ -107,10 +108,13 @@ impl I2C {
     /// allowing you to read consecutive registers on a device in a single
     /// transaction.
     ///
-    /// Returns false if the transfer was successful, true if it was aborted
-    pub fn read(&self, register_address: i32, buf: &mut [u8]) -> bool {
+    /// Returns a result based on whether the transaction was successful
+    pub fn read(&self, register_address: i32, buf: &mut [u8]) -> io::Result<usize> {
         if buf.is_empty() {
-            return true;
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Write buffer length < 1",
+            ));
         }
 
         self.transaction(&[register_address as u8], buf)
@@ -121,8 +125,8 @@ impl I2C {
     /// Read bytes from a device. This method does not write any data to prompt the
     /// device.
     ///
-    /// Returns false if the transfer was successful, true if it was aborted
-    pub fn read_only(&self, buf: &mut [u8]) -> bool {
+    /// Returns a result based on whether the transaction was successful
+    pub fn read_only(&self, buf: &mut [u8]) -> io::Result<usize> {
         let status = unsafe {
             HAL_ReadI2C(
                 self.port as HAL_I2CPort::Type,
@@ -132,7 +136,7 @@ impl I2C {
             )
         };
 
-        status < 0
+        io_result(status)
     }
 
     /// Verify that a device's registers contain expected values.
@@ -160,7 +164,7 @@ impl I2C {
 
             let mut buf = vec![0; to_read];
 
-            if self.read(cur_register_address, &mut buf[..]) {
+            if self.read(cur_register_address, &mut buf[..]).is_err() {
                 return false;
             }
 
@@ -183,5 +187,13 @@ impl Drop for I2C {
         unsafe {
             HAL_CloseI2C(self.port as HAL_I2CPort::Type);
         }
+    }
+}
+
+fn io_result(rv: i32) -> io::Result<usize> {
+    if rv < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(rv as usize)
     }
 }
