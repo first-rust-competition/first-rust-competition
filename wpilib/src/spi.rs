@@ -44,10 +44,8 @@ impl Spi {
         })
     }
 
-    pub fn set_clock_rate(&mut self, hz: f64) {
-        unsafe {
-            HAL_SetSPISpeed(self.port, hz as i32); // all of my what but its honestly what they do
-        }
+    pub fn set_clock_rate(&mut self, hz: i32) {
+        unsafe { HAL_SetSPISpeed(self.port, hz as i32) }
     }
 
     #[inline]
