@@ -10,14 +10,14 @@ pub enum Port {
 
 pub struct I2C {
     port: Port,
-    device_address: i32,
+    device_address: u16,
 }
 
 impl I2C {
     /// Constructs a new I2C
     ///
     /// `port` is the I2C port to which the device is connected, and `device_address` is the address of the device on the bus
-    pub fn new(port: Port, device_address: i32) -> HalResult<Self> {
+    pub fn new(port: Port, device_address: u16) -> HalResult<Self> {
         hal_call!(HAL_InitializeI2C(port as HAL_I2CPort::Type))?;
         usage::report(usage::resource_types::I2C, 0);
         Ok(I2C {
@@ -38,7 +38,7 @@ impl I2C {
         let status = unsafe {
             HAL_TransactionI2C(
                 self.port as HAL_I2CPort::Type,
-                self.device_address,
+                i32::from(self.device_address),
                 data_to_send.as_ptr(),
                 data_to_send.len() as i32,
                 data_received.as_mut_ptr(),
@@ -71,7 +71,7 @@ impl I2C {
         let status = unsafe {
             HAL_WriteI2C(
                 self.port as HAL_I2CPort::Type,
-                self.device_address,
+                i32::from(self.device_address),
                 buf.as_ptr(),
                 buf.len() as i32,
             )
@@ -90,7 +90,7 @@ impl I2C {
         let status = unsafe {
             HAL_WriteI2C(
                 self.port as HAL_I2CPort::Type,
-                self.device_address,
+                i32::from(self.device_address),
                 data.as_ptr(),
                 data.len() as i32,
             )
@@ -110,7 +110,7 @@ impl I2C {
     pub fn read(&self, register_address: i32, buf: &mut [u8]) -> io::Result<usize> {
         if buf.is_empty() {
             return Err(io::Error::new(
-                io::ErrorKind::Other,
+                io::ErrorKind::InvalidInput,
                 "Write buffer length < 1",
             ));
         }
@@ -128,7 +128,7 @@ impl I2C {
         let status = unsafe {
             HAL_ReadI2C(
                 self.port as HAL_I2CPort::Type,
-                self.device_address,
+                i32::from(self.device_address),
                 buf.as_mut_ptr(),
                 buf.len() as i32,
             )
