@@ -139,10 +139,7 @@ impl Spi {
 
 /// Automatic SPI transfer engine.
 #[derive(Debug)]
-pub struct AutoSpi {
-    port: HAL_SPIPort::Type,
-    spi: Spi,
-}
+pub struct AutoSpi(Spi);
 
 impl AutoSpi {
     /// Initialize automatic SPI transfer engine.
@@ -150,21 +147,20 @@ impl AutoSpi {
     /// Only a single engine is available.
     /// This will error if an engine is currently already allocated.
     pub fn new(spi: Spi, buffer_size: i32) -> HalResult<Self> {
-        let port = spi.port;
-        hal_call!(HAL_InitSPIAuto(port, buffer_size))?;
-        Ok(Self { port, spi })
+        hal_call!(HAL_InitSPIAuto(spi.port, buffer_size))?;
+        Ok(Self(spi))
     }
 
     /// Frees the automatic SPI transfer engine, releasing the underlying `Spi`.
     pub fn stop(self) -> Spi {
         // Spi::drop (HAL_CloseSPI) will ensure the auto SPI is freed if we get dropped.
-        let _ = hal_call!(HAL_FreeSPIAuto(self.port));
-        self.spi
+        let _ = hal_call!(HAL_FreeSPIAuto(self.0.port));
+        self.0
     }
 
     pub fn set_transmit_data(&mut self, to_send: &[u8], zero_size: i32) -> HalResult<()> {
         hal_call!(HAL_SetSPIAutoTransmitData(
-            self.port,
+            self.0.port,
             to_send.as_ptr(),
             to_send.len() as i32,
             zero_size
@@ -172,15 +168,15 @@ impl AutoSpi {
     }
 
     pub fn start_rate(&mut self, period: f64) -> HalResult<()> {
-        hal_call!(HAL_StartSPIAutoRate(self.port, period))
+        hal_call!(HAL_StartSPIAutoRate(self.0.port, period))
     }
 
     pub fn pause(&mut self) -> HalResult<()> {
-        hal_call!(HAL_StopSPIAuto(self.port))
+        hal_call!(HAL_StopSPIAuto(self.0.port))
     }
 
     pub fn force_read(&mut self) -> HalResult<()> {
-        hal_call!(HAL_ForceSPIAutoRead(self.port))
+        hal_call!(HAL_ForceSPIAutoRead(self.0.port))
     }
 
     /**
@@ -199,7 +195,7 @@ impl AutoSpi {
      */
     pub fn read_received_data(&mut self, buffer: &mut [u32], timeout: f64) -> HalResult<i32> {
         hal_call!(HAL_ReadSPIAutoReceivedData(
-            self.port,
+            self.0.port,
             buffer.as_mut_ptr(),
             buffer.len() as _,
             timeout
@@ -209,7 +205,7 @@ impl AutoSpi {
     pub fn dropped_count(&mut self) -> i32 {
         // All this should guarantee we are the auto SPI.
         // If not, something has gone horribly wrong.
-        hal_call!(HAL_GetSPIAutoDroppedCount(self.port)).unwrap()
+        hal_call!(HAL_GetSPIAutoDroppedCount(self.0.port)).unwrap()
     }
 }
 
