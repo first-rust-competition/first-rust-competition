@@ -6,8 +6,9 @@
 // except according to those terms.
 
 // use std::time::Duration;
-use std::sync::{Arc, Weak};
+use std::sync::Arc;
 use std::thread;
+use std::thread::JoinHandle;
 use std::time::Duration;
 use wpilib_sys::*;
 
@@ -58,7 +59,8 @@ impl Drop for Alarm {
 }
 
 pub struct Notifier {
-    alarm: Weak<Alarm>,
+    alarm: Arc<Alarm>,
+    handle: Option<JoinHandle<()>>,
 }
 
 impl Notifier {
@@ -69,7 +71,7 @@ impl Notifier {
         let alarm = Arc::new(Alarm::new()?);
 
         let thread_alarm = alarm.clone();
-        thread::spawn(move || {
+        let handle = thread::spawn(move || {
             while let Ok(cur_time) = thread_alarm.wait() {
                 if cur_time == 0 {
                     break;
@@ -81,15 +83,18 @@ impl Notifier {
         });
 
         Ok(Notifier {
-            alarm: Arc::downgrade(&alarm),
+            alarm,
+            handle: Some(handle),
         })
     }
 }
 
 impl Drop for Notifier {
     fn drop(&mut self) {
-        if let Some(alarm) = self.alarm.upgrade() {
-            let _ = alarm.stop(); // Stops the alarm, which allows the notifier thread to join
+        let _ = self.alarm.stop();
+
+        if let Some(handle) = self.handle.take() {
+            let _ = handle.join();
         }
     }
 }
