@@ -66,9 +66,7 @@ impl I2C {
     ///
     /// Returns a result based on whether the transaction was successful
     pub fn write(&self, register_address: u8, data: u8) -> io::Result<usize> {
-        let mut buf = [0u8; 2];
-        buf[0] = register_address;
-        buf[1] = data;
+        let buf = [register_address, data];
 
         let status = unsafe {
             HAL_WriteI2C(
