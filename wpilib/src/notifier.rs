@@ -66,7 +66,9 @@ pub struct Notifier {
 impl Notifier {
     /// Creates a new thread with timing backed by a notifier alarm
     ///
-    /// The provided handler will be called with the given period until the notifier is dropped
+    /// The provided handler will be called with the given period until the notifier is dropped,
+    /// at which point the executor thread will be joined. Any long-running code in the handler
+    /// will block the thread that `Drop`s the `Notifier`.
     pub fn new(mut handler: impl FnMut() + Send + 'static, period: Duration) -> HalResult<Self> {
         let alarm = Arc::new(Alarm::new()?);
 
