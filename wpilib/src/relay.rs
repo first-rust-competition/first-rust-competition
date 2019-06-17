@@ -86,7 +86,7 @@ impl Direction for ReverseOnly {
 ///
 /// See the module-level docs for more details.
 #[derive(Debug)]
-pub struct Relay<DIRECTION> {
+pub struct Relay<DIRECTION: Direction> {
     forward_handle: HAL_RelayHandle,
     reverse_handle: HAL_RelayHandle,
     channel: i32,
@@ -179,7 +179,7 @@ impl Relay<ReverseOnly> {
     }
 }
 
-impl<D> Relay<D> {
+impl<D: Direction> Relay<D> {
     pub fn channel(&self) -> i32 {
         self.channel
     }
@@ -193,7 +193,7 @@ impl<D> Relay<D> {
     }
 }
 
-impl<D> Drop for Relay<D> {
+impl<D: Direction> Drop for Relay<D> {
     fn drop(&mut self) {
         // ignore errors, as we want to make sure a free happens
         if self.forward_handle != HAL_kInvalidHandle {
