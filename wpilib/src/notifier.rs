@@ -6,6 +6,10 @@
 // except according to those terms.
 
 // use std::time::Duration;
+use std::sync::Arc;
+use std::thread;
+use std::thread::JoinHandle;
+use std::time::Duration;
 use wpilib_sys::*;
 
 #[derive(Debug)]
@@ -54,20 +58,45 @@ impl Drop for Alarm {
     }
 }
 
-/*
 pub struct Notifier {
-    thread: std::thread::Thread,
-    alarm: Alarm,
+    alarm: Arc<Alarm>,
+    handle: Option<JoinHandle<()>>,
 }
 
 impl Notifier {
-    pub fn new(handler: FnMut(), period: Duration) -> HalResult<Self> {
-        let alarm = Alarm::new(),
-        let thread = std::thread::spawn(|| loop {
-            let cur_time = hal_call!(HAL_WaitForNotifierAlarm(notifier));
-            handler();
+    /// Creates a new thread with timing backed by a notifier alarm
+    ///
+    /// The provided handler will be called with the given period until the notifier is dropped,
+    /// at which point the executor thread will be joined. Any long-running code in the handler
+    /// will block the thread that `Drop`s the `Notifier`.
+    pub fn new(mut handler: impl FnMut() + Send + 'static, period: Duration) -> HalResult<Self> {
+        let alarm = Arc::new(Alarm::new()?);
 
+        let thread_alarm = alarm.clone();
+        let handle = thread::spawn(move || {
+            while let Ok(cur_time) = thread_alarm.wait() {
+                if cur_time == 0 {
+                    break;
+                }
+
+                handler();
+                let _ = thread_alarm.update(cur_time + period.as_micros() as u64);
+            }
         });
+
+        Ok(Notifier {
+            alarm,
+            handle: Some(handle),
+        })
     }
 }
-*/
+
+impl Drop for Notifier {
+    fn drop(&mut self) {
+        let _ = self.alarm.stop();
+
+        if let Some(handle) = self.handle.take() {
+            let _ = handle.join();
+        }
+    }
+}
