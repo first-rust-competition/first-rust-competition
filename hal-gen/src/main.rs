@@ -39,6 +39,13 @@ impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
         }
     }
 
+    fn int_macro(&self, name: &str, _value: i64) -> Option<bindgen::callbacks::IntKind> {
+        match name {
+            "HAL_kInvalidHandle" => Some(bindgen::callbacks::IntKind::I32),
+            _ => None,
+        }
+    }
+
     fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
         if name.ends_with("_MESSAGE") {
             bindgen::callbacks::MacroParsingBehavior::Ignore
