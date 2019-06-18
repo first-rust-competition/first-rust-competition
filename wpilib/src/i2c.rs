@@ -146,14 +146,11 @@ impl I2C {
     /// The device must support and be configured to use register
     /// auto-increment.
     pub fn verify_sensor(&self, register_address: i32, expected: &[u8]) -> bool {
-        let mut i = 0;
-        let mut cur_register_address = register_address;
-
-        loop {
-            if i >= expected.len() {
-                break;
-            }
-
+        // (register_address..).step_by(4) gets truncated to the length of the first iter when we zip
+        for (i, cur_register_address) in (0..expected.len())
+            .step_by(4)
+            .zip((register_address..).step_by(4))
+        {
             let to_read = if expected.len() - i < 4 {
                 expected.len() - i
             } else {
@@ -171,9 +168,6 @@ impl I2C {
                     return false;
                 }
             }
-
-            i += 4;
-            cur_register_address += 4;
         }
 
         true
