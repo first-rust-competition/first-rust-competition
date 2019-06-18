@@ -76,10 +76,7 @@ impl AnalogGyro {
         hal_call!(HAL_GetAnalogGyroCenter(self.handle))
     }
 
-    /// Configures the gyro with the given parameters
-    ///
-    /// center is a preset uncalibrated value to use as the accumulator center value
-    /// offset is a preset uncalibrated value to use as the gyro offset
+    /// Configures the gyro parameters for the center value of the accumulator, and the raw offset of the gyro
     pub fn set_parameters(&self, center: i32, offset: f64) -> HalResult<()> {
         hal_call!(HAL_SetAnalogGyroParameters(
             self.handle,
