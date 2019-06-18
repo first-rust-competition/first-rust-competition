@@ -1,3 +1,4 @@
+use std::cmp;
 use std::io;
 use wpilib_sys::*;
 
@@ -151,11 +152,7 @@ impl I2C {
             .step_by(4)
             .zip((register_address..).step_by(4))
         {
-            let to_read = if expected.len() - i < 4 {
-                expected.len() - i
-            } else {
-                4
-            };
+            let to_read = cmp::min(4, expected.len() - i);
 
             let mut buf = vec![0; to_read];
 
