@@ -66,13 +66,13 @@ impl Can {
     ///
     /// The device ID is 6 bits, the manufacturer is 8 bits, and the device type is 5 bits.
     pub fn new(
-        device_id: i32,
+        device_id: u8,
         device_manufacturer: HAL_CANManufacturer::Type,
         device_type: HAL_CANDeviceType::Type,
     ) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeCAN(
             device_manufacturer,
-            device_id,
+            device_id as _,
             device_type,
         ))?;
         usage::report(usage::resource_types::CAN, device_id as _);
@@ -83,7 +83,7 @@ impl Can {
     /// This uses the team manufacturer and device types.
     ///
     /// The device ID is 6 bits (0-63).
-    pub fn with_team_device(device_id: i32) -> HalResult<Self> {
+    pub fn with_team_device(device_id: u8) -> HalResult<Self> {
         Can::new(device_id, TEAM_MANUFACTURER, TEAM_DEVICE_TYPE)
     }
 
