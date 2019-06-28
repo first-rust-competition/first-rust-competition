@@ -72,10 +72,10 @@ impl Can {
     ) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeCAN(
             device_manufacturer,
-            device_id as _,
+            device_id.into(),
             device_type,
         ))?;
-        usage::report(usage::resource_types::CAN, device_id as _);
+        usage::report(usage::resource_types::CAN, device_id.into());
         Ok(Can { handle })
     }
 
