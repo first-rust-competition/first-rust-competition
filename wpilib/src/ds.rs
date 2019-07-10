@@ -167,6 +167,24 @@ impl From<HAL_MatchInfo> for MatchInfoData {
     }
 }
 
+fn stick_buttons(port: JoystickPort) -> HAL_JoystickButtons {
+    let mut buttons: HAL_JoystickButtons = Default::default();
+    unsafe { HAL_GetJoystickButtons(port.0, &mut buttons) };
+    buttons
+}
+
+fn stick_axes(port: JoystickPort) -> HAL_JoystickAxes {
+    let mut axes: HAL_JoystickAxes = Default::default();
+    unsafe { HAL_GetJoystickAxes(port.0, &mut axes) };
+    axes
+}
+
+fn stick_povs(port: JoystickPort) -> HAL_JoystickPOVs {
+    let mut povs: HAL_JoystickPOVs = Default::default();
+    unsafe { HAL_GetJoystickPOVs(port.0, &mut povs) };
+    povs
+}
+
 use super::robot_base::RobotBase;
 
 #[derive(Clone, Debug)]
@@ -191,10 +209,7 @@ impl<'a> DriverStation<'a> {
     /// This may mean it is unplugged.
     #[inline]
     pub fn stick_button(&self, port: JoystickPort, button: u8) -> Option<bool> {
-        let mut buttons: HAL_JoystickButtons = Default::default();
-        unsafe {
-            HAL_GetJoystickButtons(port.0, &mut buttons);
-        }
+        let buttons = stick_buttons(port);
 
         if button >= buttons.count {
             return None;
@@ -208,10 +223,7 @@ impl<'a> DriverStation<'a> {
     /// This may mean it is unplugged.
     #[inline]
     pub fn stick_axis(&self, port: JoystickPort, axis: JoystickAxis) -> Option<f32> {
-        let mut axes: HAL_JoystickAxes = Default::default();
-        unsafe {
-            HAL_GetJoystickAxes(port.0, &mut axes);
-        }
+        let axes = stick_axes(port);
 
         if axis.0 > axes.count as usize {
             return None;
@@ -225,10 +237,7 @@ impl<'a> DriverStation<'a> {
     /// This may mean it is unplugged.
     #[inline]
     pub fn stick_pov(&self, port: JoystickPort, pov: JoystickPOV) -> Option<i16> {
-        let mut povs: HAL_JoystickPOVs = Default::default();
-        unsafe {
-            HAL_GetJoystickPOVs(port.0, &mut povs);
-        }
+        let povs = stick_povs(port);
 
         if pov.0 > povs.count as usize {
             return None;
