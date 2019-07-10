@@ -103,13 +103,13 @@ impl JoystickAxis {
     }
 }
 
-/// A type representing a valid Joystick axis
+/// A valid joystick POV hat index.
 #[derive(Copy, Clone, Debug)]
-pub struct JoystickPOV(usize);
-impl JoystickPOV {
+pub struct JoystickPov(usize);
+impl JoystickPov {
     /// Creates a new POV without checking the value.
     pub const unsafe fn new_unchecked(pov: u8) -> Self {
-        JoystickPOV(pov as usize)
+        Self(pov as usize)
     }
 
     /// Creates a new POV hat from a port number
@@ -117,10 +117,13 @@ impl JoystickPOV {
         if u32::from(pov) >= HAL_kMaxJoystickPOVs {
             None
         } else {
-            Some(JoystickPOV(usize::from(pov)))
+            Some(Self(usize::from(pov)))
         }
     }
 }
+
+#[deprecated(since = "0.5.0", note = "renamed to `JoystickPov`")]
+pub type JoystickPOV = JoystickPov;
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -229,7 +232,7 @@ impl JoystickPovs {
     ///
     /// Returns None if the POV hat doesn't exist.
     /// This may mean the controller is unplugged.
-    pub fn get(&self, pov: JoystickPOV) -> Option<i16> {
+    pub fn get(&self, pov: JoystickPov) -> Option<i16> {
         if pov.0 > self.0.count as usize {
             None
         } else {
@@ -396,7 +399,7 @@ impl<'a> DriverStation<'a> {
     /// This may mean it is unplugged.
     #[deprecated(since = "0.5.0", note = "use `stick_povs` instead")]
     #[inline]
-    pub fn stick_pov(&self, port: JoystickPort, pov: JoystickPOV) -> Option<i16> {
+    pub fn stick_pov(&self, port: JoystickPort, pov: JoystickPov) -> Option<i16> {
         let povs = stick_povs(port);
 
         if pov.0 > povs.count as usize {
