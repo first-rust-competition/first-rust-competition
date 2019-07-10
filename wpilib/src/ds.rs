@@ -181,6 +181,11 @@ impl JoystickButtons {
         self.0.count
     }
 
+    /// Get the raw bits representing the current button states.
+    pub fn bits(&self) -> u32 {
+        self.0.buttons
+    }
+
     /// Get the set of buttons that are currently pressed,
     /// but were not pressed when `other` was read.
     pub fn pressed_since(&self, other: &Self) -> Self {
