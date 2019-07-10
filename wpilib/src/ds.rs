@@ -122,6 +122,36 @@ impl JoystickPOV {
     }
 }
 
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+/// Buttons for XInput controllers (such as Xbox controllers).
+pub enum XInputButton {
+    A,
+    B,
+    X,
+    Y,
+
+    /// The left bumper/shoulder button.
+    LeftBumper,
+    /// The right bumper/shoulder button.
+    RightBumper,
+
+    Back,
+    Start,
+
+    /// The left thumbstick button.
+    LeftThumb,
+    /// The right thumbstick button.
+    RightThumb,
+}
+
+impl From<XInputButton> for u8 {
+    #[inline]
+    fn from(button: XInputButton) -> u8 {
+        button as u8
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct JoystickButtons(HAL_JoystickButtons);
 impl JoystickButtons {
@@ -129,7 +159,12 @@ impl JoystickButtons {
     ///
     /// Returns None if the button doesn't exist.
     /// This may mean the controller is unplugged.
-    pub fn get(&self, button: u8) -> Option<bool> {
+    ///
+    /// This method may take a `u8` or an [`XInputButton`].
+    ///
+    /// [`XInputButton`]: ../enum.XInputButton.html
+    pub fn get(&self, button: impl Into<u8>) -> Option<bool> {
+        let button = button.into();
         if button >= self.0.count {
             None
         } else {
