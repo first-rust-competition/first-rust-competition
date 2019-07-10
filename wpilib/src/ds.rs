@@ -213,6 +213,16 @@ impl JoystickAxes {
         }
     }
 
+    /// Equivalent to `get(JoystickAxis::X)`.
+    pub fn x(&self) -> Option<f32> {
+        self.get(JoystickAxis::X)
+    }
+
+    /// Equivalent to `get(JoystickAxis::Y)`.
+    pub fn y(&self) -> Option<f32> {
+        self.get(JoystickAxis::Y)
+    }
+
     /// Get the number of axes read.
     /// Returns 0 if the controller is unplugged.
     pub fn count(&self) -> usize {
