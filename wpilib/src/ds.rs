@@ -104,7 +104,7 @@ impl JoystickAxis {
 }
 
 /// A valid joystick POV hat index.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct JoystickPov(usize);
 impl JoystickPov {
     /// Creates a new POV without checking the value.
@@ -238,6 +238,11 @@ impl JoystickPovs {
         } else {
             Some(self.0.povs[pov.0])
         }
+    }
+
+    /// Get the value of POV hat 0, or `None` if there are no POV hats.
+    pub fn first(&self) -> Option<i16> {
+        self.get(JoystickPov(0))
     }
 
     /// Get the number of POV hats read.
