@@ -155,7 +155,7 @@ impl From<XInputButton> for u8 {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct JoystickButtons(HAL_JoystickButtons);
 impl JoystickButtons {
     /// Get the state of the 0-indexed button `button`.
@@ -198,7 +198,7 @@ impl JoystickButtons {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct JoystickAxes(HAL_JoystickAxes);
 impl JoystickAxes {
     /// Get the value of the given axis.
@@ -235,7 +235,7 @@ impl JoystickAxes {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct JoystickPovs(HAL_JoystickPOVs);
 impl JoystickPovs {
     /// Get the value of the given POV hat.
