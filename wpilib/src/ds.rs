@@ -166,7 +166,7 @@ impl JoystickButtons {
     /// This method may take a `u8` or an [`XInputButton`].
     ///
     /// [`XInputButton`]: ../enum.XInputButton.html
-    pub fn get(&self, button: impl Into<u8>) -> Option<bool> {
+    pub fn get(self, button: impl Into<u8>) -> Option<bool> {
         let button = button.into();
         if button >= self.0.count {
             None
@@ -177,18 +177,18 @@ impl JoystickButtons {
 
     /// Get the number of buttons read.
     /// Returns 0 if the controller is unplugged.
-    pub fn count(&self) -> u8 {
+    pub fn count(self) -> u8 {
         self.0.count
     }
 
     /// Get the raw bits representing the current button states.
-    pub fn bits(&self) -> u32 {
+    pub fn bits(self) -> u32 {
         self.0.buttons
     }
 
     /// Get the set of buttons that are currently pressed,
     /// but were not pressed when `other` was read.
-    pub fn pressed_since(&self, other: &Self) -> Self {
+    pub fn pressed_since(self, other: Self) -> Self {
         Self(HAL_JoystickButtons {
             count: self.0.count,
             buttons: self.0.buttons & !other.0.buttons,
@@ -197,7 +197,7 @@ impl JoystickButtons {
 
     /// Get the set of buttons that are currently unpressed,
     /// but were pressed when `other` was read.
-    pub fn released_since(&self, other: &Self) -> Self {
+    pub fn released_since(self, other: Self) -> Self {
         Self(HAL_JoystickButtons {
             count: self.0.count,
             buttons: !self.0.buttons & other.0.buttons,
