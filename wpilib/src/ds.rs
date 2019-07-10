@@ -127,6 +127,22 @@ impl JoystickButtons {
     pub fn count(&self) -> u8 {
         self.0.count
     }
+
+    /// Get the set of buttons that have become pressed since `other` was read.
+    pub fn pressed_since(&self, other: &Self) -> Self {
+        Self(HAL_JoystickButtons {
+            count: self.0.count,
+            buttons: self.0.buttons & !other.0.buttons,
+        })
+    }
+
+    /// Get the set of buttons that have been released since `other` was read.
+    pub fn released_since(&self, other: &Self) -> Self {
+        Self(HAL_JoystickButtons {
+            count: self.0.count,
+            buttons: !self.0.buttons & other.0.buttons,
+        })
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
