@@ -107,6 +107,82 @@ impl JoystickPOV {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+pub struct JoystickButtons(HAL_JoystickButtons);
+impl JoystickButtons {
+    /// Get the state of the 0-indexed button `button`.
+    ///
+    /// Returns None if the button doesn't exist.
+    /// This may mean the controller is unplugged.
+    pub fn get(&self, button: u8) -> Option<bool> {
+        if button >= self.0.count {
+            None
+        } else {
+            Some(self.0.buttons & (1 << button) != 0)
+        }
+    }
+
+    /// Get the number of buttons read.
+    /// Returns 0 if the controller is unplugged.
+    pub fn count(&self) -> u8 {
+        self.0.count
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct JoystickAxes(HAL_JoystickAxes);
+impl JoystickAxes {
+    /// Get the value of the given axis.
+    ///
+    /// Returns None if the axis doesn't exist.
+    /// This may mean the controller is unplugged.
+    pub fn get(&self, axis: JoystickAxis) -> Option<f32> {
+        if axis.0 > self.0.count as usize {
+            None
+        } else {
+            Some(self.0.axes[axis.0])
+        }
+    }
+
+    /// Get the number of axes read.
+    /// Returns 0 if the controller is unplugged.
+    pub fn count(&self) -> usize {
+        self.0.count as usize
+    }
+
+    /// Get all the axes read.
+    pub fn all(&self) -> &[f32] {
+        &self.0.axes[..self.0.count as usize]
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct JoystickPovs(HAL_JoystickPOVs);
+impl JoystickPovs {
+    /// Get the value of the given POV hat.
+    ///
+    /// Returns None if the POV hat doesn't exist.
+    /// This may mean the controller is unplugged.
+    pub fn get(&self, pov: JoystickPOV) -> Option<i16> {
+        if pov.0 > self.0.count as usize {
+            None
+        } else {
+            Some(self.0.povs[pov.0])
+        }
+    }
+
+    /// Get the number of POV hats read.
+    /// Returns 0 if the controller is unplugged.
+    pub fn count(&self) -> usize {
+        self.0.count as usize
+    }
+
+    /// Get all the axes read.
+    pub fn all(&self) -> &[i16] {
+        &self.0.povs[..self.0.count as usize]
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Alliance {
     Red,
@@ -203,10 +279,16 @@ impl<'a> DriverStation<'a> {
         }
     }
 
+    /// Read the current buttons state from the given controller.
+    pub fn stick_buttons(&self, port: JoystickPort) -> JoystickButtons {
+        JoystickButtons(stick_buttons(port))
+    }
+
     /// Whether the 0-indexed button `button` is held on the controller on `port`
     /// # Errors
     /// Returns None if the requested button does not exist on the controller.
     /// This may mean it is unplugged.
+    #[deprecated(since = "0.5.0", note = "use `stick_buttons` instead")]
     #[inline]
     pub fn stick_button(&self, port: JoystickPort, button: u8) -> Option<bool> {
         let buttons = stick_buttons(port);
@@ -217,10 +299,16 @@ impl<'a> DriverStation<'a> {
         Some(buttons.buttons & (1 << button) != 0)
     }
 
+    /// Read the current axes from the given controller.
+    pub fn stick_axes(&self, port: JoystickPort) -> JoystickAxes {
+        JoystickAxes(stick_axes(port))
+    }
+
     /// The value of `axis` on the controller on `port`
     /// # Errors
     /// Returns None if the requested axis does not exist on the controller.
     /// This may mean it is unplugged.
+    #[deprecated(since = "0.5.0", note = "use `stick_axes` instead")]
     #[inline]
     pub fn stick_axis(&self, port: JoystickPort, axis: JoystickAxis) -> Option<f32> {
         let axes = stick_axes(port);
@@ -231,10 +319,16 @@ impl<'a> DriverStation<'a> {
         Some(axes.axes[axis.0])
     }
 
+    /// Read the current POV hat directions from the given controller.
+    pub fn stick_povs(&self, port: JoystickPort) -> JoystickPovs {
+        JoystickPovs(stick_povs(port))
+    }
+
     /// The value of `pov` on the controller on `port`
     /// # Errors
     /// Returns None if the requested hat does not exist on the controller.
     /// This may mean it is unplugged.
+    #[deprecated(since = "0.5.0", note = "use `stick_povs` instead")]
     #[inline]
     pub fn stick_pov(&self, port: JoystickPort, pov: JoystickPOV) -> Option<i16> {
         let povs = stick_povs(port);
