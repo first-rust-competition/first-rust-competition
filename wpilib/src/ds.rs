@@ -181,7 +181,8 @@ impl JoystickButtons {
         self.0.count
     }
 
-    /// Get the set of buttons that have become pressed since `other` was read.
+    /// Get the set of buttons that are currently pressed,
+    /// but were not pressed when `other` was read.
     pub fn pressed_since(&self, other: &Self) -> Self {
         Self(HAL_JoystickButtons {
             count: self.0.count,
@@ -189,7 +190,8 @@ impl JoystickButtons {
         })
     }
 
-    /// Get the set of buttons that have been released since `other` was read.
+    /// Get the set of buttons that are currently unpressed,
+    /// but were pressed when `other` was read.
     pub fn released_since(&self, other: &Self) -> Self {
         Self(HAL_JoystickButtons {
             count: self.0.count,
