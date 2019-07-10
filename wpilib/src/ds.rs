@@ -58,13 +58,15 @@ impl JoystickPort {
     }
 }
 
-/// A type representing a valid Joystick axis
+/// A valid joystick axis index.
 #[derive(Copy, Clone, Debug)]
 pub struct JoystickAxis(usize);
 impl JoystickAxis {
     /// Axis 0, commonly the X axis on a joystick.
+    /// This is the left thumbstick X axis on an XInput controller.
     pub const X: Self = Self(0);
     /// Axis 1, commonly the Y axis on a joystick.
+    /// This is the left thumbstick Y axis on an XInput controller.
     pub const Y: Self = Self(1);
     /// Axis 2, commonly the Z axis or twist on a joystick.
     pub const Z: Self = Self(2);
@@ -72,6 +74,19 @@ impl JoystickAxis {
     pub const TWIST: Self = Self::Z;
     /// Axis 3, commonly the throttle on a joystick.
     pub const THROTTLE: Self = Self(3);
+
+    /// Axis 4, the right thumbstick X axis on an XInput controller
+    /// (such as Xbox controllers).
+    pub const RIGHT_X: Self = Self(4);
+    /// Axis 5, the right thumbstick X axis on an XInput controller
+    /// (such as Xbox controllers).
+    pub const RIGHT_Y: Self = Self(5);
+    /// Axis 2, the left trigger axis on an XInput controller
+    /// (such as Xbox controllers).
+    pub const LEFT_TRIGGER: Self = Self(2);
+    /// Axis 3, the right trigger axis on an XInput controller
+    /// (such as Xbox controllers).
+    pub const RIGHT_TRIGGER: Self = Self(3);
 
     /// Creates a new axis without checking the value.
     pub const unsafe fn new_unchecked(port: u8) -> Self {
