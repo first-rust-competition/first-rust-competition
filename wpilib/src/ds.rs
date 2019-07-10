@@ -62,6 +62,17 @@ impl JoystickPort {
 #[derive(Copy, Clone, Debug)]
 pub struct JoystickAxis(usize);
 impl JoystickAxis {
+    /// Axis 0, commonly the X axis on a joystick.
+    pub const X: Self = Self(0);
+    /// Axis 1, commonly the Y axis on a joystick.
+    pub const Y: Self = Self(1);
+    /// Axis 2, commonly the Z axis or twist on a joystick.
+    pub const Z: Self = Self(2);
+    /// Axis 2, commonly the Z axis or twist on a joystick.
+    pub const TWIST: Self = Self::Z;
+    /// Axis 3, commonly the throttle on a joystick.
+    pub const THROTTLE: Self = Self(3);
+
     /// Creates a new axis without checking the value.
     pub const unsafe fn new_unchecked(port: u8) -> Self {
         JoystickAxis(port as usize)
