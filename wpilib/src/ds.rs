@@ -39,16 +39,6 @@ use wpilib_sys::*;
 
 const JOYSTICK_PORTS: usize = 6;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub enum JoystickError {
-    PortDNE,
-    ButtonUnplugged,
-    AxisUnplugged,
-    AxisDNE,
-    PovDNE,
-    PovUnplugged,
-}
-
 /// A type representing a valid Joystick port
 #[derive(Copy, Clone, Debug)]
 pub struct JoystickPort(i32);
