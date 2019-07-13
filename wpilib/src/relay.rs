@@ -56,10 +56,13 @@ impl From<bool> for Value {
 }
 */
 
+#[derive(Debug)]
 /// Marker specifying a Relay goes in both directions.
 pub struct BothDirections;
+#[derive(Debug)]
 /// Marker specifying a Relay goes forward only.
 pub struct ForwardOnly;
+#[derive(Debug)]
 /// Marker specifying a Relay goes reverse only.
 pub struct ReverseOnly;
 
