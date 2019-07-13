@@ -24,6 +24,9 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
    ```toml
    [target.arm-unknown-linux-gnueabi]
    linker = "<path-to-arm-linux-gnueabi-gcc>"
+   rustflags = [
+     "-C", "target-cpu=cortex-a9",
+   ]
    ```
    Mine is at `~/frc2019/roborio/bin/arm-frc2019-linux-gnueabi-gcc` on Ubuntu.
    You can also use just the name of the executable, provided it's in the PATH.
