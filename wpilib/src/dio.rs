@@ -42,37 +42,24 @@ lazy_static! {
 use embedded_hal::digital::v2::OutputPin;
 
 /// A digital output used to control lights, etc from the RoboRIO.
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct DigitalOutput {
     channel: i32,
     handle: HAL_DigitalHandle,
-    pwm: Option<HAL_DigitalPWMHandle>,
 }
 
 impl DigitalOutput {
     /// Create a new digital output on the specificed channel, returning an error if initialization
     /// fails.
-    #[allow(clippy::new_ret_no_self)]
     pub fn new(channel: i32) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeDIOPort(
-            HAL_GetPort(channel as i32),
+            HAL_GetPort(channel),
             false as HAL_Bool // false for output
         ))?;
 
         usage::report(resource_types::DigitalOutput, channel as instances::Type);
 
-        Ok(DigitalOutput {
-            channel,
-            handle,
-            pwm: None,
-        })
-    }
-
-    /// Set the PWM rate for this output, from 0.6Hz to 19kHz. Will return an error if PWM has not
-    /// been enabled. All digital channels will use the same PWM rate.
-    pub fn set_pwm_rate(rate: f64) -> HalResult<()> {
-        hal_call!(HAL_SetDigitalPWMRate(rate))
+        Ok(DigitalOutput { channel, handle })
     }
 
     /// Set the value to output.
@@ -106,37 +93,19 @@ impl DigitalOutput {
     }
 
     /// Enable PWM for this output.
-    pub fn enable_pwm(&mut self, initial_duty_cycle: f64) -> HalResult<()> {
+    pub fn enable_pwm(self, initial_duty_cycle: f64) -> HalResult<DigitalPwm> {
         let pwm = hal_call!(HAL_AllocateDigitalPWM())?;
         hal_call!(HAL_SetDigitalPWMDutyCycle(pwm, initial_duty_cycle))?;
         hal_call!(HAL_SetDigitalPWMOutputChannel(pwm, self.channel))?;
-        self.pwm = Some(pwm);
-        Ok(())
-    }
-
-    /// Turn off PWM for this output.
-    pub fn disable_pwm(&mut self) -> HalResult<()> {
-        if let Some(pwm) = self.pwm {
-            hal_call!(HAL_SetDigitalPWMOutputChannel(pwm, *NUM_DIGITAL_CHANNELS))?;
-            hal_call!(HAL_FreeDigitalPWM(pwm))?;
-            self.pwm = None;
-        }
-        Ok(())
-    }
-
-    /// Set a new duty cycle to use in PWM on this output.
-    pub fn update_duty_cycle(&mut self, duty_cycle: f64) -> HalResult<()> {
-        if let Some(pwm) = self.pwm {
-            hal_call!(HAL_SetDigitalPWMDutyCycle(pwm, duty_cycle))
-        } else {
-            Ok(())
-        }
+        Ok(DigitalPwm {
+            pin: self,
+            pwm: DigitalPwmHandle(pwm),
+        })
     }
 }
 
 impl Drop for DigitalOutput {
     fn drop(&mut self) {
-        let _ = self.disable_pwm();
         unsafe { HAL_FreeDIOPort(self.handle) }
     }
 }
@@ -151,6 +120,55 @@ impl OutputPin for DigitalOutput {
 
     fn set_high(&mut self) -> HalResult<()> {
         Ok(self.set(true)?)
+    }
+}
+
+/// Digital PWM output.
+///
+/// PWM output will be disabled when this is dropped.
+///
+/// Use [`DigitalOutput::enable_pwm`] to get an instance of this.
+///
+/// [`DigitalOutput::enable_pwm`]: struct.DigitalOutput.html#method.enable_pwm
+pub struct DigitalPwm {
+    pin: DigitalOutput,
+    pwm: DigitalPwmHandle,
+}
+
+/// Internal wrapper for a digital PWM handle with our Drop impl.
+struct DigitalPwmHandle(HAL_DigitalPWMHandle);
+
+impl DigitalPwm {
+    /// Set a new duty cycle to use in PWM on this output.
+    pub fn update_duty_cycle(&mut self, duty_cycle: f64) -> HalResult<()> {
+        hal_call!(HAL_SetDigitalPWMDutyCycle(self.pwm.0, duty_cycle))
+    }
+
+    /// Set the PWM rate for digital PWM outputs, from 0.6Hz to 19kHz.
+    /// All digital channels will use the same PWM rate.
+    /// Will return an error if PWM has not been enabled.
+    pub fn set_pwm_rate(rate: f64) -> HalResult<()> {
+        hal_call!(HAL_SetDigitalPWMRate(rate))
+    }
+
+    /// Get a reference to the underlying DigitalOutput.
+    pub fn pin(&self) -> &DigitalOutput {
+        &self.pin
+    }
+
+    /// Disables PWM output, returning the underlying DigitalOutput.
+    pub fn disable(self) -> DigitalOutput {
+        self.pin
+    }
+}
+
+impl Drop for DigitalPwmHandle {
+    fn drop(&mut self) {
+        let _ = hal_call!(HAL_SetDigitalPWMOutputChannel(
+            self.0,
+            *NUM_DIGITAL_CHANNELS,
+        ));
+        let _ = hal_call!(HAL_FreeDigitalPWM(self.0));
     }
 }
 
