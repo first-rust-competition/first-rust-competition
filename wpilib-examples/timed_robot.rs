@@ -4,6 +4,10 @@ extern crate wpilib;
 struct Robot {}
 
 impl wpilib::IterativeRobot for Robot {
+    fn new(_ds: &wpilib::ds::DriverStation) -> Robot {
+        Robot {}
+    }
+
     fn disabled_init(&mut self) {
         println!("Transitioning to disabled.");
     }
@@ -32,10 +36,5 @@ impl wpilib::IterativeRobot for Robot {
 }
 
 fn main() {
-    let base = wpilib::RobotBase::new().unwrap();
-    let ds = base.make_ds();
-
-    let mut robot = Robot {};
-
-    wpilib::start_timed(&mut robot, &ds)
+    wpilib::start_timed::<Robot>()
 }
