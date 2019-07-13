@@ -129,7 +129,7 @@ pub type JoystickPOV = JoystickPov;
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 /// Buttons for XInput controllers (such as Xbox controllers).
 pub enum XInputButton {
-    A,
+    A = 0,
     B,
     X,
     Y,
@@ -280,8 +280,8 @@ pub enum Alliance {
     Blue,
 }
 
-#[derive(Debug, Copy, Clone)]
-enum MatchType {
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum MatchType {
     None,
     Practice,
     Qualification,
@@ -297,41 +297,56 @@ pub enum RobotState {
     EStop,
 }
 
-#[derive(Debug, Clone)]
-struct MatchInfoData {
-    event_name: String,
-    game_specific_message: Vec<u8>,
-    match_number: u16,
-    replay_number: u8,
-    match_type: MatchType,
-}
-
 use std::ffi::CStr;
-use std::os::raw::c_char;
-#[allow(non_upper_case_globals)]
-impl From<HAL_MatchInfo> for MatchInfoData {
-    fn from(info: HAL_MatchInfo) -> MatchInfoData {
-        let mut cs = info.eventName;
-        cs[cs.len() - 1] = 0;
+use std::fmt;
 
+pub struct MatchInfo(HAL_MatchInfo);
+impl MatchInfo {
+    pub fn event_name(&self) -> &CStr {
+        unsafe { CStr::from_ptr(self.0.eventName.as_ptr()) }
+    }
+
+    #[allow(non_upper_case_globals)]
+    pub fn match_type(&self) -> MatchType {
         use self::HAL_MatchType::*;
-        Self {
-            event_name: unsafe { CStr::from_ptr(&cs as *const c_char) }
-                .to_string_lossy()
-                .into_owned(),
-            game_specific_message: info.gameSpecificMessage
-                [0..info.gameSpecificMessageSize as usize]
-                .to_vec(),
-            match_number: info.matchNumber,
-            replay_number: info.replayNumber,
-            match_type: match info.matchType {
-                HAL_kMatchType_practice => MatchType::Practice,
-                HAL_kMatchType_qualification => MatchType::Qualification,
-                HAL_kMatchType_elimination => MatchType::Elimination,
-                _ => MatchType::None,
-            },
+        match self.0.matchType {
+            HAL_kMatchType_practice => MatchType::Practice,
+            HAL_kMatchType_qualification => MatchType::Qualification,
+            HAL_kMatchType_elimination => MatchType::Elimination,
+            _ => MatchType::None,
         }
     }
+
+    #[inline]
+    pub fn match_number(&self) -> u16 {
+        self.0.matchNumber
+    }
+
+    #[inline]
+    pub fn replay_number(&self) -> u8 {
+        self.0.replayNumber
+    }
+
+    pub fn game_specific_message(&self) -> &[u8] {
+        &self.0.gameSpecificMessage[..self.0.gameSpecificMessageSize as usize]
+    }
+}
+impl fmt::Debug for MatchInfo {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.debug_struct("MatchInfo")
+            .field("event_name", &self.event_name())
+            .field("match_type", &self.match_type())
+            .field("match_number", &self.0.matchNumber)
+            .field("replay_number", &self.0.replayNumber)
+            .field("game_specific_message", &self.game_specific_message())
+            .finish()
+    }
+}
+
+fn match_info() -> HAL_MatchInfo {
+    let mut info = Default::default();
+    unsafe { HAL_GetMatchInfo(&mut info) };
+    info
 }
 
 fn stick_buttons(port: JoystickPort) -> HAL_JoystickButtons {
@@ -487,12 +502,13 @@ impl<'a> DriverStation<'a> {
         control_word.fmsAttached() != 0
     }
 
-    pub fn game_specific_message(&self) -> Vec<u8> {
-        let mut info: HAL_MatchInfo = Default::default();
-        unsafe {
-            HAL_GetMatchInfo(&mut info);
-        }
+    pub fn match_info(&self) -> MatchInfo {
+        MatchInfo(match_info())
+    }
 
+    #[deprecated(since = "0.5.0", note = "use `match_info().game_specific_message()` instead")]
+    pub fn game_specific_message(&self) -> Vec<u8> {
+        let info = match_info();
         info.gameSpecificMessage[0..info.gameSpecificMessageSize as usize].to_vec()
     }
 
