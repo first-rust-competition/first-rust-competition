@@ -17,9 +17,9 @@
 //! Using a bidirectional relay:
 //!
 //! ```
-//! use wpilib::{relay, HalResult};
+//! use wpilib::relay;
 //!
-//! # fn main() -> HalResult<()> {
+//! # fn main() -> wpilib::HalResult<()> {
 //! let mut relay = relay::Relay<relay::BothDirections>::new(1)?;
 //!
 //! relay.set(relay::Value::Forward)?;
@@ -89,27 +89,27 @@ impl Direction for ReverseOnly {
 ///
 /// See the module-level docs for more details.
 #[derive(Debug)]
-pub struct Relay<DIRECTION: Direction> {
+pub struct Relay<DIR: Direction> {
     forward_handle: HAL_RelayHandle,
     reverse_handle: HAL_RelayHandle,
     channel: i32,
-    direction: PhantomData<DIRECTION>,
+    direction: PhantomData<DIR>,
 }
 
-impl<D: Direction> Relay<D> {
+impl<DIR: Direction> Relay<DIR> {
     /// Creates a Relay given a channel.
     ///
     /// The relay will be initialized such that both lines are initially 0V.
     pub fn new(channel: i32) -> HalResult<Self> {
         let port_handle = unsafe { HAL_GetPort(channel) };
 
-        let forward_handle = if D::FORWARD {
+        let forward_handle = if DIR::FORWARD {
             usage::report(usage::resource_types::Relay, channel as _);
             hal_call!(HAL_InitializeRelayPort(port_handle, true as HAL_Bool))?
         } else {
             HAL_kInvalidHandle
         };
-        let reverse_handle = if D::REVERSE {
+        let reverse_handle = if DIR::REVERSE {
             usage::report(
                 usage::resource_types::Relay,
                 channel as usage::instances::Type + 128,
@@ -182,7 +182,7 @@ impl Relay<ReverseOnly> {
     }
 }
 
-impl<D: Direction> Relay<D> {
+impl<DIR: Direction> Relay<DIR> {
     pub fn channel(&self) -> i32 {
         self.channel
     }
@@ -196,7 +196,7 @@ impl<D: Direction> Relay<D> {
     }
 }
 
-impl<D: Direction> Drop for Relay<D> {
+impl<DIR: Direction> Drop for Relay<DIR> {
     fn drop(&mut self) {
         // ignore errors, as we want to make sure a free happens
         if self.forward_handle != HAL_kInvalidHandle {
