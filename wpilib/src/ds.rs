@@ -165,7 +165,7 @@ impl JoystickButtons {
     ///
     /// This method may take a `u8` or an [`XInputButton`].
     ///
-    /// [`XInputButton`]: ../enum.XInputButton.html
+    /// [`XInputButton`]: enum.XInputButton.html
     pub fn get(self, button: impl Into<u8>) -> Option<bool> {
         let button = button.into();
         if button >= self.0.count {
