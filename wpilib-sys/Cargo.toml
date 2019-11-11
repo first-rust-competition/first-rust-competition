@@ -10,6 +10,7 @@ name = "wpilib-sys"
 version = "0.4.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 build = "build.rs"
+links = "wpiHal"
 description = "FRC's WPILib system bindings for rust."
 repository = "https://github.com/Lytigas/first-rust-competition"
 keywords = ["frc", "roborio", "robotics", "first", "wpilib"]
