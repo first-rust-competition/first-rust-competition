@@ -19,30 +19,19 @@
 # Begin with rust-stable image
 FROM rust:latest
 
-# Add debian stretch backports for OpenJDK 11 and Clang 5.0
-RUN set -eux; \
-    echo 'deb http://deb.debian.org/debian stretch-backports main' > /etc/apt/sources.list.d/backports.list
-
 # install dev utils
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
     make \
     git \
+    rename \
     openjdk-11-jdk-headless \
-    llvm-5.0-dev \
-    libclang-5.0-dev \
-    clang-5.0 \
+    llvm-7-dev \
+    libclang-7-dev \
+    clang-7 \
     python \
     ;
-
-# workaround for java cacerts issue https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=894979
-RUN set -eux; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends openjdk-8-jre-headless; \
-    rm /etc/ssl/certs/java/cacerts; \
-    update-ca-certificates --fresh; \
-    apt-get purge -y openjdk-8-jre-headless
 
 # add the frc2019 compiler
 RUN set -eux; \

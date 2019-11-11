@@ -7,4 +7,4 @@
 
 [submodule "wpilib/HAL/allwpilib"]
 	path = wpilib-sys/allwpilib
-	url = https://github.com/Lytigas/allwpilib.git
+	url = https://github.com/wpilibsuite/allwpilib.git
