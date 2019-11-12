@@ -30,6 +30,7 @@ processor used in the FIRST Robotics Competition. To cross compile for RoboRIO, 
    ```
    Mine is at `~/frc2019/roborio/bin/arm-frc2019-linux-gnueabi-gcc` on Ubuntu.
    You can also use just the name of the executable, provided it's in the PATH.
+   If you plan on cross-compiling Rust for other platforms, consider [moving this config](https://doc.rust-lang.org/cargo/reference/config.html#hierarchical-structure) to a lower subdirectory.
 6. Add `wpilib = 0.4.0` to `[dependencies]` in `Cargo.toml`, or use [quickstart.zip](../quickstart.zip).
 7. To deploy code, check out [cargo-frc](https://crates.io/crates/cargo-frc)
 
