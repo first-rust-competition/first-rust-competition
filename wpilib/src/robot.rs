@@ -23,6 +23,11 @@ use wpilib_sys::{
 ///
 /// The periodic functions are called for the appropriate mode on an interval.
 pub trait IterativeRobot {
+    /// Robot constructor.
+    ///
+    /// Create your resources here and return an instance of your robot.
+    fn new(ds: &DriverStation) -> Self;
+
     fn disabled_init(&mut self) {
         println!("Default disabled_init method... Override me!");
     }
@@ -89,7 +94,13 @@ fn loop_func<T: IterativeRobot>(
 ///
 /// It is recommended to use `start_timed` instead,
 /// which guarantees a more regular period of execution.
-pub fn start_iterative<T: IterativeRobot>(robot: &mut T, ds: &DriverStation) {
+pub fn start_iterative<T: IterativeRobot>() -> ! {
+    let base = RobotBase::new().expect("Could not initialize HAL");
+    let ds = base.make_ds();
+
+    println!("\n********** Robot program starting **********\n");
+
+    let mut robot = T::new(&ds);
     let mut last_mode: Option<RobotState> = None;
 
     usage::report(
@@ -97,14 +108,14 @@ pub fn start_iterative<T: IterativeRobot>(robot: &mut T, ds: &DriverStation) {
         usage::instances::kFramework_Iterative,
     );
 
-    println!("\n********** Robot program starting **********\n");
+    // Tell the DS that the robot is ready to be enabled
     unsafe { HAL_ObserveUserProgramStarting() }
 
     loop {
         ds.wait_for_data();
 
         let cur_mode = ds.robot_state();
-        loop_func(robot, last_mode, cur_mode);
+        loop_func(&mut robot, last_mode, cur_mode);
         last_mode = Some(cur_mode);
     }
 }
@@ -114,17 +125,19 @@ pub fn start_iterative<T: IterativeRobot>(robot: &mut T, ds: &DriverStation) {
 ///
 /// If you wish to have your main loop run at a different rate,
 /// use `start_timed_with_period`.
-pub fn start_timed<T: IterativeRobot>(robot: &mut T, ds: &DriverStation) {
-    start_timed_with_period(robot, ds, time::Duration::from_millis(20))
+pub fn start_timed<T: IterativeRobot>() {
+    start_timed_with_period::<T>(time::Duration::from_millis(20))
 }
 
 /// Start the main robot loop for an IterativeRobot.
 /// The periodic methods are called on a regular interval specified by `period`.
-pub fn start_timed_with_period<T: IterativeRobot>(
-    robot: &mut T,
-    ds: &DriverStation,
-    period: time::Duration,
-) {
+pub fn start_timed_with_period<T: IterativeRobot>(period: time::Duration) {
+    let base = RobotBase::new().expect("Could not initialize HAL");
+    let ds = base.make_ds();
+
+    println!("\n********** Robot program starting **********\n");
+
+    let mut robot = T::new(&ds);
     let mut last_mode: Option<RobotState> = None;
     let notifier = Alarm::new().expect("Failed to initialize FPGA notifier");
     let period = period.as_micros() as u64;
@@ -134,24 +147,19 @@ pub fn start_timed_with_period<T: IterativeRobot>(
         usage::instances::kFramework_Timed,
     );
 
-    println!("\n********** Robot program starting **********\n");
+    // Tell the DS that the robot is ready to be enabled
     unsafe { HAL_ObserveUserProgramStarting() }
 
     let mut expiration_time =
         RobotBase::fpga_time().expect("Failed to read current FPGA time") + period;
     let _ = notifier.update(expiration_time);
 
-    loop {
-        let cur_time = notifier.wait().unwrap();
-        if cur_time == 0 {
-            break;
-        }
-
+    while notifier.wait().unwrap() != 0 {
         expiration_time += period;
         let _ = notifier.update(expiration_time);
 
         let cur_mode = ds.robot_state();
-        loop_func(robot, last_mode, cur_mode);
+        loop_func(&mut robot, last_mode, cur_mode);
         last_mode = Some(cur_mode);
     }
 }
