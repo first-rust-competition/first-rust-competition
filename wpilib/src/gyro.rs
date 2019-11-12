@@ -59,7 +59,10 @@ impl AnalogGyro {
 
         hal_call!(HAL_SetupAnalogGyro(handle))?;
 
-        usage::report(usage::resource_types::Gyro, channel as usage::instances::Type);
+        usage::report(
+            usage::resource_types::Gyro,
+            channel as usage::instances::Type,
+        );
 
         Ok(AnalogGyro { handle })
     }
