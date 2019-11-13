@@ -22,13 +22,19 @@ pub enum Port {
     MXP = HAL_SPIPort::HAL_SPI_kMXP,
 }
 
+/// Settings for `Spi::set_opts`. These all default to false.
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct SpiOptions {
+    pub msb_first: bool,
+    pub sample_on_trailing: bool,
+    pub clk_idle_high: bool,
+}
+
 /// SPI bus interface. Intended to be used by sensor (and other SPI device) drivers.
 #[derive(Debug)]
 pub struct Spi {
     port: HAL_SPIPort::Type,
-    msb_first: bool,
-    sample_on_trailing: bool,
-    clk_idle_high: bool,
+    opts: SpiOptions,
 }
 
 impl Spi {
@@ -38,9 +44,7 @@ impl Spi {
         usage::report(usage::resource_types::SPI, port as _);
         Ok(Spi {
             port,
-            msb_first: false,
-            sample_on_trailing: false,
-            clk_idle_high: false,
+            opts: SpiOptions::default(),
         })
     }
 
@@ -48,46 +52,51 @@ impl Spi {
         unsafe { HAL_SetSPISpeed(self.port, hz as i32) }
     }
 
-    #[inline]
-    fn update_spi_opts(&mut self) {
+    pub fn set_opts(&mut self, opts: SpiOptions) {
         unsafe {
             HAL_SetSPIOpts(
                 self.port,
-                self.msb_first as HAL_Bool,
-                self.sample_on_trailing as HAL_Bool,
-                self.clk_idle_high as HAL_Bool,
-            );
+                opts.msb_first as HAL_Bool,
+                opts.sample_on_trailing as HAL_Bool,
+                opts.clk_idle_high as HAL_Bool,
+            )
         }
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_msb_first(&mut self) {
-        self.msb_first = true;
-        self.update_spi_opts();
+        self.opts.msb_first = true;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_lsb_first(&mut self) {
-        self.msb_first = false;
-        self.update_spi_opts();
+        self.opts.msb_first = false;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_sample_data_on_leading_edge(&mut self) {
-        self.sample_on_trailing = false;
-        self.update_spi_opts();
+        self.opts.sample_on_trailing = false;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_sample_data_on_trailing_edge(&mut self) {
-        self.sample_on_trailing = true;
-        self.update_spi_opts();
+        self.opts.sample_on_trailing = true;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_clock_active_low(&mut self) {
-        self.clk_idle_high = true;
-        self.update_spi_opts();
+        self.opts.clk_idle_high = true;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_clock_active_high(&mut self) {
-        self.clk_idle_high = false;
-        self.update_spi_opts();
+        self.opts.clk_idle_high = false;
+        self.set_opts(self.opts)
     }
 
     pub fn set_chip_select_active_high(&mut self) -> HalResult<()> {
