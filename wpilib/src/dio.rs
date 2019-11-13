@@ -98,8 +98,8 @@ impl DigitalOutput {
         hal_call!(HAL_SetDigitalPWMDutyCycle(pwm, initial_duty_cycle))?;
         hal_call!(HAL_SetDigitalPWMOutputChannel(pwm, self.channel))?;
         Ok(DigitalPwm {
+            handle: DigitalPwmHandle(pwm),
             pin: self,
-            pwm: DigitalPwmHandle(pwm),
         })
     }
 }
@@ -131,8 +131,9 @@ impl OutputPin for DigitalOutput {
 ///
 /// [`DigitalOutput::enable_pwm`]: struct.DigitalOutput.html#method.enable_pwm
 pub struct DigitalPwm {
+    // this is ordered for drop order correctness
+    handle: DigitalPwmHandle,
     pin: DigitalOutput,
-    pwm: DigitalPwmHandle,
 }
 
 /// Internal wrapper for a digital PWM handle with our Drop impl.
@@ -141,7 +142,7 @@ struct DigitalPwmHandle(HAL_DigitalPWMHandle);
 impl DigitalPwm {
     /// Set a new duty cycle to use in PWM on this output.
     pub fn update_duty_cycle(&mut self, duty_cycle: f64) -> HalResult<()> {
-        hal_call!(HAL_SetDigitalPWMDutyCycle(self.pwm.0, duty_cycle))
+        hal_call!(HAL_SetDigitalPWMDutyCycle(self.handle.0, duty_cycle))
     }
 
     /// Set the PWM rate for digital PWM outputs, from 0.6Hz to 19kHz.
