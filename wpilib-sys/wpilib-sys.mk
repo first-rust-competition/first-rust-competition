@@ -6,10 +6,16 @@
 # except according to those terms.
 
 local_dir := $(dir $(lastword $(MAKEFILE_LIST)))
+toolchain := $$CXX_FRC
+
+# Set default toolchain
+ifeq ($(toolchain),)
+toolchain := arm-frc2019-linux-gnueabi-g++
+endif
 
 # Get the primary frc includes folder (arm-frcXXXX-linux-gnueabi/usr/include)
 includes := $(shell cd ../wpilib; echo -e '\n' \
-| arm-frc2019-linux-gnueabi-g++ -E -Wp,-v - 2>&1 > /dev/null \
+| $(toolchain) -E -Wp,-v - 2>&1 > /dev/null \
 | sed -e '1,/> search starts here/d' \
 | sed -e '/End of search list/,$$d' \
 | xargs -I '{}' find '{}' -type d -path */usr/include )
