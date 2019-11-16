@@ -9,7 +9,7 @@ local_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 toolchain := $$CXX_FRC
 
 # Set default toolchain
-ifeq ($(toolchain),)
+ifndef CXX_FRC
 toolchain := arm-frc2019-linux-gnueabi-g++
 endif
 
