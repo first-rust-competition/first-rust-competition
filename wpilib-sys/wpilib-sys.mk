@@ -7,6 +7,14 @@
 
 local_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 
+# Get the primary frc includes folder (arm-frcXXXX-linux-gnueabi/usr/include)
+includes := $(shell cd ../wpilib; echo -e '\n' \
+| arm-frc2019-linux-gnueabi-g++ -E -Wp,-v - 2>&1 > /dev/null \
+| sed -e '1,/> search starts here/d' \
+| sed -e '/End of search list/,$$d' \
+| xargs -I '{}' find '{}' -type d -path */usr/include )
+
+
 # compile libs and assemble an include dir for rust-bindgen
 .PHONY: sys_build wpilib_compile sys_libs load_headers wpilib_repo sys_clean wpilib_clean
 
@@ -43,20 +51,14 @@ load_headers: wpilib_repo wpilib_compile
 	cp -R $(local_dir)/allwpilib/build/tmp/expandedArchives/chipobject*headers*/* $(local_dir)/include
 	cp -R $(local_dir)/allwpilib/build/tmp/expandedArchives/netcomm*headers*/* $(local_dir)/include
 
-	# TODO(lytigas) move this functionality into the python script
-	# TODO(lytigas) find a better method for selecting the include dir than the one without version information
-	# which is marked currently by the existence of globs.h
+	cp -R $(includes)/gnu $(local_dir)/include/
+	cp -R $(includes)/sys $(local_dir)/include/
+	cp -R $(includes)/bits $(local_dir)/include/
+	cp -R $(includes)/*.h $(local_dir)/include/
 
-	# gnu/**/*.h
-	python $(local_dir)/load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type d -name "gnu" | xargs -I '{}' cp -R '{}' $(local_dir)/include/
-	# sys/**/*.h
-	python $(local_dir)/load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type d -name "sys" | xargs -I '{}' cp -R '{}' $(local_dir)/include/
-	# *.h in one of the include dirs that is marked by glob.h
-	python $(local_dir)/load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -name "glob.h" | xargs dirname | xargs -I '{}' bash -c 'cp -R {}/*.h $(local_dir)/include/'
-	# same folder us a above but its the bits directory
-	python $(local_dir)/load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -name "glob.h" | xargs dirname | xargs -I '{}' cp -R '{}/bits' $(local_dir)/include/
-	# stddef.h
-	python $(local_dir)/load-gcc-arm-headers.py | xargs -I '{}' find '{}' -type f -path "*/include/stddef.h" | xargs -I '{}' cp -R '{}' $(local_dir)/include/
+	# Since the include folder is arm-frc-linux-gnueabi/usr/include, we need to backtrack to
+	# arm-frc-linux-gnueabi/usr/lib to search for stddef.h
+	find $(includes)/.. -type f -path */include/stddef.h | xargs -I {} cp {} $(local_dir)/include/
 
 gen_version: local_dir:=$(local_dir)
 gen_version: wpilib_repo
