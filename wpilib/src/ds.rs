@@ -506,7 +506,10 @@ impl<'a> DriverStation<'a> {
         MatchInfo(match_info())
     }
 
-    #[deprecated(since = "0.5.0", note = "use `match_info().game_specific_message()` instead")]
+    #[deprecated(
+        since = "0.5.0",
+        note = "use `match_info().game_specific_message()` instead"
+    )]
     pub fn game_specific_message(&self) -> Vec<u8> {
         let info = match_info();
         info.gameSpecificMessage[0..info.gameSpecificMessageSize as usize].to_vec()
