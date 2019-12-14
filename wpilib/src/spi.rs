@@ -144,6 +144,12 @@ impl Spi {
     }
 }
 
+impl io::Read for Spi {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.read(false, buf)
+    }
+}
+
 #[cfg(feature = "embedded-hal")]
 impl embedded_hal::blocking::spi::Transfer<u8> for Spi {
     type Error = io::Error;
