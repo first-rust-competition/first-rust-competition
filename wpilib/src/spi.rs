@@ -9,7 +9,7 @@
 //!
 //! Currently does not implement an accumulator.
 
-use std::io;
+use std::{io, time};
 use wpilib_sys::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -184,8 +184,8 @@ impl AutoSpi {
         ))
     }
 
-    pub fn start_rate(&mut self, period: f64) -> HalResult<()> {
-        hal_call!(HAL_StartSPIAutoRate(self.0.port, period))
+    pub fn start_rate(&mut self, period: time::Duration) -> HalResult<()> {
+        hal_call!(HAL_StartSPIAutoRate(self.0.port, period.as_secs_f64()))
     }
 
     pub fn pause(&mut self) -> HalResult<()> {
@@ -207,15 +207,19 @@ impl AutoSpi {
      * The length of each received data sequence is the same as the combined
      * size of the data and `zero_size` set in `set_transmit_data`.
      *
-     * Blocks until the buffer is filled or timeout (s, ms resolution) expires.
+     * Blocks until the buffer is filled or timeout (ms resolution) expires.
      * May be called with an empty buffer to retrieve how many words are available.
      */
-    pub fn read_received_data(&mut self, buffer: &mut [u32], timeout: f64) -> HalResult<i32> {
+    pub fn read_received_data(
+        &mut self,
+        buffer: &mut [u32],
+        timeout: time::Duration,
+    ) -> HalResult<i32> {
         hal_call!(HAL_ReadSPIAutoReceivedData(
             self.0.port,
             buffer.as_mut_ptr(),
             buffer.len() as _,
-            timeout
+            timeout.as_secs_f64()
         ))
     }
 
