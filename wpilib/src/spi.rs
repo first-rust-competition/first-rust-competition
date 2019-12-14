@@ -144,6 +144,16 @@ impl Spi {
     }
 }
 
+#[cfg(feature = "embedded-hal")]
+impl embedded_hal::blocking::spi::Transfer<u8> for Spi {
+    type Error = io::Error;
+
+    fn transfer<'w>(&mut self, words: &'w mut [u8]) -> io::Result<&'w [u8]> {
+        let size = unsafe { self.transaction_into(words, words.as_mut_ptr()) }?;
+        Ok(&words[..size])
+    }
+}
+
 /// Automatic SPI transfer engine.
 #[derive(Debug)]
 pub struct AutoSpi(Spi);
