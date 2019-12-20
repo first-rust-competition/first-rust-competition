@@ -30,16 +30,16 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-use lazy_static::lazy_static;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
-lazy_static! {
-    /// The number of DIOs on the RoboRIO.
-    static ref NUM_DIGITAL_CHANNELS: i32 = unsafe { HAL_GetNumDigitalChannels() };
-}
 #[cfg(feature = "embedded-hal")]
 use embedded_hal::digital::v2::OutputPin;
+
+/// The number of DIOs on the RoboRIO.
+fn num_digital_channels() -> i32 {
+    unsafe { HAL_GetNumDigitalChannels() }
+}
 
 /// A digital output used to control lights, etc from the RoboRIO.
 #[derive(Debug)]
@@ -167,7 +167,7 @@ impl Drop for DigitalPwmHandle {
     fn drop(&mut self) {
         let _ = hal_call!(HAL_SetDigitalPWMOutputChannel(
             self.0,
-            *NUM_DIGITAL_CHANNELS,
+            num_digital_channels(),
         ));
         let _ = hal_call!(HAL_FreeDigitalPWM(self.0));
     }
