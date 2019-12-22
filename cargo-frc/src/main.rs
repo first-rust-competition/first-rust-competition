@@ -23,7 +23,7 @@ use fern::colors::{Color, ColoredLevelConfig};
 use util::*;
 
 const COMMAND_NAME: &str = "frc";
-const COMMAND_DESCRIPTION: &str = "The unufficial cargo extension for FRC.";
+const COMMAND_DESCRIPTION: &str = "The unofficial cargo extension for FRC.";
 
 fn main() {
     std::process::exit(match cli_app() {
