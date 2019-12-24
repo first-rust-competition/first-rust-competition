@@ -69,7 +69,17 @@ fn cli_app() -> Result<(), String> {
                 )
                 .subcommand(
                     SubCommand::with_name("init")
-                        .about("Create a new basic project in the current directory"),
+                        .about("Create a new basic robot project in the current directory"),
+                )
+                .subcommand(
+                    SubCommand::with_name("new")
+                        .about("Create a new basic robot project")
+                        .arg(
+                            Arg::with_name("NAME")
+                                .required(true)
+                                .index(1)
+                                .help("The name for the new robot project")
+                        )
                 )
                 .setting(AppSettings::SubcommandRequired),
         )
@@ -89,6 +99,7 @@ fn cli_app() -> Result<(), String> {
             deploy::deploy_command(frc_matches.subcommand_matches("deploy").unwrap(), &cfg)
         }
         Some("init") => init::init_command(frc_matches.subcommand_matches("init").unwrap()),
+        Some("new") => init::new_command(frc_matches.subcommand_matches("new").unwrap()),
         _ => Err(String::from("No subcommand specified (!UNREACHABLE!)")),
     }
 }
