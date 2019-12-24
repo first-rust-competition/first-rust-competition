@@ -17,6 +17,7 @@ extern crate serde;
 extern crate tempfile;
 mod config;
 mod deploy;
+mod init;
 mod util;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use fern::colors::{Color, ColoredLevelConfig};
@@ -66,6 +67,10 @@ fn cli_app() -> Result<(), String> {
                             .help("If specified, will target the deployment of a release build"),
                     ),
                 )
+                .subcommand(
+                    SubCommand::with_name("init")
+                        .about("Create a new basic project in the current directory"),
+                )
                 .setting(AppSettings::SubcommandRequired),
         )
         .setting(AppSettings::SubcommandRequired)
@@ -78,12 +83,12 @@ fn cli_app() -> Result<(), String> {
     let level = setup_logger(frc_matches).map_err(str_map("Could not initialize logging"))?;
     info!("Using log level {}", level);
 
-    let cfg = config::get_config()?;
-
     match frc_matches.subcommand_name() {
         Some("deploy") => {
+            let cfg = config::get_config()?;
             deploy::deploy_command(frc_matches.subcommand_matches("deploy").unwrap(), &cfg)
         }
+        Some("init") => init::init_command(frc_matches.subcommand_matches("init").unwrap()),
         _ => Err(String::from("No subcommand specified (!UNREACHABLE!)")),
     }
 }
