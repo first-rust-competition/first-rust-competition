@@ -7,11 +7,11 @@
 
 use crate::util::{handle_subprocess_exit, str_map};
 use clap::ArgMatches;
-use std::fs::OpenOptions;
+use std::fs::{self, File, OpenOptions};
 use std::io::Write;
-use std::path::{Path};
+use std::path::Path;
 
-const DIGITAL_OUT_ROBOT: &'static str = include_str!("../../wpilib-examples/digital_out.rs");
+const DIGITAL_OUT_ROBOT: &str = include_str!("../../wpilib-examples/digital_out.rs");
 
 pub fn init_command(_matches: &ArgMatches) -> Result<(), String> {
     cargo_init()?;
@@ -50,6 +50,15 @@ fn configure_project(path: &Path) -> Result<(), String> {
         .map_err(str_map("Could not open src/main.rs"))?;
 
     write!(main, "{}", DIGITAL_OUT_ROBOT).map_err(str_map("Could not write to src/main.rs"))?;
+
+    trace!("Editing .cargo/config");
+
+    fs::create_dir(path.join(".cargo")).map_err(str_map("Could not create .cargo/"))?;
+    let mut config = File::create(path.join(".cargo/config"))
+        .map_err(str_map("Could not create .cargo/config"))?;
+
+    write!(config, "[build]\ntarget = \"arm-unknown-linux-gnueabi\"")
+        .map_err(str_map("Could not write to .cargo/config"))?;
 
     Ok(())
 }

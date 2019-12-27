@@ -78,8 +78,8 @@ fn cli_app() -> Result<(), String> {
                             Arg::with_name("NAME")
                                 .required(true)
                                 .index(1)
-                                .help("The name for the new robot project")
-                        )
+                                .help("The name for the new robot project"),
+                        ),
                 )
                 .setting(AppSettings::SubcommandRequired),
         )
