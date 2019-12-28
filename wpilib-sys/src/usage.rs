@@ -66,12 +66,6 @@ pub fn report_feature(
     context: i32,
     feature: impl AsRef<CStr>,
 ) -> i64 {
-    unsafe {
-        HAL_Report(
-            resource as i32,
-            instance as i32,
-            context,
-            feature.as_ref().as_ptr(),
-        )
-    }
+    let feature = feature.as_ref();
+    unsafe { HAL_Report(resource as i32, instance as i32, context, feature.as_ptr()) }
 }
