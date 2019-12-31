@@ -13,6 +13,7 @@ use std::path::Path;
 
 const DIGITAL_OUT_ROBOT: &str = include_str!("../../wpilib-examples/digital_out.rs");
 
+/// Command to initialize a robot project in the current directory.
 pub fn init_command(_matches: &ArgMatches) -> Result<(), String> {
     cargo_init()?;
 
@@ -21,6 +22,7 @@ pub fn init_command(_matches: &ArgMatches) -> Result<(), String> {
     Ok(())
 }
 
+/// Command to create a new robot project with the given name in the current directory.
 pub fn new_command(matches: &ArgMatches) -> Result<(), String> {
     let name = matches.value_of("NAME").unwrap();
 
@@ -31,6 +33,10 @@ pub fn new_command(matches: &ArgMatches) -> Result<(), String> {
     Ok(())
 }
 
+/// Configures the cargo project located at `path` as a robot project.
+/// * Adds wpilib as a dependency in `cargo.toml`
+/// * Places a simple example robot in `src/main.rs`
+/// * Creates `.cargo/config` to set default build target
 fn configure_project(path: &Path) -> Result<(), String> {
     trace!("Editing Cargo.toml");
 
@@ -62,7 +68,7 @@ fn configure_project(path: &Path) -> Result<(), String> {
 
     Ok(())
 }
-
+/// Initializes a new default cargo project in the current directory.
 fn cargo_init() -> Result<(), String> {
     info!("Initializing cargo project");
 
@@ -76,8 +82,9 @@ fn cargo_init() -> Result<(), String> {
     handle_subprocess_exit("cargo init", exit_code)
 }
 
+/// Creates a new default cargo project and containing directory with th given `name`.
 fn cargo_new(name: &str) -> Result<(), String> {
-    info!("Initializing cargo project");
+    info!("Creating new cargo project");
 
     let exit_code = subprocess::Exec::cmd("cargo")
         .arg("new")
