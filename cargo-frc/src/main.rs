@@ -85,10 +85,25 @@ fn cli_app() -> Result<(), String> {
                 )
                 .subcommand(
                     SubCommand::with_name("toolchain")
-                        .subcommand(SubCommand::with_name("install"))
+                        .subcommand(
+                            SubCommand::with_name("install").alias("i").arg(
+                                Arg::with_name("YEAR")
+                                    .required(true)
+                                    .index(1)
+                                    .help("The year of the toolchain to install"),
+                            ),
+                        )
                         .setting(AppSettings::SubcommandRequiredElseHelp),
                 )
-                .subcommand(SubCommand::with_name("build").alias("b"))
+                .subcommand(
+                    SubCommand::with_name("build").alias("b").arg(
+                        Arg::with_name("year")
+                            .short("y")
+                            .default_value("2020")
+                            .takes_value(true)
+                            .help("The toolchain year to use for linking"),
+                    ),
+                )
                 .setting(AppSettings::SubcommandRequired),
         )
         .setting(AppSettings::SubcommandRequired)

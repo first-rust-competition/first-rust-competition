@@ -6,6 +6,15 @@ use std::process::Command;
 const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
 fn roborio_build(toolchain: Toolchain) -> Result<(), String> {
+    if !toolchain.installed() {
+        return Err(format!(
+            "The {} toolchain is not installed",
+            toolchain.year()
+        ));
+    }
+
+    info!("Building with the {} toolchain", toolchain.year());
+
     let build = Command::new("cargo")
         .arg("build")
         .arg("--target")
@@ -29,6 +38,10 @@ fn roborio_build(toolchain: Toolchain) -> Result<(), String> {
     Ok(())
 }
 
-pub fn build_command(_matches: &ArgMatches) -> Result<(), String> {
-    roborio_build(Toolchain::Y2020)
+pub fn build_command(matches: &ArgMatches) -> Result<(), String> {
+    if let Some(toolchain) = matches.value_of("year").and_then(Toolchain::from_year) {
+        roborio_build(toolchain)
+    } else {
+        Err("Invalid toolchain year specified".to_owned())
+    }
 }

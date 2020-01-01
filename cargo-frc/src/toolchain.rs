@@ -103,6 +103,14 @@ impl Toolchain {
             self.year()
         ))
     }
+
+    pub fn from_year(year: &str) -> Option<Self> {
+        match year {
+            "2020" => Some(Toolchain::Y2020),
+            "2019" => Some(Toolchain::Y2019),
+            _ => None,
+        }
+    }
 }
 
 impl Default for Toolchain {
@@ -113,7 +121,15 @@ impl Default for Toolchain {
 
 pub fn handle_cmd(matches: &ArgMatches) -> Result<(), String> {
     match matches.subcommand_name() {
-        Some("install") => install(Toolchain::Y2020),
+        Some("install") => install_command(matches.subcommand_matches("install").unwrap()),
         _ => unimplemented!(),
+    }
+}
+
+fn install_command(matches: &ArgMatches) -> Result<(), String> {
+    if let Some(toolchain) = matches.value_of("YEAR").and_then(Toolchain::from_year) {
+        install(toolchain)
+    } else {
+        Err("Invalid toolchain year specified".to_owned())
     }
 }
