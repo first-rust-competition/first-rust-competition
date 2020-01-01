@@ -15,6 +15,7 @@ extern crate fern;
 extern crate ref_slice;
 extern crate serde;
 extern crate tempfile;
+mod build;
 mod config;
 mod deploy;
 mod init;
@@ -87,6 +88,7 @@ fn cli_app() -> Result<(), String> {
                         .subcommand(SubCommand::with_name("install"))
                         .setting(AppSettings::SubcommandRequiredElseHelp),
                 )
+                .subcommand(SubCommand::with_name("build").alias("b"))
                 .setting(AppSettings::SubcommandRequired),
         )
         .setting(AppSettings::SubcommandRequired)
@@ -109,6 +111,7 @@ fn cli_app() -> Result<(), String> {
         Some("toolchain") => {
             toolchain::handle_cmd(frc_matches.subcommand_matches("toolchain").unwrap())
         }
+        Some("build") => build::build_command(frc_matches.subcommand_matches("build").unwrap()),
         _ => Err(String::from("No subcommand specified (!UNREACHABLE!)")),
     }
 }

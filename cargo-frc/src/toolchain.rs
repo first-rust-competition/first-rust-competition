@@ -44,7 +44,7 @@ pub fn install(toolchain: Toolchain) -> Result<(), String> {
     fs::create_dir_all(toolchain.path())
         .map_err(str_map("Could not create toolchain install directory"))?;
 
-    Command::new("sh")
+    if !Command::new("sh")
         .arg("-c")
         .arg(format!(
             "wget -c {} -O - | tar -xz -C {} --strip-components=1",
@@ -52,7 +52,11 @@ pub fn install(toolchain: Toolchain) -> Result<(), String> {
             toolchain.path().to_str().unwrap()
         ))
         .status()
-        .map_err(str_map("Failed to install toolchain"))?;
+        .map_err(str_map("Failed to install toolchain"))?
+        .success()
+    {
+        return Err("Download and unarchive failed".to_owned());
+    }
 
     Ok(())
 }
@@ -92,7 +96,21 @@ impl Toolchain {
     pub fn installed(&self) -> bool {
         self.path().exists()
     }
+
+    pub fn linker(&self) -> PathBuf {
+        self.path().join(format!(
+            "roborio/bin/arm-frc{}-linux-gnueabi-gcc",
+            self.year()
+        ))
+    }
 }
+
+impl Default for Toolchain {
+    fn default() -> Self {
+        Toolchain::Y2020
+    }
+}
+
 pub fn handle_cmd(matches: &ArgMatches) -> Result<(), String> {
     match matches.subcommand_name() {
         Some("install") => install(Toolchain::Y2020),
