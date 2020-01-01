@@ -18,6 +18,7 @@ extern crate tempfile;
 mod config;
 mod deploy;
 mod init;
+mod toolchain;
 mod util;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use fern::colors::{Color, ColoredLevelConfig};
@@ -81,6 +82,11 @@ fn cli_app() -> Result<(), String> {
                                 .help("The name for the new robot project"),
                         ),
                 )
+                .subcommand(
+                    SubCommand::with_name("toolchain")
+                        .subcommand(SubCommand::with_name("install"))
+                        .setting(AppSettings::SubcommandRequiredElseHelp),
+                )
                 .setting(AppSettings::SubcommandRequired),
         )
         .setting(AppSettings::SubcommandRequired)
@@ -100,6 +106,9 @@ fn cli_app() -> Result<(), String> {
         }
         Some("init") => init::init_command(frc_matches.subcommand_matches("init").unwrap()),
         Some("new") => init::new_command(frc_matches.subcommand_matches("new").unwrap()),
+        Some("toolchain") => {
+            toolchain::handle_cmd(frc_matches.subcommand_matches("toolchain").unwrap())
+        }
         _ => Err(String::from("No subcommand specified (!UNREACHABLE!)")),
     }
 }
