@@ -59,6 +59,7 @@ fn configure_project(path: &Path) -> Result<(), String> {
 
     Ok(())
 }
+
 /// Initializes a new default cargo project in the current directory.
 fn cargo_init() -> Result<(), String> {
     info!("Initializing cargo project");

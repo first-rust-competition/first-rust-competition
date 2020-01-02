@@ -85,24 +85,46 @@ fn cli_app() -> Result<(), String> {
                 )
                 .subcommand(
                     SubCommand::with_name("toolchain")
+                        .about("Manage FRC toolchains")
                         .subcommand(
-                            SubCommand::with_name("install").alias("i").arg(
-                                Arg::with_name("YEAR")
-                                    .required(true)
-                                    .index(1)
-                                    .help("The year of the toolchain to install"),
-                            ),
+                            SubCommand::with_name("install")
+                                .alias("i")
+                                .about("Install FRC toolchains")
+                                .arg(
+                                    Arg::with_name("YEAR")
+                                        .required(true)
+                                        .index(1)
+                                        .help("The year of the toolchain to install"),
+                                ),
                         )
                         .setting(AppSettings::SubcommandRequiredElseHelp),
                 )
                 .subcommand(
-                    SubCommand::with_name("build").alias("b").arg(
-                        Arg::with_name("year")
-                            .short("y")
-                            .default_value("2020")
-                            .takes_value(true)
-                            .help("The toolchain year to use for linking"),
-                    ),
+                    SubCommand::with_name("build")
+                        .alias("b")
+                        .about("Cross-compile for the roborio using FRC toolchains")
+                        .arg(
+                            Arg::with_name("year")
+                                .short("y")
+                                .long("year")
+                                .default_value("2020")
+                                .possible_values(&["2020", "2019"])
+                                .takes_value(true)
+                                .help("The toolchain year to use for linking"),
+                        )
+                        .arg(
+                            Arg::with_name("release")
+                                .short("r")
+                                .long("release")
+                                .takes_value(false)
+                                .help("Build in release mode"),
+                        )
+                        .arg(
+                            Arg::with_name("bin")
+                                .long("bin")
+                                .takes_value(true)
+                                .help("Specify which binary to build. (Optional)"),
+                        ),
                 )
                 .setting(AppSettings::SubcommandRequired),
         )

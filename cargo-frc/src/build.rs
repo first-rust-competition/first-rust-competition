@@ -5,7 +5,7 @@ use std::process::Command;
 
 const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
-fn roborio_build(toolchain: Toolchain) -> Result<(), String> {
+fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> Result<(), String> {
     if !toolchain.installed() {
         return Err(format!(
             "The {} toolchain is not installed",
@@ -15,12 +15,19 @@ fn roborio_build(toolchain: Toolchain) -> Result<(), String> {
 
     info!("Building with the {} toolchain", toolchain.year());
 
+    let mut args = vec!["build", "--target", DEPLOY_TARGET_TRIPLE];
+
+    if let Some(bin) = bin {
+        args.push("--bin");
+        args.push(bin);
+    }
+
+    if release {
+        args.push("--release");
+    }
+
     let build = Command::new("cargo")
-        .arg("build")
-        .arg("--target")
-        .arg(DEPLOY_TARGET_TRIPLE)
-        //        .arg("--quiet")
-        //        .arg("--bin")
+        .args(args)
         .env(
             "RUSTFLAGS",
             format!(
@@ -40,7 +47,11 @@ fn roborio_build(toolchain: Toolchain) -> Result<(), String> {
 
 pub fn build_command(matches: &ArgMatches) -> Result<(), String> {
     if let Some(toolchain) = matches.value_of("year").and_then(Toolchain::from_year) {
-        roborio_build(toolchain)
+        roborio_build(
+            toolchain,
+            matches.value_of("bin"),
+            matches.is_present("release"),
+        )
     } else {
         Err("Invalid toolchain year specified".to_owned())
     }
