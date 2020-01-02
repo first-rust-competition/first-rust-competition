@@ -71,7 +71,14 @@ fn cli_app() -> Result<(), String> {
                 )
                 .subcommand(
                     SubCommand::with_name("init")
-                        .about("Create a new basic robot project in the current directory"),
+                        .about("Create a new basic robot project in the current directory")
+                        .arg(
+                            Arg::with_name("NUMBER")
+                                .help("The team number to be used when deploying")
+                                .takes_value(true)
+                                .required(true)
+                                .index(1),
+                        ),
                 )
                 .subcommand(
                     SubCommand::with_name("new")
@@ -81,6 +88,13 @@ fn cli_app() -> Result<(), String> {
                                 .required(true)
                                 .index(1)
                                 .help("The name for the new robot project"),
+                        )
+                        .arg(
+                            Arg::with_name("NUMBER")
+                                .help("The team number to be used when deploying")
+                                .takes_value(true)
+                                .required(true)
+                                .index(2),
                         ),
                 )
                 .subcommand(
