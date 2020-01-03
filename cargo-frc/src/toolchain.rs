@@ -55,6 +55,8 @@ pub fn install(toolchain: Toolchain) -> Result<(), String> {
         .map_err(str_map("Failed to install toolchain"))?
         .success()
     {
+        warn!("Installation failed, cleaning up");
+        fs::remove_dir_all(toolchain.path()).map_err(str_map("Clean up failed"))?;
         return Err("Download and unarchive failed".to_owned());
     }
 
