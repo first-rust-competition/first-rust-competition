@@ -6,6 +6,8 @@
 // except according to those terms.
 
 use super::config::FrcConfig;
+use crate::build::roborio_build;
+use crate::toolchain::Toolchain;
 use crate::util::*;
 use clap::ArgMatches;
 use ref_slice::*;
@@ -183,28 +185,20 @@ const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
 fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     info!("Building the project...");
-    let mut args = vec![
-        "build",
-        "--quiet",
-        "--target",
-        DEPLOY_TARGET_TRIPLE,
-        "--bin",
-    ];
-    args.push(
-        config
-            .executable
-            .to_str()
-            .ok_or("Executable name is not valid Unicode.")?,
-    );
-    if matches.is_present("release") {
-        args.push("--release");
-    }
-    debug!("Using cargo args {:?}", args);
-    let exit_code = subprocess::Exec::cmd("cargo")
-        .args(&args)
-        .join()
-        .map_err(str_map("'cargo build' subprocess failed"))?;
-    handle_subprocess_exit("cargo build", exit_code)
+
+    roborio_build(
+        matches
+            .value_of("year")
+            .and_then(Toolchain::from_year)
+            .ok_or("Invalid toolchain year specified".to_owned())?,
+        Some(
+            config
+                .executable
+                .to_str()
+                .ok_or("Executable name is not valid Unicode.")?,
+        ),
+        matches.is_present("release"),
+    )
 }
 
 const LIBS_TO_DEPLOY: &[&str] = &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];

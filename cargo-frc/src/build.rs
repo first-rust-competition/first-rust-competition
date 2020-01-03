@@ -5,7 +5,7 @@ use std::process::Command;
 
 const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
-fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> Result<(), String> {
+pub fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> Result<(), String> {
     if !toolchain.installed() {
         return Err(format!(
             "The {} toolchain is not installed",
@@ -26,6 +26,8 @@ fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> Resu
         args.push("--release");
     }
 
+    debug!("Using cargo args {:?}", args);
+
     let build = Command::new("cargo")
         .args(args)
         .env(
@@ -38,9 +40,13 @@ fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> Resu
         .status()
         .map_err(str_map("Failed to execute cargo build"))?;
 
+    trace!("Build process completed");
+
     if !build.success() {
         return Err("Build failed".to_owned());
     }
+
+    trace!("Build succeeded");
 
     Ok(())
 }

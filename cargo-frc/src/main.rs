@@ -42,108 +42,116 @@ fn main() {
 }
 
 fn cli_app() -> Result<(), String> {
-    let temp_matches = App::new(format!("cargo-{}", COMMAND_NAME))
-        .about("This is meant to be run as 'cargo frc', try running it like that.")
-        .version(&crate_version!()[..])
-        // We have to lie about our binary name since this will be a third party
-        // subcommand for cargo, this trick stolen from cargo-cook who stole from cargo-outdated
-        .bin_name("cargo")
-        // We use a subcommand because parsed after `cargo` is sent to the third party plugin
-        // which will be interpreted as a subcommand/positional arg by clap
-        .subcommand(
-            SubCommand::with_name(COMMAND_NAME)
-                // the real entry point
-                .about(COMMAND_DESCRIPTION)
-                .arg(
-                    Arg::with_name("verbose")
-                        .long("verbose")
-                        .short("v")
-                        .multiple(true)
-                        .global(true),
-                )
-                .subcommand(
-                    SubCommand::with_name("deploy").arg(
-                        Arg::with_name("release")
-                            .short("r")
-                            .long("release")
-                            .help("If specified, will target the deployment of a release build"),
-                    ),
-                )
-                .subcommand(
-                    SubCommand::with_name("init")
-                        .about("Create a new basic robot project in the current directory")
-                        .arg(
-                            Arg::with_name("NUMBER")
-                                .help("The team number to be used when deploying")
-                                .takes_value(true)
-                                .required(true)
-                                .index(1),
-                        ),
-                )
-                .subcommand(
-                    SubCommand::with_name("new")
-                        .about("Create a new basic robot project")
-                        .arg(
-                            Arg::with_name("NAME")
-                                .required(true)
-                                .index(1)
-                                .help("The name for the new robot project"),
-                        )
-                        .arg(
-                            Arg::with_name("NUMBER")
-                                .help("The team number to be used when deploying")
-                                .takes_value(true)
-                                .required(true)
-                                .index(2),
-                        ),
-                )
-                .subcommand(
-                    SubCommand::with_name("toolchain")
-                        .about("Manage FRC toolchains")
-                        .subcommand(
-                            SubCommand::with_name("install")
-                                .alias("i")
-                                .about("Install FRC toolchains")
-                                .arg(
-                                    Arg::with_name("YEAR")
-                                        .required(true)
-                                        .index(1)
-                                        .help("The year of the toolchain to install"),
-                                ),
-                        )
-                        .setting(AppSettings::SubcommandRequiredElseHelp),
-                )
-                .subcommand(
-                    SubCommand::with_name("build")
-                        .alias("b")
-                        .about("Cross-compile for the roborio using FRC toolchains")
-                        .arg(
-                            Arg::with_name("year")
-                                .short("y")
-                                .long("year")
-                                .default_value("2020")
-                                .possible_values(&["2020", "2019"])
-                                .takes_value(true)
-                                .help("The toolchain year to use for linking"),
-                        )
-                        .arg(
-                            Arg::with_name("release")
-                                .short("r")
-                                .long("release")
-                                .takes_value(false)
-                                .help("Build in release mode"),
-                        )
-                        .arg(
-                            Arg::with_name("bin")
-                                .long("bin")
-                                .takes_value(true)
-                                .help("Specify which binary to build. (Optional)"),
-                        ),
-                )
-                .setting(AppSettings::SubcommandRequired),
-        )
-        .setting(AppSettings::SubcommandRequired)
-        .get_matches();
+    let temp_matches =
+        App::new(format!("cargo-{}", COMMAND_NAME))
+            .about("This is meant to be run as 'cargo frc', try running it like that.")
+            .version(&crate_version!()[..])
+            // We have to lie about our binary name since this will be a third party
+            // subcommand for cargo, this trick stolen from cargo-cook who stole from cargo-outdated
+            .bin_name("cargo")
+            // We use a subcommand because parsed after `cargo` is sent to the third party plugin
+            // which will be interpreted as a subcommand/positional arg by clap
+            .subcommand(
+                SubCommand::with_name(COMMAND_NAME)
+                    // the real entry point
+                    .about(COMMAND_DESCRIPTION)
+                    .arg(
+                        Arg::with_name("verbose")
+                            .long("verbose")
+                            .short("v")
+                            .multiple(true)
+                            .global(true),
+                    )
+                    .subcommand(
+                        SubCommand::with_name("deploy")
+                            .arg(Arg::with_name("release").short("r").long("release").help(
+                                "If specified, will target the deployment of a release build",
+                            ))
+                            .arg(
+                                Arg::with_name("year")
+                                    .short("y")
+                                    .long("year")
+                                    .default_value("2020")
+                                    .possible_values(&["2020", "2019"])
+                                    .takes_value(true)
+                                    .help("The toolchain year to use for linking"),
+                            ),
+                    )
+                    .subcommand(
+                        SubCommand::with_name("init")
+                            .about("Create a new basic robot project in the current directory")
+                            .arg(
+                                Arg::with_name("NUMBER")
+                                    .help("The team number to be used when deploying")
+                                    .takes_value(true)
+                                    .required(true)
+                                    .index(1),
+                            ),
+                    )
+                    .subcommand(
+                        SubCommand::with_name("new")
+                            .about("Create a new basic robot project")
+                            .arg(
+                                Arg::with_name("NAME")
+                                    .required(true)
+                                    .index(1)
+                                    .help("The name for the new robot project"),
+                            )
+                            .arg(
+                                Arg::with_name("NUMBER")
+                                    .help("The team number to be used when deploying")
+                                    .takes_value(true)
+                                    .required(true)
+                                    .index(2),
+                            ),
+                    )
+                    .subcommand(
+                        SubCommand::with_name("toolchain")
+                            .about("Manage FRC toolchains")
+                            .subcommand(
+                                SubCommand::with_name("install")
+                                    .alias("i")
+                                    .about("Install FRC toolchains")
+                                    .arg(
+                                        Arg::with_name("YEAR")
+                                            .required(true)
+                                            .index(1)
+                                            .help("The year of the toolchain to install"),
+                                    ),
+                            )
+                            .setting(AppSettings::SubcommandRequiredElseHelp),
+                    )
+                    .subcommand(
+                        SubCommand::with_name("build")
+                            .alias("b")
+                            .about("Cross-compile for the roborio using FRC toolchains")
+                            .arg(
+                                Arg::with_name("year")
+                                    .short("y")
+                                    .long("year")
+                                    .default_value("2020")
+                                    .possible_values(&["2020", "2019"])
+                                    .takes_value(true)
+                                    .help("The toolchain year to use for linking"),
+                            )
+                            .arg(
+                                Arg::with_name("release")
+                                    .short("r")
+                                    .long("release")
+                                    .takes_value(false)
+                                    .help("Build in release mode"),
+                            )
+                            .arg(
+                                Arg::with_name("bin")
+                                    .long("bin")
+                                    .takes_value(true)
+                                    .help("Specify which binary to build. (Optional)"),
+                            ),
+                    )
+                    .setting(AppSettings::SubcommandRequired),
+            )
+            .setting(AppSettings::SubcommandRequired)
+            .get_matches();
 
     let frc_matches = temp_matches
         .subcommand_matches(COMMAND_NAME)
