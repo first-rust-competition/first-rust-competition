@@ -120,6 +120,12 @@ impl Spi {
         Ok(receive_buf)
     }
 
+    /// Performs an SPI send/receive transaction,
+    /// storing the received data in the array pointed to by `receive_buf`.
+    ///
+    /// # Safety
+    ///
+    /// `receive_buf` must point to an array with the same length as `to_send`.
     pub unsafe fn transaction_into(
         &mut self,
         to_send: &[u8],

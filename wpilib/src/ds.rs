@@ -44,6 +44,10 @@ const JOYSTICK_PORTS: usize = 6;
 pub struct JoystickPort(i32);
 impl JoystickPort {
     /// Creates a new port without checking the value.
+    ///
+    /// # Safety
+    ///
+    /// The port number must not be out of bounds.
     pub const unsafe fn new_unchecked(port: u8) -> Self {
         JoystickPort(port as i32)
     }
@@ -89,8 +93,12 @@ impl JoystickAxis {
     pub const RIGHT_TRIGGER: Self = Self(3);
 
     /// Creates a new axis without checking the value.
-    pub const unsafe fn new_unchecked(port: u8) -> Self {
-        JoystickAxis(port as usize)
+    ///
+    /// # Safety
+    ///
+    /// The axis index should not be out of bounds.
+    pub const unsafe fn new_unchecked(axis: u8) -> Self {
+        JoystickAxis(axis as usize)
     }
 
     /// Creates a new axis from an axis index if the index is valid.
@@ -108,6 +116,10 @@ impl JoystickAxis {
 pub struct JoystickPov(usize);
 impl JoystickPov {
     /// Creates a new POV without checking the value.
+    ///
+    /// # Safety
+    ///
+    /// The index should not be out of bounds.
     pub const unsafe fn new_unchecked(pov: u8) -> Self {
         Self(pov as usize)
     }
