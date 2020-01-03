@@ -119,6 +119,11 @@ fn cli_app() -> Result<(), String> {
                                             .help("The year of the toolchain to install"),
                                     ),
                             )
+                            .subcommand(
+                                SubCommand::with_name("list")
+                                    .alias("l")
+                                    .about("List available and installed toolchains"),
+                            )
                             .setting(AppSettings::SubcommandRequiredElseHelp),
                     )
                     .subcommand(
