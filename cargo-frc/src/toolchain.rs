@@ -139,8 +139,22 @@ fn install_command(matches: &ArgMatches) -> Result<(), String> {
 
 fn list_toolchains() -> Result<(), String> {
     println!("Toolchains\n-------------------");
-    println!("2020{}", if Toolchain::Y2020.installed() { " (Installed)" } else { "" });
-    println!("2019{}", if Toolchain::Y2019.installed() { " (Installed)" } else { "" });
+    println!(
+        "2020{}",
+        if Toolchain::Y2020.installed() {
+            " (Installed)"
+        } else {
+            ""
+        }
+    );
+    println!(
+        "2019{}",
+        if Toolchain::Y2019.installed() {
+            " (Installed)"
+        } else {
+            ""
+        }
+    );
 
     Ok(())
 }
