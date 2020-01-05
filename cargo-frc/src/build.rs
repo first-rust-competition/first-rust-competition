@@ -33,8 +33,11 @@ pub fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> 
     let build = Command::new("cargo")
         .args(args)
         .env("CC_arm-unknown-linux-gnueabi", &linker)
-        .env(format!("CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER"), &linker)
-        .env(format!("CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_RUSTFLAGS"), "-C target-cpu=cortex-a9")
+        .env("CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER", &linker)
+        .env(
+            "CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_RUSTFLAGS",
+            "-C target-cpu=cortex-a9",
+        )
         .status()
         .map_err(str_map("Failed to execute cargo build"))?;
 
