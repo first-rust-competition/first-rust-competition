@@ -181,7 +181,7 @@ fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String>
     Ok(())
 }
 
-const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
+const DEPLOY_TARGET_TRIPLE: &str = crate::build::ROBORIO_TARGET_TRIPLE;
 
 fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     info!("Building the project...");

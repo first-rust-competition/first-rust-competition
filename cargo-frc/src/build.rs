@@ -3,7 +3,7 @@ use crate::util::str_map;
 use clap::ArgMatches;
 use std::process::Command;
 
-const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
+pub const ROBORIO_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
 pub fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> Result<(), String> {
     if !toolchain.installed() {
@@ -15,7 +15,7 @@ pub fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> 
 
     info!("Building with the {} toolchain", toolchain.year());
 
-    let mut args = vec!["build", "--target", DEPLOY_TARGET_TRIPLE];
+    let mut args = vec!["build", "--target", ROBORIO_TARGET_TRIPLE];
 
     if let Some(bin) = bin {
         args.push("--bin");
@@ -30,12 +30,14 @@ pub fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> 
 
     let linker = toolchain.linker().to_str().unwrap().to_owned();
 
+    let formatted_triple = ROBORIO_TARGET_TRIPLE.to_uppercase().replace("-", "_");
+
     let build = Command::new("cargo")
         .args(args)
-        .env("CC_arm-unknown-linux-gnueabi", &linker)
-        .env("CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_LINKER", &linker)
+        .env(format!("CC_{}", ROBORIO_TARGET_TRIPLE), &linker)
+        .env(format!("CARGO_TARGET_{}_LINKER", formatted_triple), &linker)
         .env(
-            "CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABI_RUSTFLAGS",
+            format!("CARGO_TARGET_{}_RUSTFLAGS", formatted_triple),
             "-C target-cpu=cortex-a9",
         )
         .status()
