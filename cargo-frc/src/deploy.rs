@@ -190,7 +190,7 @@ fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
         matches
             .value_of("year")
             .and_then(Toolchain::from_year)
-            .ok_or("Invalid toolchain year specified".to_owned())?,
+            .ok_or_else(|| "Invalid toolchain year specified".to_owned())?,
         Some(
             config
                 .executable

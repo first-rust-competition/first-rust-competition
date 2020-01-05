@@ -47,7 +47,7 @@ pub fn install(toolchain: Toolchain) -> Result<(), String> {
     if !Command::new("sh")
         .arg("-c")
         .arg(format!(
-            "wget -c {} -O - | tar -xz -C {} --strip-components=1",
+            "wget --quiet --show-progress -c {} -O - | tar -xz -C {} --strip-components=1",
             toolchain.url(),
             toolchain.path().to_str().unwrap()
         ))
