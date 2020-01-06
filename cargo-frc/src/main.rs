@@ -21,6 +21,7 @@ mod deploy;
 mod init;
 mod toolchain;
 mod util;
+use crate::toolchain::Toolchain;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use fern::colors::{Color, ColoredLevelConfig};
 use util::*;
@@ -42,6 +43,11 @@ fn main() {
 }
 
 fn cli_app() -> Result<(), String> {
+    let valid_toolchains = Toolchain::available()
+        .iter()
+        .map(Toolchain::year)
+        .collect::<Vec<_>>();
+
     let temp_matches =
         App::new(format!("cargo-{}", COMMAND_NAME))
             .about("This is meant to be run as 'cargo frc', try running it like that.")
@@ -72,7 +78,7 @@ fn cli_app() -> Result<(), String> {
                                     .short("y")
                                     .long("year")
                                     .default_value("2020")
-                                    .possible_values(&["2020", "2019"])
+                                    .possible_values(&valid_toolchains)
                                     .takes_value(true)
                                     .help("The toolchain year to use for linking"),
                             ),
@@ -115,6 +121,7 @@ fn cli_app() -> Result<(), String> {
                                     .arg(
                                         Arg::with_name("YEAR")
                                             .required(true)
+                                            .possible_values(&valid_toolchains)
                                             .index(1)
                                             .help("The year of the toolchain to install"),
                                     ),
@@ -135,7 +142,7 @@ fn cli_app() -> Result<(), String> {
                                     .short("y")
                                     .long("year")
                                     .default_value("2020")
-                                    .possible_values(&["2020", "2019"])
+                                    .possible_values(&valid_toolchains)
                                     .takes_value(true)
                                     .help("The toolchain year to use for linking"),
                             )

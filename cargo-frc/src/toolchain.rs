@@ -76,7 +76,13 @@ pub enum Toolchain {
     Y2020,
 }
 
+const AVAILABLE_TOOLCHAINS: &[Toolchain] = &[Toolchain::Y2020, Toolchain::Y2019];
+
 impl Toolchain {
+    pub fn available() -> &'static [Toolchain] {
+        AVAILABLE_TOOLCHAINS
+    }
+
     pub fn url(&self) -> &'static str {
         match self {
             Toolchain::Y2020 => os::TOOLCHAIN_URL_2020,
@@ -139,22 +145,18 @@ fn install_command(matches: &ArgMatches) -> Result<(), String> {
 
 fn list_toolchains() -> Result<(), String> {
     println!("Toolchains\n-------------------");
-    println!(
-        "2020{}",
-        if Toolchain::Y2020.installed() {
-            " (Installed)"
-        } else {
-            ""
-        }
-    );
-    println!(
-        "2019{}",
-        if Toolchain::Y2019.installed() {
-            " (Installed)"
-        } else {
-            ""
-        }
-    );
+
+    for toolchain in Toolchain::available() {
+        println!(
+            "{}{}",
+            toolchain.year(),
+            if toolchain.installed() {
+                " (Installed)"
+            } else {
+                ""
+            }
+        );
+    }
 
     Ok(())
 }
