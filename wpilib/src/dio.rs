@@ -30,6 +30,8 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
+//! Digital I/O.
+
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
@@ -41,33 +43,79 @@ fn num_digital_channels() -> i32 {
     unsafe { HAL_GetNumDigitalChannels() }
 }
 
-/// A digital output used to control lights, etc from the RoboRIO.
 #[derive(Debug)]
-pub struct DigitalOutput {
+/// A DIO pin.
+pub struct DigitalPin<MODE> {
     channel: i32,
     handle: HAL_DigitalHandle,
+    mode: MODE,
 }
 
-impl DigitalOutput {
-    /// Create a new digital output on the specificed channel, returning an error if initialization
-    /// fails.
+#[derive(Debug)]
+pub struct Input;
+#[derive(Debug)]
+pub struct Output;
+
+const IS_INPUT: bool = true;
+
+/**
+ * Class to read a digital input.
+ *
+ * This class will read digital inputs and return the current value on the
+ * channel. Other devices such as encoders, gear tooth sensors, etc. that are
+ * implemented elsewhere will automatically allocate digital inputs and outputs
+ * as required. This class is only for devices like switches etc. that aren't
+ * implemented anywhere else.
+ */
+pub type DigitalInput = DigitalPin<Input>;
+/// A digital output used to control lights, etc from the RoboRIO.
+pub type DigitalOutput = DigitalPin<Output>;
+
+// TODO: implement the rest of the methods
+impl DigitalInput {
+    /// Creates a new DIO pin in input mode.
     pub fn new(channel: i32) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel),
-            false as HAL_Bool // false for output
+            IS_INPUT as HAL_Bool
+        ))?;
+
+        usage::report(resource_types::DigitalInput, channel as instances::Type);
+
+        Ok(DigitalPin {
+            channel,
+            handle,
+            mode: Input,
+        })
+    }
+}
+
+impl DigitalOutput {
+    /// Creates a new DIO pin in output mode.
+    pub fn new(channel: i32) -> HalResult<Self> {
+        let handle = hal_call!(HAL_InitializeDIOPort(
+            HAL_GetPort(channel),
+            !IS_INPUT as HAL_Bool
         ))?;
 
         usage::report(resource_types::DigitalOutput, channel as instances::Type);
 
-        Ok(DigitalOutput { channel, handle })
+        Ok(DigitalPin {
+            channel,
+            handle,
+            mode: Output,
+        })
     }
 
     /// Set the value to output.
     pub fn set(&mut self, value: bool) -> HalResult<()> {
-        hal_call!(HAL_SetDIO(self.handle, value as i32))
+        hal_call!(HAL_SetDIO(self.handle, value as HAL_Bool))
     }
+}
 
-    /// Get the previously-written output.
+/// Methods common to both input and output modes.
+impl<MODE> DigitalPin<MODE> {
+    /// Get the current value of the pin.
     pub fn get(&self) -> HalResult<bool> {
         Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
     }
@@ -81,7 +129,10 @@ impl DigitalOutput {
     pub fn handle(&self) -> HAL_DigitalHandle {
         self.handle
     }
+}
 
+/// Output mode methods.
+impl DigitalOutput {
     /// Write a pulse to this output.
     pub fn pulse(&mut self, length: f64) -> HalResult<()> {
         hal_call!(HAL_Pulse(self.handle, length))
@@ -104,7 +155,7 @@ impl DigitalOutput {
     }
 }
 
-impl Drop for DigitalOutput {
+impl<MODE> Drop for DigitalPin<MODE> {
     fn drop(&mut self) {
         unsafe { HAL_FreeDIOPort(self.handle) }
     }
@@ -170,54 +221,5 @@ impl Drop for DigitalPwmHandle {
             num_digital_channels(),
         ));
         let _ = hal_call!(HAL_FreeDigitalPWM(self.0));
-    }
-}
-
-/**
- * Class to read a digital input.
- *
- * This class will read digital inputs and return the current value on the
- * channel. Other devices such as encoders, gear tooth sensors, etc. that are
- * implemented elsewhere will automatically allocate digital inputs and outputs
- * as required. This class is only for devices like switches etc. that aren't
- * implemented anywhere else.
- */
-#[derive(Debug)]
-pub struct DigitalInput {
-    channel: i32,
-    handle: HAL_DigitalHandle,
-}
-
-// TODO: implement the rest of the methods
-impl DigitalInput {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(channel: i32) -> HalResult<Self> {
-        let handle = hal_call!(HAL_InitializeDIOPort(
-            HAL_GetPort(channel as i32),
-            true as HAL_Bool // true for input
-        ))?;
-
-        usage::report(resource_types::DigitalInput, channel as instances::Type);
-
-        Ok(DigitalInput { channel, handle })
-    }
-
-    /// Get the value from the digital input channel from the FPGA.
-    pub fn get(&self) -> HalResult<bool> {
-        Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
-    }
-
-    pub fn handle(&self) -> HAL_DigitalHandle {
-        self.handle
-    }
-
-    pub fn channel(&self) -> i32 {
-        self.channel
-    }
-}
-
-impl Drop for DigitalInput {
-    fn drop(&mut self) {
-        unsafe { HAL_FreeDIOPort(self.handle) }
     }
 }
