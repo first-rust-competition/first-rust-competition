@@ -32,6 +32,7 @@ except according to those terms.
 
 //! Digital I/O.
 
+use std::mem;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
@@ -88,6 +89,22 @@ impl DigitalInput {
             mode: Input,
         })
     }
+
+    /// Put this pin in output mode.
+    pub fn into_output(self) -> HalResult<DigitalOutput> {
+        let handle = self.handle;
+        let channel = self.channel;
+
+        hal_call!(HAL_SetDIODirection(handle, !IS_INPUT as HAL_Bool))?;
+        usage::report(resource_types::DigitalOutput, channel as instances::Type);
+
+        mem::forget(self);
+        Ok(DigitalPin {
+            channel,
+            handle,
+            mode: Output,
+        })
+    }
 }
 
 impl DigitalOutput {
@@ -110,6 +127,22 @@ impl DigitalOutput {
     /// Set the value to output.
     pub fn set(&mut self, value: bool) -> HalResult<()> {
         hal_call!(HAL_SetDIO(self.handle, value as HAL_Bool))
+    }
+
+    /// Put this pin in input mode.
+    pub fn into_input(self) -> HalResult<DigitalInput> {
+        let handle = self.handle;
+        let channel = self.channel;
+
+        hal_call!(HAL_SetDIODirection(handle, IS_INPUT as HAL_Bool))?;
+        usage::report(resource_types::DigitalInput, channel as instances::Type);
+
+        mem::forget(self);
+        Ok(DigitalPin {
+            channel,
+            handle,
+            mode: Input,
+        })
     }
 }
 
