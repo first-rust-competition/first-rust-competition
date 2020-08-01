@@ -11,14 +11,14 @@ except according to those terms.
 
 use wpilib_sys::{HAL_GetJoystickAxes, HAL_GetJoystickButtons, HAL_GetJoystickPOVs};
 use wpilib_sys::{HAL_JoystickAxes, HAL_JoystickButtons, HAL_JoystickPOVs};
-use wpilib_sys::{HAL_kMaxJoystickAxes, HAL_kMaxJoystickPOVs};
-
-const JOYSTICK_PORTS: usize = 6;
+use wpilib_sys::{HAL_kMaxJoystickAxes, HAL_kMaxJoystickPOVs, HAL_kMaxJoysticks};
 
 /// A valid joystick "port" on the Driver Station.
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Port(i32);
 impl Port {
+    const MAX: u8 = HAL_kMaxJoysticks;
+
     /// Creates a new port without checking the value.
     ///
     /// # Safety
@@ -30,7 +30,7 @@ impl Port {
 
     /// Creates a new port from a port number if it is valid.
     pub fn new(port: u8) -> Option<Self> {
-        if port as usize >= JOYSTICK_PORTS {
+        if port >= Self::MAX {
             None
         } else {
             Some(Self(i32::from(port)))
@@ -60,6 +60,8 @@ impl Port {
 #[derive(Copy, Clone, Debug)]
 pub struct Axis(pub(crate) usize);
 impl Axis {
+    const MAX: u8 = HAL_kMaxJoystickAxes;
+
     /// Axis 0, commonly the X axis on a joystick.
     /// This is the left thumbstick X axis on an XInput controller.
     pub const X: Self = Self(0);
@@ -97,7 +99,7 @@ impl Axis {
 
     /// Creates a new axis from an axis index if the index is valid.
     pub fn new(axis: u8) -> Option<Self> {
-        if u32::from(axis) >= HAL_kMaxJoystickAxes {
+        if axis >= Self::MAX {
             None
         } else {
             Some(Self(usize::from(axis)))
@@ -109,6 +111,8 @@ impl Axis {
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Pov(pub(crate) usize);
 impl Pov {
+    const MAX: u8 = HAL_kMaxJoystickPOVs;
+
     /// Creates a new POV without checking the value.
     ///
     /// # Safety
@@ -118,9 +122,9 @@ impl Pov {
         Self(pov as usize)
     }
 
-    /// Creates a new POV hat from a port number
+    /// Creates a new POV hat from an index.
     pub fn new(pov: u8) -> Option<Self> {
-        if u32::from(pov) >= HAL_kMaxJoystickPOVs {
+        if pov >= Self::MAX {
             None
         } else {
             Some(Self(usize::from(pov)))
