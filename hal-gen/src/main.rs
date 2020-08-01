@@ -5,7 +5,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use bindgen;
 use std::env;
 use std::path::PathBuf;
 

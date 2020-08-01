@@ -15,11 +15,9 @@ use std::fmt;
 use std::io::prelude::*;
 use std::path::Path;
 use std::time::Duration;
-use subprocess;
 use subprocess::ExitStatus;
-use tempfile;
 
-pub fn deploy_command(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
+pub fn deploy_command(matches: &ArgMatches<'_>, config: &FrcConfig) -> Result<(), String> {
     cargo_build(matches, config)?;
 
     let addresses = if let Some(addr) = config.rio_address_override.clone() {
@@ -181,7 +179,7 @@ fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String>
 
 const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
 
-fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
+fn cargo_build(matches: &ArgMatches<'_>, config: &FrcConfig) -> Result<(), String> {
     info!("Building the project...");
     let mut args = vec![
         "build",

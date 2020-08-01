@@ -42,8 +42,8 @@ fn announce_lib() {
     }
 }
 
-const LIB_DIR: &'static str = "lib";
-const LIB_LIST: &'static [&'static str] = &[
+const LIB_DIR: &str = "lib";
+const LIB_LIST: &[&str] = &[
     "FRC_NetworkCommunication",
     "NiFpga",
     "NiFpgaLv",
