@@ -78,7 +78,7 @@ impl Axis {
     /// Axis 4, the right thumbstick X axis on an XInput controller
     /// (such as Xbox controllers).
     pub const RIGHT_X: Self = Self(4);
-    /// Axis 5, the right thumbstick X axis on an XInput controller
+    /// Axis 5, the right thumbstick Y axis on an XInput controller
     /// (such as Xbox controllers).
     pub const RIGHT_Y: Self = Self(5);
     /// Axis 2, the left trigger axis on an XInput controller
