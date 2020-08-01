@@ -15,7 +15,7 @@ use wpilib_sys::{HAL_kMaxJoystickAxes, HAL_kMaxJoystickPOVs, HAL_kMaxJoysticks};
 
 /// A valid joystick "port" on the Driver Station.
 #[derive(Copy, Clone, Debug, Default)]
-pub struct Port(i32);
+pub struct Port(u8);
 impl Port {
     const MAX: u8 = HAL_kMaxJoysticks;
 
@@ -25,7 +25,7 @@ impl Port {
     ///
     /// The port number must not be out of bounds.
     pub const unsafe fn new_unchecked(port: u8) -> Self {
-        Self(port as i32)
+        Self(port)
     }
 
     /// Creates a new port from a port number if it is valid.
@@ -33,7 +33,7 @@ impl Port {
         if port >= Self::MAX {
             None
         } else {
-            Some(Self(i32::from(port)))
+            Some(Self(port))
         }
     }
 
@@ -319,18 +319,18 @@ impl From<HAL_JoystickPOVs> for Povs {
 
 pub(crate) fn buttons(port: Port) -> HAL_JoystickButtons {
     let mut buttons: HAL_JoystickButtons = Default::default();
-    unsafe { HAL_GetJoystickButtons(port.0, &mut buttons) };
+    unsafe { HAL_GetJoystickButtons(port.0 as i32, &mut buttons) };
     buttons
 }
 
 pub(crate) fn axes(port: Port) -> HAL_JoystickAxes {
     let mut axes: HAL_JoystickAxes = Default::default();
-    unsafe { HAL_GetJoystickAxes(port.0, &mut axes) };
+    unsafe { HAL_GetJoystickAxes(port.0 as i32, &mut axes) };
     axes
 }
 
 pub(crate) fn povs(port: Port) -> HAL_JoystickPOVs {
     let mut povs: HAL_JoystickPOVs = Default::default();
-    unsafe { HAL_GetJoystickPOVs(port.0, &mut povs) };
+    unsafe { HAL_GetJoystickPOVs(port.0 as i32, &mut povs) };
     povs
 }
