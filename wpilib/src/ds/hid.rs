@@ -36,6 +36,24 @@ impl Port {
             Some(Self(i32::from(port)))
         }
     }
+
+    /// Read the axes from this port.
+    #[inline]
+    pub fn axes(self) -> Axes {
+        Axes::of(self)
+    }
+
+    /// Read the buttons from this port.
+    #[inline]
+    pub fn buttons(self) -> Buttons {
+        Buttons::of(self)
+    }
+
+    /// Read the POVs from this port.
+    #[inline]
+    pub fn povs(self) -> Povs {
+        Povs::of(self)
+    }
 }
 
 /// A valid joystick axis index.
@@ -143,6 +161,12 @@ impl From<XInputButton> for u8 {
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Buttons(HAL_JoystickButtons);
 impl Buttons {
+    /// Get the current button state of the specified HID.
+    #[inline]
+    pub fn of(port: Port) -> Self {
+        Self(buttons(port))
+    }
+
     /// Get the state of the 0-indexed button `button`.
     ///
     /// Returns None if the button doesn't exist.
@@ -199,6 +223,12 @@ impl From<HAL_JoystickButtons> for Buttons {
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Axes(HAL_JoystickAxes);
 impl Axes {
+    /// Get the current axes values of the specified HID.
+    #[inline]
+    pub fn of(port: Port) -> Self {
+        Self(axes(port))
+    }
+
     /// Get the value of the given axis.
     ///
     /// Returns None if the axis doesn't exist.
@@ -242,6 +272,12 @@ impl From<HAL_JoystickAxes> for Axes {
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Povs(HAL_JoystickPOVs);
 impl Povs {
+    /// Get the current POV hat state of the specified HID.
+    #[inline]
+    pub fn of(port: Port) -> Self {
+        Self(povs(port))
+    }
+
     /// Get the value of the given POV hat.
     ///
     /// Returns None if the POV hat doesn't exist.
