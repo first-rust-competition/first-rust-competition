@@ -14,6 +14,39 @@
 
 use wpilib_sys::*;
 
+#[repr(transparent)]
+/// Wrapper for a relay handle.
+#[derive(Debug)]
+struct RelayHandle(HAL_RelayHandle);
+
+impl RelayHandle {
+    fn new(port_handle: HAL_PortHandle, forward: bool) -> HalResult<Self> {
+        let mut relay = Self(hal_call!(HAL_InitializeRelayPort(
+            port_handle,
+            forward as HAL_Bool,
+        ))?);
+        relay.set(false)?;
+        Ok(relay)
+    }
+
+    fn get(&self) -> HalResult<()> {
+        Ok(hal_call!(HAL_GetRelay(self.0))? != 0)
+    }
+
+    fn set(&mut self, on: bool) -> HalResult<()> {
+        hal_call!(HAL_SetRelay(self.0, on as HAL_Bool))
+    }
+}
+
+impl Drop for RelayHandle {
+    fn drop(&mut self) {
+        // ignore errors as we want to make sure a free happens
+        let _ = self.set(false);
+
+        unsafe { HAL_FreeRelayPort(self.0) }
+    }
+}
+
 /// Possible values for a bidirectional relay.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Value {
@@ -41,8 +74,8 @@ pub enum Value {
 /// ```
 #[derive(Debug)]
 pub struct BiRelay {
-    forward_handle: HAL_RelayHandle,
-    reverse_handle: HAL_RelayHandle,
+    forward: RelayHandle,
+    reverse: RelayHandle,
     channel: i32,
 }
 
@@ -53,8 +86,8 @@ impl BiRelay {
     pub fn new(channel: i32) -> HalResult<Self> {
         let port_handle = unsafe { HAL_GetPort(channel) };
 
-        let forward_handle = hal_call!(HAL_InitializeRelayPort(port_handle, true as HAL_Bool))?;
-        let reverse_handle = hal_call!(HAL_InitializeRelayPort(port_handle, false as HAL_Bool))?;
+        let forward = RelayHandle::new(port_handle, true)?;
+        let reverse = RelayHandle::new(port_handle, false)?;
 
         usage::report(usage::resource_types::Relay, channel as _);
         usage::report(
@@ -62,16 +95,11 @@ impl BiRelay {
             channel as usage::instances::Type + 128,
         );
 
-        let mut relay = Self {
-            forward_handle,
-            reverse_handle,
+        Ok(Self {
+            forward,
+            reverse,
             channel,
-        };
-
-        relay.set_forward(false)?;
-        relay.set_reverse(false)?;
-
-        Ok(relay)
+        })
     }
 
     /// Set the relay state.
@@ -88,20 +116,17 @@ impl BiRelay {
 
     /// Set the forward output only (independent of the reverse output).
     fn set_forward(&mut self, on: bool) -> HalResult<()> {
-        hal_call!(HAL_SetRelay(self.forward_handle, on as HAL_Bool))
+        self.forward.set(on)
     }
 
     /// Set the reverse output only (independent of the forward output).
     fn set_reverse(&mut self, on: bool) -> HalResult<()> {
-        hal_call!(HAL_SetRelay(self.reverse_handle, on as HAL_Bool))
+        self.reverse.set(on)
     }
 
     /// Get the relay state.
     pub fn get(&self) -> HalResult<Value> {
-        match (
-            hal_call!(HAL_GetRelay(self.forward_handle))? != 0,
-            hal_call!(HAL_GetRelay(self.reverse_handle))? != 0,
-        ) {
+        match (self.forward.get()?, self.reverse.get()?) {
             (true, true) => Ok(Value::On),
             (true, false) => Ok(Value::Forward),
             (false, true) => Ok(Value::Reverse),
@@ -112,17 +137,6 @@ impl BiRelay {
     /// Get the channel number for this relay.
     pub fn channel(&self) -> i32 {
         self.channel
-    }
-}
-
-impl Drop for BiRelay {
-    fn drop(&mut self) {
-        // ignore errors, as we want to make sure a free happens
-        let _ = self.set_forward(false);
-        let _ = self.set_reverse(false);
-
-        unsafe { HAL_FreeRelayPort(self.forward_handle) }
-        unsafe { HAL_FreeRelayPort(self.reverse_handle) }
     }
 }
 
@@ -147,7 +161,7 @@ pub enum Direction {
 /// ```
 #[derive(Debug)]
 pub struct Relay {
-    handle: HAL_RelayHandle,
+    handle: RelayHandle,
     channel: i32,
 }
 
@@ -156,10 +170,10 @@ impl Relay {
     ///
     /// The relay will be initialized such that it is initially 0V.
     pub fn new(channel: i32, direction: Direction) -> HalResult<Self> {
-        let handle = hal_call!(HAL_InitializeRelayPort(
-            HAL_GetPort(channel),
-            (direction == Direction::Forward) as HAL_Bool,
-        ))?;
+        let handle = RelayHandle::new(
+            unsafe { HAL_GetPort(channel) },
+            direction == Direction::Forward,
+        )?;
 
         usage::report(
             usage::resource_types::Relay,
@@ -170,33 +184,23 @@ impl Relay {
                 },
         );
 
-        let mut relay = Self { handle, channel };
-
-        relay.set(false)?;
-
-        Ok(relay)
+        Ok(Self { handle, channel })
     }
 
+    #[inline]
     /// Set the relay state.
     pub fn set(&mut self, on: bool) -> HalResult<()> {
-        hal_call!(HAL_SetRelay(self.handle, on as HAL_Bool))
+        self.handle.set(on)
     }
 
+    #[inline]
     /// Get the relay state.
     pub fn get(&self) -> HalResult<bool> {
-        Ok(hal_call!(HAL_GetRelay(self.handle))? != 0)
+        self.handle.get()
     }
 
     /// Get the channel number for this relay.
     pub fn channel(&self) -> i32 {
         self.channel
-    }
-}
-
-impl Drop for Relay {
-    fn drop(&mut self) {
-        // ignore errors, as we want to make sure a free happens
-        let _ = self.set(false);
-        unsafe { HAL_FreeRelayPort(self.handle) }
     }
 }
