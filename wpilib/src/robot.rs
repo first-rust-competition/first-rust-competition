@@ -8,13 +8,10 @@
 use super::{
     ds::{DriverStation, RobotState},
     notifier::Alarm,
-    RobotBase,
+    observe, RobotBase,
 };
 use std::time;
-use wpilib_sys::{
-    usage, HAL_ObserveUserProgramAutonomous, HAL_ObserveUserProgramDisabled,
-    HAL_ObserveUserProgramStarting, HAL_ObserveUserProgramTeleop, HAL_ObserveUserProgramTest,
-};
+use wpilib_sys::usage;
 
 /// Implements a specific type of robot program framework, for
 /// `start_iterative` and `start_timed`.
@@ -68,19 +65,19 @@ fn loop_func<T: IterativeRobot>(
     // Call the appropriate periodic function
     match cur_mode {
         RobotState::Autonomous => {
-            unsafe { HAL_ObserveUserProgramAutonomous() }
+            observe::autonomous();
             robot.autonomous_periodic()
         }
         RobotState::Teleop => {
-            unsafe { HAL_ObserveUserProgramTeleop() }
+            observe::teleop();
             robot.teleop_periodic()
         }
         RobotState::Test => {
-            unsafe { HAL_ObserveUserProgramTest() }
+            observe::test();
             robot.test_periodic()
         }
         _ => {
-            unsafe { HAL_ObserveUserProgramDisabled() }
+            observe::disabled();
             robot.disabled_periodic()
         }
     }
@@ -109,7 +106,7 @@ pub fn start_iterative<T: IterativeRobot>() -> ! {
     );
 
     // Tell the DS that the robot is ready to be enabled
-    unsafe { HAL_ObserveUserProgramStarting() }
+    observe::start();
 
     loop {
         ds.wait_for_data();
@@ -148,7 +145,7 @@ pub fn start_timed_with_period<T: IterativeRobot>(period: time::Duration) {
     );
 
     // Tell the DS that the robot is ready to be enabled
-    unsafe { HAL_ObserveUserProgramStarting() }
+    observe::start();
 
     let mut expiration_time =
         RobotBase::fpga_time().expect("Failed to read current FPGA time") + period;
