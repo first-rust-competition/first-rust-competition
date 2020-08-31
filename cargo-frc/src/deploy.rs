@@ -6,8 +6,7 @@
 // except according to those terms.
 
 use super::config::FrcConfig;
-use crate::build::roborio_build;
-use crate::toolchain::Toolchain;
+use crate::build::cargo_build;
 use crate::util::*;
 use clap::ArgMatches;
 use ref_slice::*;
@@ -180,30 +179,6 @@ fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String>
 }
 
 const DEPLOY_TARGET_TRIPLE: &str = crate::build::ROBORIO_TARGET_TRIPLE;
-
-pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
-// fn cargo_build(matches: &ArgMatches<'_>, config: &FrcConfig) -> Result<(), String> {
-    info!("Building the project...");
-
-    let toolchain = if let Some(y) = matches.value_of("year") {
-        Toolchain::from_year(y).ok_or_else(|| "Invalid toolchain year specified".to_owned())?
-    } else {
-        config
-            .toolchain_year
-            .ok_or_else(|| "No toolchain specified".to_owned())?
-    };
-
-    roborio_build(
-        toolchain,
-        Some(
-            config
-                .executable
-                .to_str()
-                .ok_or("Executable name is not valid Unicode.")?,
-        ),
-        matches.is_present("release"),
-    )
-}
 
 const LIBS_TO_DEPLOY: &[&str] = &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
 

@@ -1,3 +1,4 @@
+use crate::config::FrcConfig;
 use crate::toolchain::Toolchain;
 use crate::util::str_map;
 use clap::ArgMatches;
@@ -54,14 +55,25 @@ pub fn roborio_build(toolchain: Toolchain, bin: Option<&str>, release: bool) -> 
     Ok(())
 }
 
-pub fn build_command(matches: &ArgMatches) -> Result<(), String> {
-    if let Some(toolchain) = matches.value_of("year").and_then(Toolchain::from_year) {
-        roborio_build(
-            toolchain,
-            matches.value_of("bin"),
-            matches.is_present("release"),
-        )
+pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
+    info!("Building the project...");
+
+    let toolchain = if let Some(y) = matches.value_of("year") {
+        Toolchain::from_year(y).ok_or_else(|| "Invalid toolchain year specified".to_owned())?
     } else {
-        Err("Invalid toolchain year specified".to_owned())
-    }
+        config
+            .toolchain_year
+            .ok_or_else(|| "No toolchain specified".to_owned())?
+    };
+
+    roborio_build(
+        toolchain,
+        Some(
+            config
+                .executable
+                .to_str()
+                .ok_or("Executable name is not valid Unicode.")?,
+        ),
+        matches.is_present("release"),
+    )
 }

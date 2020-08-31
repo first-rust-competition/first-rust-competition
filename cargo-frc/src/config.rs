@@ -96,7 +96,6 @@ pub fn get_config() -> Result<FrcConfig, String> {
     debug!("year val: {:?}", frc.get("year"));
     // debug!("team-number val: {:?}", frc.get("team-number"));
 
-
     let toolchain_year = frc
         .get("year")
         .and_then(|v| v.as_u64())

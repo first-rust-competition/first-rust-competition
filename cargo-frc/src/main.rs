@@ -10,12 +10,12 @@ extern crate clap;
 #[macro_use]
 extern crate log;
 
+mod build;
 mod config;
 mod deploy;
 mod init;
 mod toolchain;
 mod util;
-mod build;
 
 use crate::toolchain::Toolchain;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
@@ -178,9 +178,9 @@ fn cli_app() -> Result<(), String> {
         }
         Some("build") => {
             let cfg = config::get_config()?;
-            deploy::cargo_build(frc_matches.subcommand_matches("build").unwrap(), &cfg)
+            build::cargo_build(frc_matches.subcommand_matches("build").unwrap(), &cfg)
             // build::build_command(frc_matches.subcommand_matches("build").unwrap())
-        },
+        }
         _ => Err(String::from("No subcommand specified (!UNREACHABLE!)")),
     }
 }
