@@ -77,7 +77,6 @@ fn cli_app() -> Result<(), String> {
                                 Arg::with_name("year")
                                     .short("y")
                                     .long("year")
-                                    .default_value("2020")
                                     .possible_values(&valid_toolchains)
                                     .takes_value(true)
                                     .help("The toolchain year to use for linking"),
@@ -141,7 +140,6 @@ fn cli_app() -> Result<(), String> {
                                 Arg::with_name("year")
                                     .short("y")
                                     .long("year")
-                                    .default_value("2020")
                                     .possible_values(&valid_toolchains)
                                     .takes_value(true)
                                     .help("The toolchain year to use for linking"),
@@ -182,7 +180,11 @@ fn cli_app() -> Result<(), String> {
         Some("toolchain") => {
             toolchain::handle_cmd(frc_matches.subcommand_matches("toolchain").unwrap())
         }
-        Some("build") => build::build_command(frc_matches.subcommand_matches("build").unwrap()),
+        Some("build") => {
+            let cfg = config::get_config()?;
+            deploy::cargo_build(frc_matches.subcommand_matches("build").unwrap(), &cfg)
+            // build::build_command(frc_matches.subcommand_matches("build").unwrap())
+        },
         _ => Err(String::from("No subcommand specified (!UNREACHABLE!)")),
     }
 }

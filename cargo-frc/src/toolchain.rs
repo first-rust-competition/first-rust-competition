@@ -71,6 +71,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
+#[derive(Debug, Copy, Clone)]
 pub enum Toolchain {
     Y2019,
     Y2020,

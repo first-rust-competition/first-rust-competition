@@ -183,14 +183,19 @@ fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String>
 
 const DEPLOY_TARGET_TRIPLE: &str = crate::build::ROBORIO_TARGET_TRIPLE;
 
-fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
+pub fn cargo_build(matches: &ArgMatches, config: &FrcConfig) -> Result<(), String> {
     info!("Building the project...");
 
+    let toolchain = if let Some(y) = matches.value_of("year") {
+        Toolchain::from_year(y).ok_or_else(|| "Invalid toolchain year specified".to_owned())?
+    } else {
+        config
+            .toolchain_year
+            .ok_or_else(|| "No toolchain specified".to_owned())?
+    };
+
     roborio_build(
-        matches
-            .value_of("year")
-            .and_then(Toolchain::from_year)
-            .ok_or_else(|| "Invalid toolchain year specified".to_owned())?,
+        toolchain,
         Some(
             config
                 .executable
