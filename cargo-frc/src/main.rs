@@ -5,22 +5,18 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-extern crate serde_json;
-extern crate subprocess;
 #[macro_use]
 extern crate clap;
 #[macro_use]
 extern crate log;
-extern crate fern;
-extern crate ref_slice;
-extern crate serde;
-extern crate tempfile;
-mod build;
+
 mod config;
 mod deploy;
 mod init;
 mod toolchain;
 mod util;
+mod build;
+
 use crate::toolchain::Toolchain;
 use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
 use fern::colors::{Color, ColoredLevelConfig};
@@ -189,7 +185,7 @@ fn cli_app() -> Result<(), String> {
     }
 }
 
-fn setup_logger(matches: &ArgMatches) -> Result<log::LevelFilter, fern::InitError> {
+fn setup_logger(matches: &ArgMatches<'_>) -> Result<log::LevelFilter, fern::InitError> {
     let level = match 2 + matches.occurrences_of("verbose") {
         0 => log::LevelFilter::Error,
         1 => log::LevelFilter::Warn,

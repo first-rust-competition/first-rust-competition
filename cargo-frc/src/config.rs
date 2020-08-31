@@ -7,10 +7,8 @@
 
 use crate::toolchain::Toolchain;
 use crate::util::str_map;
-use serde_json;
 use serde_json::Value;
 use std::path::PathBuf;
-use subprocess;
 
 #[derive(Debug)]
 pub struct FrcConfig {
