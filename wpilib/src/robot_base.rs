@@ -30,7 +30,7 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-use super::ds::*;
+use super::{ds::*, observe};
 use std::mem;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -73,9 +73,7 @@ impl RobotBase {
     /// Call when your robot is ready to be enabled.
     /// Make sure your hardware and threads have been created, etc.
     pub fn start_competition() {
-        unsafe {
-            HAL_ObserveUserProgramStarting();
-        }
+        observe::start();
         println!("\n********** Robot program starting **********\n");
     }
 
