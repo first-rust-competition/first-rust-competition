@@ -238,11 +238,7 @@ impl Axes {
     /// Returns None if the axis doesn't exist.
     /// This may mean the controller is unplugged.
     pub fn get(&self, axis: Axis) -> Option<f32> {
-        if axis.0 > self.0.count as usize {
-            None
-        } else {
-            Some(self.0.axes[axis.0])
-        }
+        self.0.axes.get(axis.0).copied()
     }
 
     /// Equivalent to `get(Axis::X)`.
@@ -287,11 +283,7 @@ impl Povs {
     /// Returns None if the POV hat doesn't exist.
     /// This may mean the controller is unplugged.
     pub fn get(&self, pov: Pov) -> Option<i16> {
-        if pov.0 > self.0.count as usize {
-            None
-        } else {
-            Some(self.0.povs[pov.0])
-        }
+        self.0.povs.get(pov.0).copied()
     }
 
     /// Get the value of POV hat 0, or `None` if there are no POV hats.
