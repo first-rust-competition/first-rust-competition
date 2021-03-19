@@ -17,12 +17,15 @@ jobs:
       - name: Pull image
         run: docker pull ${{ secrets.DOCKER_USERNAME }}/frc:latest
       - name: Build container # TODO run a script, or use action?
-        run: docker build --pull -t ${{ secrets.DOCKER_PASSWORD }}/frc:${{ github.sha }} -t ${{ secrets.DOCKER_PASSWORD }}/frc:latest . --cache-from ${{ secrets.DOCKER_PASSWORD }}/frc:latest
+        run: docker build --pull -t ${{ secrets.DOCKER_USERNAME }}/frc:${{ github.sha }} -t ${{ secrets.DOCKER_USERNAME }}/frc:latest . --cache-from ${{ secrets.DOCKER_USERNAME }}/frc:latest
       - name: Publish
-        run: docker run -it -e CRATESIO_TOKEN -e TRAVIS_TAG "$DOCKER_USERNAME"/frc:"$TRAVIS_COMMIT" sh -c "cd /first-rust-competition; make ci"
+        run: |
+          TRAVIS_TAG=$(echo $TRAVIS_TAG | cut -d'/' -f3)
+          docker run -it -e CRATESIO_TOKEN -e TRAVIS_TAG ${{ secrets.DOCKER_USERNAME }}/frc:${{ github.sha }} sh -c "cd /first-rust-competition; make ci"
         env:
           CRATESIO_TOKEN: ${{ secrets.CRATESIO_TOKEN }}
-          TRAVIS_TAG: ${{ github.sha }}
+          TRAVIS_TAG: ${{ github.ref }}
+          
       - name: Push image with latest tag
         uses: docker/build-push-action@v2
         with:
