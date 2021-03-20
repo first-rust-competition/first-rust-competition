@@ -1,14 +1,13 @@
 name: Publish to Crates.io
 
 on: # TODO Needs to be on tag / release
-  pull_request:
-    branches: [master]
+  release:
+    types: [released]
 
 env:
   CRATESIO_TOKEN: ${{ secrets.CRATESIO_TOKEN }} # TODO create org secret
 
 jobs: # using jobs to publish everything in parallel
-
   publish_wpilib:
     runs-on: ubuntu-latest
 
@@ -56,7 +55,7 @@ jobs: # using jobs to publish everything in parallel
         with:
           command: publish
           args: --token $CRATESIO_TOKEN ## test this using --dry-run
-        
+
   publish_wpilib-sys:
     # allows dirty packaging and publishing. This is because c bindings are dynamically generated
     runs-on: ubuntu-latest
@@ -82,4 +81,3 @@ jobs: # using jobs to publish everything in parallel
         with:
           command: publish
           args: --allow-dirty --token $CRATESIO_TOKEN ## test this using --dry-run
-        
