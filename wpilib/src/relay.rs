@@ -29,7 +29,7 @@ impl RelayHandle {
         Ok(relay)
     }
 
-    fn get(&self) -> HalResult<()> {
+    fn get(&self) -> HalResult<bool> {
         Ok(hal_call!(HAL_GetRelay(self.0))? != 0)
     }
 
