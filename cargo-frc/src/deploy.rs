@@ -58,7 +58,7 @@ fn make_addresses(team_number: u64) -> Vec<String> {
 
         // The following are addresses that exist in uncommon development environments
         // Some teams run a shop wifi network that acts as a practice field. 
-        // This setup involves the following mDNS entries
+        // This setup involves the following DNS entries
         format!("roborio-{}-FRC", team_number),
         format!("roborio-{}-FRC.lan", team_number),
         format!("roborio-{}-FRC.frc-field.local", team_number),
