@@ -5,6 +5,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use bindgen::callbacks::IntKind;
 use std::env;
 use std::path::PathBuf;
 
@@ -38,9 +39,12 @@ impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
         }
     }
 
-    fn int_macro(&self, name: &str, _value: i64) -> Option<bindgen::callbacks::IntKind> {
+    fn int_macro(&self, name: &str, _value: i64) -> Option<IntKind> {
         match name {
-            "HAL_kInvalidHandle" => Some(bindgen::callbacks::IntKind::I32),
+            "HAL_kInvalidHandle" => Some(IntKind::I32),
+            "HAL_kMaxJoystickAxes" | "HAL_kMaxJoystickPOVs" | "HAL_kMaxJoysticks" => {
+                Some(IntKind::U8)
+            }
             _ => None,
         }
     }
