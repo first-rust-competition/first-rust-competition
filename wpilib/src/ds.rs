@@ -129,7 +129,7 @@ pub type JoystickPOV = JoystickPov;
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 /// Buttons for XInput controllers (such as Xbox controllers).
 pub enum XInputButton {
-    A = 0,
+    A,
     B,
     X,
     Y,
