@@ -46,6 +46,9 @@ pub trait Gyro {
 
 const DEFAULT_VOLTS_PER_DEGREE_PER_SECOND: f64 = 0.007;
 
+/// An analog gyro connected to an analog input.
+///
+/// The default sensitivity is configured for the ADXRS652.
 pub struct AnalogGyro {
     handle: HAL_GyroHandle,
 }
