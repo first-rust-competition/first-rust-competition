@@ -35,7 +35,7 @@
     ];
 
     overrides.shell = common: prev: {
-      packages = prev.packages ++ (with common.pkgs; [ (wpilib-toolchain pkgs) jdk11 gcc makeWrapper ]);
+      packages = prev.packages ++ (with common.pkgs; [ (wpilib-toolchain pkgs) jdk11 gnumake ]);
     };
   };
 }
