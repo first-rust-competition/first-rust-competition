@@ -7,7 +7,7 @@
 
 /target
 **/*.rs.bk
-Cargo.lock
 todo
 rls
 .idea
+.direnv/
