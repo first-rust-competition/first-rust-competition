@@ -11,3 +11,5 @@ todo
 rls
 .idea
 .direnv/
+
+build/

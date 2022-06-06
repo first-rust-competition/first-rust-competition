@@ -4,21 +4,17 @@
 [![Crates.io](https://img.shields.io/crates/v/wpilib.svg)](https://crates.io/crates/wpilib/)
 [![Docs.rs](https://docs.rs/wpilib/badge.svg)](https://docs.rs/wpilib)
 
-A monorepo for `wpilib` for programming FRC robots and `cargo-frc` for deploying said code. Currently a pre-alpha WIP.
+A `wpilib` monorepo for programming FRC robots in Rust and `cargo-frc` for deploying said code.
 
-## Getting Started
+## Getting started
 
 Parts of this repository are designed to be compiled for a [RoboRIO](http://sine.ni.com/nips/cds/view/p/lang/en/nid/213308), the
 processor used in the FIRST Robotics Competition.
 To cross-compile your code and run Rust on your RoboRIO, follow the instructions in [WPILib's README](wpilib/README.md).
 
-Examples can be found in [wpilib-examples](wpilib-examples).
-
 To deploy code you write using `wpilib`, use [cargo-frc](cargo-frc).
 
-A small project template is available in [quickstart.zip](quickstart.zip).
-
-## Other Rust Projects
+## Other Rust projects
 
 If you want to go further with Rust development for FRC, check out these other community projects:
 
@@ -26,12 +22,9 @@ If you want to go further with Rust development for FRC, check out these other c
 - [nt-rs](https://gitlab.com/Redrield/nt-rs) for using NetworkTables.
 - [navx-rs](https://github.com/Eaglestrike/navX-rs) for interfacing with Kauai Labs's gyroscope.
 
-## Building
+## Building locally
 
-Verify you can build `wpilib`, (see its [README](wpilib/README.md)) then run `make all`. `cargo-frc` should build out of the box, but you should `cargo install` it
-to [use it properly](cargo-frc/README.md).
-
-For a full list of build requirements, see the [Dockerfile](Dockerfile) used for Travis CI.
+In order to build locally, verify that you have the dependencies for building [`wpilib`](https://github.com/wpilibsuite/allwpilib#requirements). After cloning this repository, run `cargo x init` to clone, build, and copy `allwpilib`.
 
 ## License
 

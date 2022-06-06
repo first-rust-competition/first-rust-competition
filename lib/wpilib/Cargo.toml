@@ -33,3 +33,6 @@ default = []
 lazy_static = "1.1.0"
 wpilib-sys = {path = "../wpilib-sys", version = "0.4.0"}
 embedded-hal = { version = "0.2.3", optional = true }
+
+[package.metadata.nix]
+build = true

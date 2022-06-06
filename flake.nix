@@ -17,6 +17,7 @@
         expat.dev
         xz.dev
         python27Full
+        libclang.dev
       ];
 
       src = pkgs.fetchurl {
@@ -35,7 +36,8 @@
     ];
 
     overrides.shell = common: prev: {
-      packages = prev.packages ++ (with common.pkgs; [ (wpilib-toolchain pkgs) jdk11 gnumake ]);
+      packages = prev.packages ++ (with common.pkgs; [ (wpilib-toolchain pkgs) jdk11 gnumake fmt.dev ]);
+      env      = prev.env ++ [ { name = "LIBCLANG_PATH"; eval = "${common.pkgs.libclang.dev.outPath}/lib"; } ];
     };
   };
 }

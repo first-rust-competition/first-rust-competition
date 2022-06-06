@@ -6,11 +6,7 @@
 # except according to those terms.
 
 [workspace]
-members = [
-    "wpilib",
-    "cargo-frc",
-    "wpilib-examples",
-    "wpilib-sys",
-    "hal-gen",
-    "xtask"
-]
+members = [ "crates/*"
+          , "lib/*"
+          , "xtask"
+          ]
