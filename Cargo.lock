@@ -1045,6 +1045,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "wpilib-examples"
+version = "0.0.0"
+dependencies = [
+ "wpilib",
+ "wpilib-sys",
+]
+
+[[package]]
 name = "wpilib-sys"
 version = "0.4.0"
 

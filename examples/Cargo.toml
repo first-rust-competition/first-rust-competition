@@ -1,21 +1,14 @@
-# Copyright 2018 First Rust Competition Developers.
-# Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-# http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-# <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-# option. This file may not be copied, modified, or distributed
-# except according to those terms.
-
 [package]
 name = "wpilib-examples"
 version = "0.0.0"
 authors = ["Josh Hejna <josh.hejna@gmail.com>"]
 license = "MIT OR Apache-2.0"
 publish = false
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-wpilib = {path = "../wpilib"}
-wpilib-sys = {path = "../wpilib-sys"}
+wpilib = {path = "../lib/wpilib"}
+wpilib-sys = {path = "../lib/wpilib-sys"}
 
 [package.metadata.frc]
 team-number = 114
@@ -23,22 +16,26 @@ team-number = 114
 target-dir = "../target"
 executable-name = "pneumatics"
 
-[[bin]]
+[[example]]
 name = "custom_usage"
 path = "./custom_usage.rs"
 
-[[bin]]
+[[example]]
 name = "digital_out"
 path = "./digital_out.rs"
 
-[[bin]]
+[[example]]
 name = "pdp"
 path = "./pdp.rs"
 
-[[bin]]
+[[example]]
 name = "pneumatics"
 path = "./pneumatics.rs"
 
-[[bin]]
+[[example]]
 name = "timed_robot"
 path = "./timed_robot.rs"
+
+[[example]]
+name = "basic"
+path = "./basic"

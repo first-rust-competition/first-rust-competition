@@ -39,5 +39,12 @@
       packages = prev.packages ++ (with common.pkgs; [ (wpilib-toolchain pkgs) jdk11 gnumake fmt.dev ]);
       env      = prev.env ++ [ { name = "LIBCLANG_PATH"; eval = "${common.pkgs.libclang.dev.outPath}/lib"; } ];
     };
+  } // {
+    templates = {
+      basic = {
+        path = ./examples/basic;
+        description = "A basic example.";
+      };
+    };
   };
 }
