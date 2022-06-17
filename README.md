@@ -1,6 +1,5 @@
-# FIRST Rust Competition
+# Wpilib-rs
 
-[![Build Status](https://travis-ci.com/first-rust-competition/first-rust-competition.svg?branch=master)](https://travis-ci.com/first-rust-competition/first-rust-competition)
 [![Crates.io](https://img.shields.io/crates/v/wpilib.svg)](https://crates.io/crates/wpilib/)
 [![Docs.rs](https://docs.rs/wpilib/badge.svg)](https://docs.rs/wpilib)
 
