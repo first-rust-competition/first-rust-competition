@@ -35,6 +35,9 @@ pretty_env_logger = "0.2"
 tempfile = "3.0.2"
 ref_slice = "1.1.1"
 
+[package.metadata.nix]
+build = true
+
 # Example config
 [package.metadata.frc]
 team-number = 114
