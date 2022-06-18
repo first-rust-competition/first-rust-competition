@@ -1,4 +1,4 @@
-<h1 align="center">Wpilib-rs</h1>
+<h1 align="center">WPILib-rs</h1>
 
 <h4 align="center">
     <a href="https://docs.rs/wpilib/">Documentation</a>
