@@ -1,5 +1,9 @@
 [workspace]
-members = [ "crates/*"
-          , "xtask"
+members = [ "wpilib"
+          , "wpilib-sys"
+          , "wpilib-halgen"
+
           , "examples"
+
+          , "xtask"
           ]

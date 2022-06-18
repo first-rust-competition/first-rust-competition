@@ -37,7 +37,7 @@
 
     overrides.shell = common: prev: {
       packages = prev.packages ++ (with common.pkgs; [ (wpilib-toolchain pkgs) jdk11 gnumake fmt.dev ]);
-      env      = prev.env ++ [ { name = "LIBCLANG_PATH"; eval = "${common.pkgs.libclang.dev.outPath}/lib"; } ];
+      env      = prev.env ++ [ { name = "LIBCLANG_PATH"; eval = "${common.pkgs.libclang.lib}/lib"; } ];
     };
   } // {
     templates = {

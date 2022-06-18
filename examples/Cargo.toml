@@ -7,8 +7,8 @@ publish = false
 edition = "2021"
 
 [dependencies]
-wpilib = {path = "../lib/wpilib"}
-wpilib-sys = {path = "../lib/wpilib-sys"}
+wpilib = {path = "../wpilib"}
+wpilib-sys = {path = "../wpilib-sys"}
 
 [package.metadata.frc]
 team-number = 114

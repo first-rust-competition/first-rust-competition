@@ -5,9 +5,9 @@
   | <a href="./CONTRIBUTING.md">Contributing</a>
 </h1>
 
-<p align="center"> A memory-safe, strongly/statically-typed, efficient alternative to programming FRC robots </p>
+<p align="center"> A memory-safe, modular, expressive alternative to programming FRC robots </p>
 
-`Wpilib-rs` is a memory-safe, strongly- and statically-typed, efficient alternative to programming FRC robots. This suite of libraries binds and builds upon [WPILib](https://wpilib.org/), enabling [First Robotics Competition](https://www.firstinspires.org/robotics/frc) teams to *safely*, *efficiently*, and *legally* program their robots, with Rust.
+`WPIlib-rs` is a memory-safe, modular, and expressive strongly-typed low-level alternative to programming FRC robots. This suite of libraries binds and builds upon [WPILib](https://wpilib.org/), enabling [First Robotics Competition](https://www.firstinspires.org/robotics/frc) teams to *safely*, *efficiently*, and *legally* program their robots, with Rust.
 
 ## Features
 

@@ -1,5 +1,5 @@
 use color_eyre::eyre::Result;
-use glob::glob;
+use std::io::Write;
 use tracing::{info, trace, warn};
 use xshell::{cmd, Shell};
 
@@ -9,7 +9,6 @@ pub(crate) fn init() -> Result<()> {
 
     // Establish a temporary directory that we can work in, but keep a handle to the current one.
     let mut target_dir = std::env::current_dir()?;
-    target_dir.push("lib");
     target_dir.push("wpilib-sys");
 
     let tmp_dir = tempdir::TempDir::new("wpilib-rs")?;
@@ -40,22 +39,6 @@ pub(crate) fn init() -> Result<()> {
     .ignore_stdout()
     .run()?;
 
-    // Copy the files into the local repository.
-    let targets = vec![
-        "hal/src/main/native/include/hal",
-        "hal/build/generated/headers/hal",
-        "wpiutil/src/main/native/include/wpi",
-    ];
-
-    let mut include_directory = target_dir.clone();
-    include_directory.push("include");
-
-    for target in targets {
-        cmd!(sh, "cp -R ./{target} {include_directory}")
-            .ignore_stdout()
-            .run()?;
-    }
-
     /*
     let wpilib_path = tmp_dir.path().as_os_str().to_str().unwrap().to_owned();
 
@@ -76,8 +59,12 @@ pub(crate) fn init() -> Result<()> {
     } */
 
     let target_dir_displayed = target_dir.display();
-    let version = format!(r#"echo "pub static WPILIB_COMMIT_HASH: &str = \"$(git ls-files -s ./ | cut -d ' ' -f 2)\";" > {target_dir_displayed}/src/version.rs"#);
-    cmd!(sh, "{version}").run()?;
+    let message = format!(
+        "pub static WPILIB_COMMIT_HASH: &str = \"{}\";",
+        cmd!(sh, "git ls-files -s ./ | cut -d ' ' -f 2").read()?
+    );
+    let mut file = std::fs::File::create(format!("{target_dir_displayed}/src/version.rs"))?;
+    file.write_all(message.as_bytes())?;
 
     tmp_dir.close()?;
     Ok(())

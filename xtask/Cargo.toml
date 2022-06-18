@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "3.1.18", features = ["derive"] }
 color-eyre = "0.6.1"
+fs_extra = "1.2.0"
 glob = "0.3.0"
 tempdir = "0.3.7"
 tracing = "0.1.34"
