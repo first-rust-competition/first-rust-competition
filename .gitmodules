@@ -1,3 +1,0 @@
-[submodule "lib/wpilib-sys/allwpilib"]
-	path = lib/wpilib-sys/allwpilib
-	url = https://github.com/wpilibsuite/allwpilib
