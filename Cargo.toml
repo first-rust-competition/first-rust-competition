@@ -1,7 +1,5 @@
 [workspace]
-members = [ "wpilib"
-          , "wpilib-sys"
-          , "wpilib-halgen"
+members = [ "crates/*"
 
           , "examples"
 

@@ -9,6 +9,7 @@ pub(crate) fn init() -> Result<()> {
 
     // Establish a temporary directory that we can work in, but keep a handle to the current one.
     let mut target_dir = std::env::current_dir()?;
+    target_dir.push("crates");
     target_dir.push("wpilib-sys");
 
     let tmp_dir = tempdir::TempDir::new("wpilib-rs")?;
@@ -65,6 +66,16 @@ pub(crate) fn init() -> Result<()> {
     );
     let mut file = std::fs::File::create(format!("{target_dir_displayed}/src/version.rs"))?;
     file.write_all(message.as_bytes())?;
+
+    let include_dir = format!("{target_dir_displayed}/include/");
+    let copy_options = fs_extra::dir::CopyOptions::new();
+    let tmp_dir_displayed = tmp_dir.path().to_str().unwrap().unwrap();
+
+    fs_extra::dir::copy(
+        format!("{tmp_dir_displayed}/allwpilib/hal/src/main/native/include/hal/"),
+        include_dir,
+        &copy_options,
+    );
 
     tmp_dir.close()?;
     Ok(())

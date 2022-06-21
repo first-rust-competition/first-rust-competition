@@ -25,6 +25,10 @@ jobs:
 
       - uses: actions-rs/cargo@v1
         with:
+          command: x init
+
+      - uses: actions-rs/cargo@v1
+        with:
           command: build
 
       - uses: actions-rs/cargo@v1
