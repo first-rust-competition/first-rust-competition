@@ -25,11 +25,13 @@ jobs:
 
       - uses: actions-rs/cargo@v1
         with:
-          command: r -p xtask -- init
+          command: run
+          args: -p xtask -- init
 
       - uses: actions-rs/cargo@v1
         with:
-          command: r -p wpilib-halgen
+          command: run
+          args: -p wpilib-halgen
 
       - uses: actions-rs/cargo@v1
         with:
