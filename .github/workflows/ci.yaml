@@ -21,11 +21,15 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
-          components: rustfmt, clippy 
+          components: rustfmt, clippy
 
       - uses: actions-rs/cargo@v1
         with:
-          command: x init
+          command: r -p xtask -- init
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: r -p wpilib-halgen
 
       - uses: actions-rs/cargo@v1
         with:

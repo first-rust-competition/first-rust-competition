@@ -22,17 +22,10 @@ exclude = [".cargo", "./**/makefile"]
 [lib]
 name = "wpilib"
 path = "src/lib.rs"
-# Tests can only be run on ARM
-test = false
-
-[features]
-dev = []
-default = []
 
 [dependencies]
-lazy_static = "1.1.0"
 wpilib-sys = {path = "../wpilib-sys", version = "0.4.0"}
-embedded-hal = { version = "0.2.3", optional = true }
+thiserror = "1.0.31"
 
 [package.metadata.nix]
 build = true

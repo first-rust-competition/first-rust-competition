@@ -1,7 +1,9 @@
 [workspace]
 members = [ "crates/*"
-
-          , "examples"
-
           , "xtask"
+
+          , "examples/*"
+          # TODO(bobbbay): add tests and benches
+          # , "tests"
+          # , "benches"
           ]
