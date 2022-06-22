@@ -1,10 +1,11 @@
 use color_eyre::eyre::Result;
 use std::io::Write;
-use tracing::{info, trace, warn};
+use std::path::Path;
+use tracing::info;
 use xshell::{cmd, Shell};
 
 /// Initialize the workspace.
-pub(crate) fn init() -> Result<()> {
+pub(crate) fn init(directory: &Option<String>) -> Result<()> {
     let sh = Shell::new()?;
 
     // Establish a temporary directory that we can work in, but keep a handle to the current one.
@@ -12,19 +13,30 @@ pub(crate) fn init() -> Result<()> {
     target_dir.push("crates");
     target_dir.push("wpilib-sys");
 
-    let tmp_dir = tempdir::TempDir::new("wpilib-rs")?;
+    let tempdir = tempdir::TempDir::new("wpilib-rs")?;
+    let tempdir_path = tempdir.path();
+    let (tmp_dir, needs_initialization) = directory
+        .as_ref()
+        .map_or((tempdir_path, true), |x| (Path::new(x.as_str()), false));
     sh.change_dir(&tmp_dir);
 
-    // Clone wpilib and enter the directory.
-    info!("Cloning wpilib into {tmp_dir:?}...");
-    cmd!(
+    let new_dir = tmp_dir.join("allwpilib");
+    let tmp_dir = if needs_initialization {
+        // Clone wpilib and enter the directory.
+        info!("Cloning wpilib into {tmp_dir:?}...");
+        cmd!(
         sh,
         "git clone --quiet --depth 1 --branch v2022.4.1 https://github.com/wpilibsuite/allwpilib"
     )
-    .ignore_stdout()
-    .ignore_stderr()
-    .run()?;
-    sh.change_dir("allwpilib");
+        .ignore_stdout()
+        .ignore_stderr()
+        .run()?;
+        sh.change_dir("allwpilib");
+
+        new_dir.as_path()
+    } else {
+        tmp_dir
+    };
 
     // Run Gradle to generate the necessary files.
     info!("Installing the toolchain...");
@@ -33,31 +45,9 @@ pub(crate) fn init() -> Result<()> {
         .run()?;
 
     info!("Building the shared library...");
-    cmd!(
-        sh,
-        "./gradlew halLinuxathenaReleaseSharedLibrary --build-cache"
-    )
-    .ignore_stdout()
-    .run()?;
-
-    /*
-    let wpilib_path = tmp_dir.path().as_os_str().to_str().unwrap().to_owned();
-
-    let matches = [
-    ];
-
-    for m in matches {
-        trace!("Scanning for match {m}.");
-        for entry in glob(&m)? {
-            info!("Found an entry for a match!");
-            match entry {
-                Ok(target) => cmd!(sh, "cp -R ./{target} {include_directory}")
-                    .ignore_stdout()
-                    .run()?,
-                Err(e) => warn!("Encountered some error while searching for header files: {e}"),
-            }
-        }
-    } */
+    cmd!(sh, "./gradlew :hal:build --build-cache")
+        .ignore_stdout()
+        .run()?;
 
     let target_dir_displayed = target_dir.display();
     let message = format!(
@@ -68,15 +58,27 @@ pub(crate) fn init() -> Result<()> {
     file.write_all(message.as_bytes())?;
 
     let include_dir = format!("{target_dir_displayed}/include/");
+    fs_extra::dir::create(&include_dir, true)?;
     let copy_options = fs_extra::dir::CopyOptions::new();
-    let tmp_dir_displayed = tmp_dir.path().to_str().unwrap().unwrap();
+    let tmp_dir_displayed = tmp_dir.to_str().unwrap();
 
     fs_extra::dir::copy(
-        format!("{tmp_dir_displayed}/allwpilib/hal/src/main/native/include/hal/"),
-        include_dir,
+        format!("{tmp_dir_displayed}/hal/src/main/native/include/hal/"),
+        &include_dir,
         &copy_options,
-    );
+    )?;
 
-    tmp_dir.close()?;
+    fs_extra::dir::copy(
+        format!("{tmp_dir_displayed}/wpiutil/src/main/native/include/wpi/"),
+        &include_dir,
+        &copy_options,
+    )?;
+
+    fs_extra::file::copy(
+        format!("{tmp_dir_displayed}/hal/build/generated/headers/hal/FRCUsageReporting.h"),
+        format!("{include_dir}/hal/FRCUsageReporting.h"),
+        &fs_extra::file::CopyOptions::default(),
+    )?;
+
     Ok(())
 }

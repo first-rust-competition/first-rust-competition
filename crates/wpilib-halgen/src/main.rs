@@ -60,10 +60,10 @@ fn generate_bindings() {
             "{}",
             wpilib_sys_dir().join("HAL_Wrapper.h").display()
         ))
-        .whitelist_type(SYMBOL_REGEX)
-        .whitelist_function(SYMBOL_REGEX)
-        .whitelist_var(SYMBOL_REGEX)
-        .whitelist_type("HALUsageReporting::.*")
+        .allowlist_type(SYMBOL_REGEX)
+        .allowlist_function(SYMBOL_REGEX)
+        .allowlist_var(SYMBOL_REGEX)
+        .allowlist_type("HALUsageReporting::.*")
         .default_enum_style(bindgen::EnumVariation::ModuleConsts)
         .parse_callbacks(Box::new(BindgenCallbacks))
         .clang_arg(format!(
@@ -73,7 +73,7 @@ fn generate_bindings() {
         .clang_arg("-xc++")
         .clang_arg("-nostdinc")
         .clang_arg("-nostdinc++")
-        .clang_arg("-std=c++14");
+        .clang_arg("-std=c++17");
     println!("builder_args: {:?}", bindings.command_line_flags());
     let out = bindings.generate().expect("Unable to generate bindings");
 

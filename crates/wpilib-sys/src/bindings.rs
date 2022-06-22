@@ -19,17 +19,3 @@ use std::ffi;
 use std::fmt;
 
 include!("./hal_bindings.rs");
-
-impl fmt::Debug for HAL_JoystickDescriptor {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let name: Vec<_> = self.name.iter().map(|item| *item as u8).collect();
-        let name = &ffi::CString::new(name);
-        f.debug_struct("HAL_JoystickDescriptor")
-            .field("name", name)
-            .field("isXbox", &self.isXbox)
-            .field("axisCount", &self.axisCount)
-            .field("buttonCount", &self.buttonCount)
-            .field("povCount", &self.povCount)
-            .finish()
-    }
-}

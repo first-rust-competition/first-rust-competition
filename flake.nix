@@ -38,7 +38,7 @@
       ];
 
       overrides.shell = common: prev: {
-        packages = prev.packages ++ (with common.pkgs; [(wpilib-toolchain pkgs) cargo-outdated jdk11 fmt.dev libcxxStdenv]);
+        packages = prev.packages ++ (with common.pkgs; [(wpilib-toolchain pkgs) gnumake cargo-outdated jdk11 fmt.dev libcxxStdenv]);
         env =
           prev.env
           ++ [

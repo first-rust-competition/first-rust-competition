@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use color_eyre::eyre::Result;
 
 #[derive(Parser, Debug)]
-#[clap(name = "wpiilib-xtask", version, about, long_about = None)]
+#[clap(name = "wpilib-xtask", version, about, long_about = None)]
 #[clap(propagate_version = true)]
 struct Cli {
     #[clap(subcommand)]
@@ -14,7 +14,10 @@ struct Cli {
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// Initialize the workspace.
-    Init,
+    Init {
+        #[clap(short, long, value_parser)]
+        directory: Option<String>,
+    },
 }
 
 fn main() -> Result<()> {
@@ -22,7 +25,7 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match &cli.commands {
-        Commands::Init => init::init(),
+        Commands::Init { directory } => init::init(directory),
     }
 }
 
