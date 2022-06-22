@@ -37,7 +37,10 @@ impl PWM {
             return Err(HalError(0));
         }
 
-        let handle = hal_call!(HAL_InitializePWMPort(HAL_GetPort(channel)))?;
+        let handle = hal_call!(HAL_InitializePWMPort(
+            HAL_GetPort(channel),
+            std::ptr::null()
+        ))?;
 
         hal_call!(HAL_SetPWMDisabled(handle))?;
         hal_call!(HAL_SetPWMEliminateDeadband(handle, false as i32))?;

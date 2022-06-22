@@ -57,7 +57,10 @@ impl AnalogInput {
             return Err(HalError(0));
         }
 
-        let port = hal_call!(HAL_InitializeAnalogInputPort(HAL_GetPort(channel)))?;
+        let port = hal_call!(HAL_InitializeAnalogInputPort(
+            HAL_GetPort(channel),
+            std::ptr::null()
+        ))?;
 
         usage::report(resource_types::AnalogChannel, channel as instances::Type);
 

@@ -117,24 +117,27 @@ fn match_info() -> HAL_MatchInfo {
     info
 }
 
-use super::robot_base::RobotBase;
+use crate::hal::HAL;
+
+#[derive(Default)]
+pub struct UninitializedDriverStation;
+
+impl UninitializedDriverStation {
+    // By taking HAL as an argument, we gaurantee that the user has constructed one already.
+    pub fn initialize(self, _: &HAL) -> DriverStation {
+        DriverStation { _private: () }
+    }
+}
 
 #[derive(Clone, Debug)]
-pub struct DriverStation<'a>(&'a RobotBase);
+pub struct DriverStation {
+    pub(self) _private: (),
+}
 
 // All methods on here MUST require &self
 // The ONLY thing allowed to create instances of DriverStation is RobotBase,
 // which ensures the HAL has been initialized successfully.
-impl<'a> DriverStation<'a> {
-    #[inline]
-    pub(crate) fn from_base(base: &'a RobotBase) -> Result<Self, ()> {
-        if unsafe { HAL_Initialize(500, 0) } == 0 {
-            Err(())
-        } else {
-            Ok(DriverStation(base))
-        }
-    }
-
+impl DriverStation {
     /// Read the current buttons state from the given controller.
     pub fn stick_buttons(&self, port: JoystickPort) -> hid::Buttons {
         hid::Buttons::from(hid::buttons(port))

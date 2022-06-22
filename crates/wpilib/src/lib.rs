@@ -1,25 +1,29 @@
-// mod analog_input;
-// pub use self::analog_input::AnalogInput;
-// mod pdp;
-// pub use self::pdp::PowerDistributionPanel;
-// pub mod can;
-// pub use self::can::Can;
-// pub mod dio;
-// pub mod ds;
-// pub mod encoder;
-// pub mod i2c;
-// pub mod notifier;
-// pub mod observe;
-// pub mod pneumatics;
-// pub mod pwm;
-// pub mod relay;
-// mod robot;
-// pub use self::robot::*;
-// mod robot_base;
-// pub use self::robot_base::*;
-// pub mod serial;
-// pub mod spi;
+pub mod analog_input;
+pub mod can;
+pub mod dio;
+pub mod ds;
+pub mod encoder;
+pub mod fpga;
 pub mod hal;
+pub mod i2c;
+pub mod iterative_robot;
+pub mod notifier;
+pub mod observe;
+pub mod pneumatics;
+pub mod pwm;
+pub mod relay;
 pub mod robot;
+pub mod serial;
+pub mod spi;
 
-pub use wpilib_sys::hal_call;
+// TODO: Figure out where the PDP HAL calls dissapeared to.
+// mod pdp;
+
+pub mod prelude {
+    pub use crate::analog_input::AnalogInput;
+    pub use crate::can::{Can, CanData};
+    pub use crate::dio::{DigitalInput, DigitalOutput};
+    pub use crate::ds::*;
+}
+
+pub use wpilib_sys;

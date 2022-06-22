@@ -57,7 +57,8 @@ impl DigitalOutput {
     pub fn new(channel: i32) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel as i32),
-            false as HAL_Bool // false for output
+            false as HAL_Bool, // false for output
+            std::ptr::null(),
         ))?;
 
         usage::report(resource_types::DigitalOutput, channel as instances::Type);
@@ -175,7 +176,8 @@ impl DigitalInput {
     pub fn new(channel: i32) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeDIOPort(
             HAL_GetPort(channel as i32),
-            true as HAL_Bool // true for input
+            true as HAL_Bool, // true for input
+            std::ptr::null(),
         ))?;
 
         usage::report(resource_types::DigitalInput, channel as instances::Type);

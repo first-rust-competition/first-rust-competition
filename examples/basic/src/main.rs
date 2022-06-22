@@ -6,7 +6,12 @@ use wpilib::{
 };
 
 fn main() -> Result<(), RobotError> {
+    #[cfg(target_arch = "arm")]
     let _hal: HAL = UninitializedHAL::default().initialize()?;
+
+    // TODO: Add HAL simulation.
+    // #[cfg(not(target_arch = "arm"))]
+    // let _hal: HAL = UninitializedHAL::default().initialize()?;
 
     println!("Hello, world!");
 

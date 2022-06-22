@@ -5,10 +5,13 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use crate::robot::UninitializedRobot;
+
 use super::{
     ds::{DriverStation, RobotState},
+    hal::UninitializedHAL,
     notifier::Alarm,
-    observe, RobotBase,
+    observe,
 };
 use std::time;
 use wpilib_sys::usage;
@@ -92,8 +95,8 @@ fn loop_func<T: IterativeRobot>(
 /// It is recommended to use `start_timed` instead,
 /// which guarantees a more regular period of execution.
 pub fn start_iterative<T: IterativeRobot>() -> ! {
-    let base = RobotBase::new().expect("Could not initialize HAL");
-    let ds = base.make_ds();
+    let robot = UninitializedRobot::default().initialize().unwrap();
+    let ds = robot.get_ds();
 
     println!("\n********** Robot program starting **********\n");
 
@@ -129,8 +132,8 @@ pub fn start_timed<T: IterativeRobot>() {
 /// Start the main robot loop for an IterativeRobot.
 /// The periodic methods are called on a regular interval specified by `period`.
 pub fn start_timed_with_period<T: IterativeRobot>(period: time::Duration) {
-    let base = RobotBase::new().expect("Could not initialize HAL");
-    let ds = base.make_ds();
+    let robot = UninitializedRobot::default().initialize().unwrap();
+    let ds = robot.get_ds();
 
     println!("\n********** Robot program starting **********\n");
 
@@ -148,7 +151,7 @@ pub fn start_timed_with_period<T: IterativeRobot>(period: time::Duration) {
     observe::start();
 
     let mut expiration_time =
-        RobotBase::fpga_time().expect("Failed to read current FPGA time") + period;
+        crate::fpga::FPGA::fpga_time().expect("Failed to read current FPGA time") + period;
     let _ = notifier.update(expiration_time);
 
     while notifier.wait().unwrap() != 0 {

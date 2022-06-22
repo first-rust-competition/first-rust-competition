@@ -8,8 +8,8 @@
 use wpilib_sys::*;
 
 /// Check if a solenoid module is valid.
-fn check_solenoid_module(module: i32) -> bool {
-    unsafe { HAL_CheckSolenoidModule(module) != 0 }
+fn check_solenoid_module(channel: i32) -> bool {
+    unsafe { HAL_CheckCTREPCMSolenoidChannel(channel) != 0 }
 }
 
 /// Represents a CTRE Pneumatics Control Module (PCM).
@@ -58,23 +58,23 @@ impl PneumaticsControlModule {
     /// Gets the state of each solenoid on the PCM.
     /// Returns a bit mask.
     pub fn all(self) -> HalResult<i32> {
-        hal_call!(HAL_GetAllSolenoids(self.0))
+        hal_call!(HAL_GetCTREPCMSolenoids(self.0))
     }
 
     pub fn solenoid_blacklist(self) -> i32 {
-        maybe_hal_call!(HAL_GetPCMSolenoidBlackList(self.0)).ok()
+        maybe_hal_call!(HAL_GetCTREPCMSolenoidDisabledList(self.0)).ok()
     }
 
     pub fn solenoid_voltage_sticky_fault(self) -> bool {
-        maybe_hal_call!(HAL_GetPCMSolenoidVoltageStickyFault(self.0)).ok() != 0
+        maybe_hal_call!(HAL_GetCTREPCMSolenoidVoltageStickyFault(self.0)).ok() != 0
     }
 
     pub fn solenoid_voltage_fault(self) -> bool {
-        maybe_hal_call!(HAL_GetPCMSolenoidVoltageFault(self.0)).ok() != 0
+        maybe_hal_call!(HAL_GetCTREPCMSolenoidVoltageFault(self.0)).ok() != 0
     }
 
     pub fn clear_all_sticky_faults(&mut self) -> HalResult<()> {
-        hal_call!(HAL_ClearAllPCMStickyFaults(self.0))
+        hal_call!(HAL_ClearAllCTREPCMStickyFaults(self.0))
     }
 
     pub fn solenoid(self, channel: i32) -> HalResult<Solenoid> {
@@ -89,9 +89,10 @@ impl PneumaticsControlModule {
         DoubleSolenoid::with_module(self, forward_channel, reverse_channel)
     }
 
-    pub fn compressor(self) -> Compressor {
-        Compressor::with_module(self)
-    }
+    // See `Compressor`.
+    // pub fn compressor(self) -> Compressor {
+    //    Compressor::with_module(self)
+    // }
 }
 
 #[derive(Debug)]
@@ -112,9 +113,10 @@ impl Solenoid {
     pub fn with_module(module: PneumaticsControlModule, channel: i32) -> HalResult<Solenoid> {
         let module_id = module.id();
 
-        let handle = hal_call!(HAL_InitializeSolenoidPort(HAL_GetPortWithModule(
-            module_id, channel
-        )))?;
+        let handle = hal_call!(HAL_InitializeCTREPCM(
+            HAL_GetPortWithModule(module_id, channel,),
+            std::ptr::null()
+        ))?;
 
         usage::report_context(
             usage::resource_types::Solenoid,
@@ -131,26 +133,27 @@ impl Solenoid {
 
     /// Sets the solenoid to on or off
     pub fn set(&mut self, on: bool) -> HalResult<()> {
-        hal_call!(HAL_SetSolenoid(self.handle, on as HAL_Bool))
+        hal_call!(HAL_SetCTREPCMClosedLoopControl(self.handle, on as HAL_Bool))
     }
 
     /// Gets the state of the solenoid by calling out to the hardware through an FFI.
     /// If you need speed, consider caching the value you set yourself!
     pub fn get(&self) -> HalResult<bool> {
-        Ok(hal_call!(HAL_GetSolenoid(self.handle))? != 0)
+        Ok(hal_call!(HAL_GetCTREPCMClosedLoopControl(self.handle))? != 0)
     }
 
     pub fn is_blacklisted(&self) -> bool {
         (self.module.solenoid_blacklist() & (1 << self.channel)) != 0
     }
 
+    // TODO: verify the role of the `index` argument in the next two methods (currently defaultint to zero).
     pub fn set_pulse_duration(&mut self, seconds: f64) -> HalResult<()> {
         let duration_ms: i32 = (seconds * 1000.0) as i32;
-        hal_call!(HAL_SetOneShotDuration(self.handle, duration_ms))
+        hal_call!(HAL_SetCTREPCMOneShotDuration(self.handle, duration_ms, 0))
     }
 
     pub fn start_pulse(&mut self) -> HalResult<()> {
-        hal_call!(HAL_FireOneShot(self.handle))
+        hal_call!(HAL_FireCTREPCMOneShot(self.handle, 0))
     }
 
     pub fn module(&self) -> &PneumaticsControlModule {
@@ -160,7 +163,7 @@ impl Solenoid {
 
 impl Drop for Solenoid {
     fn drop(&mut self) {
-        unsafe { HAL_FreeSolenoidPort(self.handle) }
+        unsafe { HAL_FreeCTREPCM(self.handle) }
     }
 }
 
@@ -250,6 +253,8 @@ impl DoubleSolenoid {
     }
 }
 
+/*
+ * TODO: find the HAL Compressor bindings.
 /// Represents a compressor hooked up to a PCM.
 /// Note that a Compressor object does not need to created for a compressor to function.
 /// A Compressor object is only used alter the default closed loop behavior.
@@ -274,7 +279,7 @@ impl Compressor {
 
     /// Creates a `Compressor` on the given PCM.
     pub fn with_module(module: PneumaticsControlModule) -> Self {
-        // HAL_InitializeCompressor returns an error iff the module number is
+        // HAL_InitializeCompressor returns an error if the module number is
         // invalid, but PneumaticsControlModule already guarantees it's valid.
         let handle = hal_call!(HAL_InitializeCompressor(module.id())).unwrap();
         Self { handle }
@@ -338,3 +343,4 @@ impl Compressor {
         maybe_hal_call!(HAL_GetCompressorNotConnectedFault(self.handle)).ok() != 0
     }
 }
+*/

@@ -220,23 +220,17 @@ impl Can {
     /// This is useful when you know the packet is sent at a regular interval.
     /// Any intermediary calls will not result in a read from FRC NetComm.
     /// It is not recommended to use this unless you understand the implications.
-    pub fn read_periodic_packet(
-        &self,
-        api_id: i32,
-        timeout_ms: i32,
-        period_ms: i32,
-    ) -> HalResult<Option<CanData>> {
+    pub fn read_timeout_packet(&self, api_id: i32, timeout_ms: i32) -> HalResult<Option<CanData>> {
         let mut data = [0; 8];
         let mut length = 0;
         let mut timestamp = 0;
-        let status = hal_call!(HAL_ReadCANPeriodicPacket(
+        let status = hal_call!(HAL_ReadCANPacketTimeout(
             self.handle,
             api_id,
             data.as_mut_ptr(),
             &mut length,
             &mut timestamp,
             timeout_ms,
-            period_ms,
         ));
         match status {
             Err(HalError(code))

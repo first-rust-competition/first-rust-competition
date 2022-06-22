@@ -24,6 +24,7 @@ impl RelayHandle {
         let mut relay = Self(hal_call!(HAL_InitializeRelayPort(
             port_handle,
             forward as HAL_Bool,
+            std::ptr::null(),
         ))?);
         relay.set(false)?;
         Ok(relay)
