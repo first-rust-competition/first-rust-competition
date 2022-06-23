@@ -7,7 +7,7 @@
       root = ./.;
 
       overrides.shell = common: prev: {
-        packages = prev.packages ++ (with common.pkgs; [(pkgs.callPackage ./nix/pkgs/wpilib-toolchain.nix {}) cargo-outdated jdk11 libcxxStdenv]);
+        packages = prev.packages ++ (with common.pkgs; [(pkgs.callPackage ./nix/pkgs/wpilib-toolchain.nix {}) (pkgs.callPackage ./nix/pkgs/wpilib-toolchain-old.nix {}) cargo-outdated jdk11 libcxxStdenv gccMultiStdenv]);
         env =
           prev.env
           ++ [

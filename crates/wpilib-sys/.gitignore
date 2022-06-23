@@ -1,2 +1,4 @@
 src/version.rs
 src/hal_bindings.rs
+lib/
+include/

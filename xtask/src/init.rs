@@ -2,7 +2,7 @@ use color_eyre::eyre::Result;
 use fs_extra::{dir, error, file};
 use std::io::Write;
 use std::path::PathBuf;
-use tracing::{error, info};
+use tracing::info;
 use xshell::{cmd, Shell};
 
 /// Initialize the workspace.
@@ -12,19 +12,24 @@ pub(crate) fn init() -> Result<()> {
     let xtask_directory = PathBuf::from(format!("{}/target/xtask/", env!("CARGO_WORKSPACE_DIR")));
     let wpilib_directory =
         PathBuf::from(format!("{}/allwpilib", xtask_directory.to_str().unwrap()));
+    let ni_libraries_directory = PathBuf::from(format!(
+        "{}/ni-libraries",
+        xtask_directory.to_str().unwrap()
+    ));
     let crate_directory = PathBuf::from(format!(
         "{}/crates/wpilib-sys/",
         env!("CARGO_WORKSPACE_DIR")
     ));
     let include_directory = PathBuf::from(format!("{}/include", crate_directory.to_str().unwrap()));
+    let lib_directory = PathBuf::from(format!("{}/lib", crate_directory.to_str().unwrap()));
 
     // Create the above directories not exists.
-    for directory in &[&xtask_directory, &include_directory] {
+    for directory in &[&xtask_directory, &include_directory, &lib_directory] {
         match dir::create(directory, false) {
             Ok(_) => (),
             Err(e) => match e.kind {
                 error::ErrorKind::AlreadyExists => (),
-                _ => error!("Failure in creating {:?}: {:?}", directory.file_name(), e),
+                _ => panic!("Failure in creating {:?}: {:?}", directory.file_name(), e),
             },
         };
 
@@ -42,6 +47,19 @@ pub(crate) fn init() -> Result<()> {
         .ignore_stderr()
         .run()?;
     }
+
+    if !ni_libraries_directory.exists() {
+        info!("Downloading NI libraries...");
+        let ni_libraries_directory = ni_libraries_directory.to_str().unwrap();
+        cmd!(
+            sh,
+            "git clone --quiet --depth 1 --branch v2022.4.0 https://github.com/wpilibsuite/ni-libraries {ni_libraries_directory}"
+        )
+        .ignore_stdout()
+        .ignore_stderr()
+        .run()?;
+    }
+
     sh.change_dir(&wpilib_directory);
 
     // Run Gradle to generate the necessary files.
@@ -77,7 +95,7 @@ pub(crate) fn init() -> Result<()> {
             Ok(_) => (),
             Err(e) => match e.kind {
                 error::ErrorKind::AlreadyExists => (),
-                _ => error!("{:?}", e),
+                _ => panic!("{:?}", e),
             },
         }
     }
@@ -96,16 +114,74 @@ pub(crate) fn init() -> Result<()> {
         Ok(_) => (),
         Err(e) => match e.kind {
             error::ErrorKind::AlreadyExists => (),
-            _ => error!("{:?}", e),
+            _ => panic!("{:?}", e),
         },
     }
 
-    // info!("Copying the NI libraries over...");
-    // fs_extra::dir::copy(
-    //     format!("{tmp_dir_displayed}/ni-libraries/"),
-    //     format!("{include_dir}/../../../target/ni-libraries/"),
-    //     &copy_options,
-    // )?;
+    let copied_libraries = [
+        (
+            "hal/build/libs/hal/shared/linuxathena/release/libwpiHal.so",
+            "libwpiHal.so",
+        ),
+        (
+            "wpiutil/build/libs/wpiutil/shared/linuxathena/release/libwpiutil.so",
+            "libwpiutil.so",
+        ),
+    ];
+
+    info!("Copying the generated libraries...");
+    for (library, name) in copied_libraries {
+        match fs_extra::file::copy(
+            format!("{}/{library}", wpilib_directory.to_str().unwrap()),
+            format!("{}/{name}", &lib_directory.to_str().unwrap()),
+            &file::CopyOptions::new(),
+        ) {
+            Ok(_) => (),
+            Err(e) => match e.kind {
+                error::ErrorKind::AlreadyExists => (),
+                _ => panic!("{:?}", e),
+            },
+        }
+    }
+
+    info!("Building the NI libraries...");
+    sh.change_dir(&ni_libraries_directory);
+    cmd!(sh, "./gradlew build").run()?;
+
+    let copied_libraries = [
+        ("src/lib/visa/libvisa.so.21.0.0", "libvisa.so"),
+        (
+            "src/lib/netcomm/libFRC_NetworkCommunication.so.22.0.0",
+            "libFRC_NetworkCommunication.so",
+        ),
+        (
+            "src/lib/chipobject/libRoboRIO_FRC_ChipObject.so.22.0.0",
+            "libRoboRIO_FRC_ChipObject.so",
+        ),
+        (
+            "build/libs/fpgalvshim/shared/release/libfpgalvshim.so",
+            "libfpgalvshim.so",
+        ),
+        (
+            "build/libs/embcanshim/shared/release/libembcanshim.so",
+            "libembcanshim.so",
+        ),
+    ];
+
+    info!("Copying the generated libraries...");
+    for (library, name) in copied_libraries {
+        match fs_extra::file::copy(
+            format!("{}/{library}", ni_libraries_directory.to_str().unwrap()),
+            format!("{}/{name}", &lib_directory.to_str().unwrap()),
+            &file::CopyOptions::new(),
+        ) {
+            Ok(_) => (),
+            Err(e) => match e.kind {
+                error::ErrorKind::AlreadyExists => (),
+                _ => panic!("{:?}", e),
+            },
+        }
+    }
 
     info!("Generating bindings...");
     bindgen::generate_bindings();
