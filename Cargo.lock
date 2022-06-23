@@ -1083,13 +1083,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "wpilib-halgen"
-version = "0.0.0"
-dependencies = [
- "bindgen",
-]
-
-[[package]]
 name = "wpilib-sys"
 version = "0.4.0"
 
@@ -1112,6 +1105,7 @@ checksum = "88301b56c26dd9bf5c43d858538f82d6f3f7764767defbc5d34e59459901c41a"
 name = "xtask"
 version = "0.1.0"
 dependencies = [
+ "bindgen",
  "clap 3.2.5",
  "color-eyre",
  "fs_extra",

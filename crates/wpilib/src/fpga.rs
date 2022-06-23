@@ -1,3 +1,5 @@
+//! An interface for the RoboRIO's built-in FPGA.
+
 use wpilib_sys::{bindings::HAL_GetFPGATime, hal_call, hal_call::HalError, HalResult};
 
 pub struct FPGA;

@@ -8,3 +8,7 @@ publish = false
 
 [dependencies]
 wpilib = { path = "../../crates/wpilib" }
+
+[package.metadata.frc]
+target-dir = "../../target"
+team-number = 0

@@ -30,6 +30,8 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
+//! Interface to the RoboRIO's digital input/output ports.
+
 use lazy_static::lazy_static;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;

@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 pub mod analog_input;
 pub mod can;
 pub mod dio;

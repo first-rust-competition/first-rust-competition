@@ -1,3 +1,5 @@
+//! Interface to WPILib's Hardware Abstraction Layer.
+
 use self::error::{HALError::HALInitializationError, HALInitializationError::Unknown};
 
 pub mod error;

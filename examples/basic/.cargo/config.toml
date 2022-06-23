@@ -1,0 +1,8 @@
+[target.arm-unknown-linux-gnueabi]
+linker = "arm-frc2022-linux-gnueabi-gcc"
+rustflags = [
+  "-C", "target-cpu=cortex-a9",
+]
+
+[build]
+target = "arm-unknown-linux-gnueabi"

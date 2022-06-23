@@ -1,3 +1,5 @@
+//! A high-level robot abstraction.
+
 pub mod error;
 
 use self::error::RobotError;

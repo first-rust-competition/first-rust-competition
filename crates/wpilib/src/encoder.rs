@@ -28,9 +28,8 @@ License version 3 as published by the Free Software Foundation. See
 <https://www.gnu.org/licenses/> for a copy.
 */
 
-// TODO: documentation
+//! HAL-based encoders.
 
-// TODO: fix variables
 use wpilib_sys::*;
 
 use crate::dio::DigitalInput;

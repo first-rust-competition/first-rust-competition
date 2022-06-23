@@ -1,18 +1,10 @@
-// Copyright 2020 First Rust Competition Developers.
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
-
-//! Functions to report the robot status to the Driver Station.
+//! Observation utilities for the Driver Station. Calling these functions will
+//! generate a corresponding event in the DS log.
 //!
-//! These functions are called by the IterativeRobot starter functions for you.
+//! These functions are already called by [`crate::iterative_robot::IterativeRobot`] for you.
 //!
-//! Calling these functions will generate a corresponding event in the DS log.
-//!
-//! The mode functions must be called at least ever 50ms,
-//! otherwise the DS will disable the robot.
+//! The mode functions must be called at least ever 50ms, otherwise the DS will
+//! disable the robot.
 
 use wpilib_sys::{
     HAL_ObserveUserProgramAutonomous, HAL_ObserveUserProgramDisabled,

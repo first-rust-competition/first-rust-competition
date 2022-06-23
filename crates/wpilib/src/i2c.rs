@@ -1,3 +1,5 @@
+//! Access to the RoboRIO's I2C port.
+
 use std::cmp;
 use std::io;
 use wpilib_sys::*;

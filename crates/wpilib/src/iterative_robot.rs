@@ -1,15 +1,13 @@
-// Copyright 2019 First Rust Competition Developers.
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
+//! Implementation of WPILib's
+//! [`TimedRobot`](https://first.wpi.edu/wpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj/TimedRobot.html).
+//!
+//! Akin to WPILib's scheduling system, an [`IterativeRobot`] schedules and
+//! subsequently runs methods based on robot status.
 
 use crate::robot::UninitializedRobot;
 
 use super::{
     ds::{DriverStation, RobotState},
-    hal::UninitializedHAL,
     notifier::Alarm,
     observe,
 };

@@ -1,11 +1,5 @@
-// Copyright 2019 First Rust Competition Developers.
-// Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. This file may not be copied, modified, or distributed
-// except according to those terms.
+//! Access to the WPILib HAL's built-in notifier system.
 
-// use std::time::Duration;
 use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;

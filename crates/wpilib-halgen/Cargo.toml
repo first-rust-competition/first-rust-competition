@@ -1,9 +1,0 @@
-[package]
-name = "wpilib-halgen"
-version = "0.0.0"
-authors = ["Josh Hejna <josh.hejna@gmail.com>"]
-edition = "2021"
-publish = false
-
-[dependencies]
-bindgen = "0.60.1"

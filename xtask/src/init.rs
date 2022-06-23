@@ -1,84 +1,204 @@
 use color_eyre::eyre::Result;
+use fs_extra::{dir, error, file};
 use std::io::Write;
-use std::path::Path;
-use tracing::info;
+use std::path::PathBuf;
+use tracing::{error, info};
 use xshell::{cmd, Shell};
 
 /// Initialize the workspace.
-pub(crate) fn init(directory: &Option<String>) -> Result<()> {
+pub(crate) fn init() -> Result<()> {
     let sh = Shell::new()?;
 
-    // Establish a temporary directory that we can work in, but keep a handle to the current one.
-    let mut target_dir = std::env::current_dir()?;
-    target_dir.push("crates");
-    target_dir.push("wpilib-sys");
+    let xtask_directory = PathBuf::from(format!("{}/target/xtask/", env!("CARGO_WORKSPACE_DIR")));
+    let wpilib_directory =
+        PathBuf::from(format!("{}/allwpilib", xtask_directory.to_str().unwrap()));
+    let crate_directory = PathBuf::from(format!(
+        "{}/crates/wpilib-sys/",
+        env!("CARGO_WORKSPACE_DIR")
+    ));
+    let include_directory = PathBuf::from(format!("{}/include", crate_directory.to_str().unwrap()));
 
-    let tempdir = tempdir::TempDir::new("wpilib-rs")?;
-    let tempdir_path = tempdir.path();
-    let (tmp_dir, needs_initialization) = directory
-        .as_ref()
-        .map_or((tempdir_path, true), |x| (Path::new(x.as_str()), false));
-    sh.change_dir(&tmp_dir);
+    // Create the above directories not exists.
+    for directory in &[&xtask_directory, &include_directory] {
+        match dir::create(directory, false) {
+            Ok(_) => (),
+            Err(e) => match e.kind {
+                error::ErrorKind::AlreadyExists => (),
+                _ => error!("Failure in creating {:?}: {:?}", directory.file_name(), e),
+            },
+        };
 
-    let new_dir = tmp_dir.join("allwpilib");
-    let tmp_dir = if needs_initialization {
-        // Clone wpilib and enter the directory.
-        info!("Cloning wpilib into {tmp_dir:?}...");
+        assert!(directory.exists())
+    }
+
+    if !wpilib_directory.exists() {
+        info!("Downloading WPILib...");
+        let wpilib_directory = wpilib_directory.to_str().unwrap();
         cmd!(
-        sh,
-        "git clone --quiet --depth 1 --branch v2022.4.1 https://github.com/wpilibsuite/allwpilib"
-    )
+            sh,
+            "git clone --quiet --depth 1 --branch v2022.4.1 https://github.com/wpilibsuite/allwpilib {wpilib_directory}"
+        )
         .ignore_stdout()
         .ignore_stderr()
         .run()?;
-        sh.change_dir("allwpilib");
-
-        new_dir.as_path()
-    } else {
-        tmp_dir
-    };
+    }
+    sh.change_dir(&wpilib_directory);
 
     // Run Gradle to generate the necessary files.
     info!("Installing the toolchain...");
-    cmd!(sh, "./gradlew installRoboRioToolchain --build-cache")
-        .ignore_stdout()
-        .run()?;
+    cmd!(sh, "./gradlew installRoboRioToolchain --build-cache").run()?;
 
     info!("Building the shared library...");
-    cmd!(sh, "./gradlew :hal:build --build-cache")
-        .ignore_stdout()
-        .run()?;
+    cmd!(sh, "./gradlew :hal:build --build-cache").run()?;
 
-    let target_dir_displayed = target_dir.display();
     let message = format!(
         "pub static WPILIB_COMMIT_HASH: &str = \"{}\";",
         cmd!(sh, "git ls-files -s ./ | cut -d ' ' -f 2").read()?
     );
-    let mut file = std::fs::File::create(format!("{target_dir_displayed}/src/version.rs"))?;
+    let mut file = std::fs::File::create(format!(
+        "{}/src/version.rs",
+        crate_directory.to_str().unwrap()
+    ))?;
     file.write_all(message.as_bytes())?;
 
-    let include_dir = format!("{target_dir_displayed}/include/");
-    fs_extra::dir::create(&include_dir, true)?;
-    let copy_options = fs_extra::dir::CopyOptions::new();
-    let tmp_dir_displayed = tmp_dir.to_str().unwrap();
+    let copied_directories = [
+        "hal/src/main/native/include/hal/",
+        "wpiutil/src/main/native/include/wpi/",
+    ];
 
-    fs_extra::dir::copy(
-        format!("{tmp_dir_displayed}/hal/src/main/native/include/hal/"),
-        &include_dir,
-        &copy_options,
-    )?;
+    for directory in copied_directories {
+        let res = fs_extra::dir::copy(
+            format!("{}/{directory}", &wpilib_directory.to_str().unwrap()),
+            &include_directory,
+            &dir::CopyOptions::default(),
+        );
 
-    fs_extra::dir::copy(
-        format!("{tmp_dir_displayed}/wpiutil/src/main/native/include/wpi/"),
-        &include_dir,
-        &copy_options,
-    )?;
+        match res {
+            Ok(_) => (),
+            Err(e) => match e.kind {
+                error::ErrorKind::AlreadyExists => (),
+                _ => error!("{:?}", e),
+            },
+        }
+    }
 
-    fs_extra::file::copy(
-        format!("{tmp_dir_displayed}/hal/build/generated/headers/hal/FRCUsageReporting.h"),
-        format!("{include_dir}/hal/FRCUsageReporting.h"),
-        &fs_extra::file::CopyOptions::default(),
-    )?;
+    match file::copy(
+        format!(
+            "{}/hal/build/generated/headers/hal/FRCUsageReporting.h",
+            wpilib_directory.to_str().unwrap()
+        ),
+        format!(
+            "{}/hal/FRCUsageReporting.h",
+            include_directory.to_str().unwrap()
+        ),
+        &file::CopyOptions::default(),
+    ) {
+        Ok(_) => (),
+        Err(e) => match e.kind {
+            error::ErrorKind::AlreadyExists => (),
+            _ => error!("{:?}", e),
+        },
+    }
+
+    // info!("Copying the NI libraries over...");
+    // fs_extra::dir::copy(
+    //     format!("{tmp_dir_displayed}/ni-libraries/"),
+    //     format!("{include_dir}/../../../target/ni-libraries/"),
+    //     &copy_options,
+    // )?;
+
+    info!("Generating bindings...");
+    bindgen::generate_bindings();
 
     Ok(())
+}
+
+mod bindgen {
+
+    use bindgen::callbacks::IntKind;
+    use std::env;
+    use std::path::PathBuf;
+
+    fn wpilib_sys_dir() -> PathBuf {
+        PathBuf::from(env::var("CARGO_WORKSPACE_DIR").unwrap())
+            .join("crates")
+            .join("wpilib-sys")
+    }
+
+    fn output_dir() -> PathBuf {
+        wpilib_sys_dir().join("src")
+    }
+
+    #[derive(Debug)]
+    struct BindgenCallbacks;
+
+    impl bindgen::callbacks::ParseCallbacks for BindgenCallbacks {
+        fn enum_variant_name(
+            &self,
+            enum_name: Option<&str>,
+            original_variant_name: &str,
+            _variant_value: bindgen::callbacks::EnumVariantValue,
+        ) -> Option<String> {
+            // note that returning `None` leaves the variant name unchanged in the generated bindings
+            match enum_name {
+                Some("tResourceType") => {
+                    Some(original_variant_name["kResourceType_".len()..].to_owned())
+                }
+                Some(enum_name) if original_variant_name.starts_with(enum_name) => {
+                    Some(original_variant_name[enum_name.len() + 1..].to_owned())
+                }
+                _ => None,
+            }
+        }
+
+        fn int_macro(&self, name: &str, _value: i64) -> Option<IntKind> {
+            match name {
+                "HAL_kInvalidHandle" => Some(IntKind::I32),
+                "HAL_kMaxJoystickAxes" | "HAL_kMaxJoystickPOVs" | "HAL_kMaxJoysticks" => {
+                    Some(IntKind::U8)
+                }
+                _ => None,
+            }
+        }
+
+        fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
+            if name.ends_with("_MESSAGE") {
+                bindgen::callbacks::MacroParsingBehavior::Ignore
+            } else {
+                bindgen::callbacks::MacroParsingBehavior::Default
+            }
+        }
+    }
+
+    pub fn generate_bindings() {
+        const INCLUDE_DIR: &str = "include";
+        const SYMBOL_REGEX: &str = r"HAL_\w+";
+        let bindings = bindgen::Builder::default()
+            .derive_default(true)
+            .header(format!(
+                "{}",
+                wpilib_sys_dir().join("HAL_Wrapper.h").display()
+            ))
+            .allowlist_type(SYMBOL_REGEX)
+            .allowlist_function(SYMBOL_REGEX)
+            .allowlist_var(SYMBOL_REGEX)
+            .allowlist_type("HALUsageReporting::.*")
+            .default_enum_style(bindgen::EnumVariation::ModuleConsts)
+            .parse_callbacks(Box::new(BindgenCallbacks))
+            .clang_arg(format!(
+                "-I{}",
+                wpilib_sys_dir().join(INCLUDE_DIR).display()
+            ))
+            .clang_arg("-xc++")
+            .clang_arg("-nostdinc")
+            .clang_arg("-nostdinc++")
+            .clang_arg("-std=c++17");
+        println!("builder_args: {:?}", bindings.command_line_flags());
+        let out = bindings.generate().expect("Unable to generate bindings");
+
+        out.write_to_file(output_dir().join("hal_bindings.rs"))
+            .expect("Couldn't write bindings!");
+
+        println!();
+    }
 }
