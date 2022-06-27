@@ -18,5 +18,8 @@ include = [
     "WPILIB_LICENSE",
     "lib/**/*",]
 
+[dependencies]
+tracing = { version = "0.1.*", optional = true }
+
 [features]
-dev = []
+tracing = [ "dep:tracing" ]

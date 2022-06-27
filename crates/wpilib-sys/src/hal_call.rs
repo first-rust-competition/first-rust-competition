@@ -129,6 +129,10 @@ macro_rules! hal_call {
         let result = unsafe { $function($(
             $arg,
         )* &mut status as *mut i32) };
+
+        #[cfg(feature = "tracing")]
+        tracing::trace!(action = "hal_call", target = "$function", status);
+
         if status == 0 { Ok(result) } else { Err(HalError::from(status)) }
     }};
     ($namespace:path, $function:ident($($arg:expr),*)) => {{
@@ -136,6 +140,10 @@ macro_rules! hal_call {
         let result = unsafe { $namespace::$function($(
             $arg,
         )* &mut status as *mut i32) };
+
+        #[cfg(feature = "tracing")]
+        tracing::trace!(action = "hal_call", target = "$namespace::$function", status);
+
         if status == 0 { Ok(result) } else { Err(HalError::from(status)) }
     }};
 }
@@ -150,6 +158,10 @@ macro_rules! maybe_hal_call {
         let result = unsafe { $function($(
             $arg,
         )* &mut status as *mut i32) };
+
+        #[cfg(feature = "tracing")]
+        tracing::trace!(action = "maybe_hal_call", target = "$function", status);
+
         HalMaybe::new(
             result,
             if status == 0 {
@@ -164,6 +176,10 @@ macro_rules! maybe_hal_call {
         let result = unsafe { $namespace::$function($(
             $arg,
         )* &mut status as *mut i32) };
+
+        #[cfg(feature = "tracing")]
+        tracing::trace!(action = "maybe_hal_call", target = "$namespace::$function", status);
+
         HalMaybe::new(
             result,
             if status == 0 {

@@ -33,6 +33,9 @@ impl UninitializedRobot {
             std::mem::transmute(*b"Rust")
         });
 
+        #[cfg(feature = "tracing")]
+        tracing::trace!(action = "initialize robot", ok = true);
+
         Ok(Robot {
             hal,
             ds,

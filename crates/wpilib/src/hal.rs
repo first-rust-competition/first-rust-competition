@@ -28,6 +28,9 @@ impl UninitializedHAL {
             return Err(HALInitializationError(Unknown));
         }
 
+        #[cfg(feature = "tracing")]
+        tracing::trace!(action = "initialize HAL", ok = true);
+
         Ok(HAL::new())
     }
 }

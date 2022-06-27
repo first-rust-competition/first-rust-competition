@@ -125,6 +125,9 @@ pub struct UninitializedDriverStation;
 impl UninitializedDriverStation {
     // By taking HAL as an argument, we gaurantee that the user has constructed one already.
     pub fn initialize(self, _: &HAL) -> DriverStation {
+        #[cfg(feature = "tracing")]
+        tracing::trace!(action = "initialize DS", ok = true);
+
         DriverStation { _private: () }
     }
 }

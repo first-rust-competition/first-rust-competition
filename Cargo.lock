@@ -922,6 +922,14 @@ dependencies = [
 
 [[package]]
 name = "tracing"
+version = "0.0.0"
+dependencies = [
+ "tracing-subscriber",
+ "wpilib",
+]
+
+[[package]]
+name = "tracing"
 version = "0.1.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a400e31aa60b9d44a52a8ee0343b5b18566b03a8321e0d321f695cf56e940160"
@@ -959,7 +967,7 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d686ec1c0f384b1277f097b2f279a2ecc11afe8c133c1aabf036a27cb4cd206e"
 dependencies = [
- "tracing",
+ "tracing 0.1.35",
  "tracing-subscriber",
 ]
 
@@ -1079,12 +1087,16 @@ dependencies = [
  "embedded-hal",
  "lazy_static",
  "thiserror",
+ "tracing 0.1.35",
  "wpilib-sys",
 ]
 
 [[package]]
 name = "wpilib-sys"
 version = "0.4.0"
+dependencies = [
+ "tracing 0.1.35",
+]
 
 [[package]]
 name = "xshell"
@@ -1111,7 +1123,7 @@ dependencies = [
  "fs_extra",
  "glob",
  "tempdir",
- "tracing",
+ "tracing 0.1.35",
  "tracing-error",
  "tracing-subscriber",
  "xshell",
