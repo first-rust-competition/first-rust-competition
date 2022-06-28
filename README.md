@@ -6,9 +6,9 @@
 </h1>
 
 <h4 align="center">
-    ![Crates.io](https://img.shields.io/crates/v/wpilib?label=wpilib&style=flat-square)
-    ![Crates.io](https://img.shields.io/crates/v/wpilib-sys?label=wpilib-sys&style=flat-square)
-    ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/bobbbay/wpilib-rs/Continuous%20integration?label=CI&style=flat-square)
+    <img alt="Crates.io" src="https://img.shields.io/crates/v/wpilib?label=wpilib&style=flat-square">
+    <img alt="Crates.io" src="https://img.shields.io/crates/v/wpilib-sys?label=wpilib-sys&style=flat-square">
+    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/bobbbay/wpilib-rs/Continuous%20integration?style=flat-square">
 </h1>
 
 <p align="center"> A memory-safe, modular, expressive alternative to programming FRC robots </p>
