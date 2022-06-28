@@ -5,7 +5,7 @@
   ...
 }:
 pkgs.stdenv.mkDerivation rec {
-  name = "wpilib-cross-compiler";
+  name = "wpilib-cross-compiler-old";
   version = "2021-2";
 
   nativeBuildInputs = with pkgs; [

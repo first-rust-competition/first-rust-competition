@@ -1,6 +1,10 @@
+name: Continuous integration
 on: [ push, pull_request ]
 
-name: Continuous integration
+# TODO: fix tests on x86_64-linux, run cargo test + cargo taurpaulin + codecov upload.
+
+env:
+  BINDGEN_EXTRA_CLANG_ARGS: -B/usr/include/
 
 jobs:
   ci:
@@ -11,10 +15,30 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.59.0  # MSRV
+          - 1.60.0  # MSRV
 
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+                target/xtask/
+          key: ${{ runner.os }}-xtask
+
+      - run: sudo apt-get install -y avr-libc tar wget
+
+      - name: Install `arm-frc2022-unknown-gcc` toolchain.
+        run: wget https://github.com/wpilibsuite/roborio-toolchain/releases/download/v2022-1/FRC-2022-Linux-Toolchain-7.3.0.tar.gz && tar -xzvf FRC-2022-Linux-*.tar.gz && echo "$(pwd)/frc2022/roborio/bin/" >> $GITHUB_PATH
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -22,6 +46,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           components: rustfmt, clippy
+          target: arm-unknown-linux-gnueabi
 
       - uses: actions-rs/cargo@v1
         with:
@@ -30,16 +55,8 @@ jobs:
 
       - uses: actions-rs/cargo@v1
         with:
-          command: run
-          args: -p wpilib-halgen
-
-      - uses: actions-rs/cargo@v1
-        with:
           command: build
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
+          args: --target arm-unknown-linux-gnueabi
 
       - uses: actions-rs/cargo@v1
         with:
@@ -54,17 +71,3 @@ jobs:
       - uses: actions-rs/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: '0.15.0'
-          args: '-- --test-threads 1'
-
-      - uses: codecov/codecov-action@v1.0.2
-        with:
-          token: ${{secrets.CODECOV_TOKEN}}
-
-      - uses: actions/upload-artifact@v1
-        with:
-          name: code-coverage-report
-          path: cobertura.xml

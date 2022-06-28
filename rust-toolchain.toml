@@ -1,3 +1,3 @@
 [toolchain]
-channel = "nightly-2022-05-18"
+channel = "stable"
 targets = [ "arm-unknown-linux-gnueabi" ]

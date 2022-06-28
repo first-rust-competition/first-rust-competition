@@ -62,7 +62,6 @@ pub(crate) fn init() -> Result<()> {
 
     sh.change_dir(&wpilib_directory);
 
-    // Run Gradle to generate the necessary files.
     info!("Installing the toolchain...");
     cmd!(sh, "./gradlew installRoboRioToolchain --build-cache").run()?;
 
@@ -70,7 +69,7 @@ pub(crate) fn init() -> Result<()> {
     cmd!(sh, "./gradlew :hal:build --build-cache").run()?;
 
     let message = format!(
-        "pub static WPILIB_COMMIT_HASH: &str = \"{}\";",
+        "pub static WPILIB_COMMIT_HASH: &str = \"{}\";\n",
         cmd!(sh, "git ls-files -s ./ | cut -d ' ' -f 2").read()?
     );
     let mut file = std::fs::File::create(format!(
@@ -146,7 +145,11 @@ pub(crate) fn init() -> Result<()> {
 
     info!("Building the NI libraries...");
     sh.change_dir(&ni_libraries_directory);
-    cmd!(sh, "./gradlew build").run()?;
+
+    info!("Installing the toolchain...");
+    cmd!(sh, "./gradlew installRoboRioToolchain --build-cache").run()?;
+
+    cmd!(sh, "./gradlew build --build-cache").run()?;
 
     let copied_libraries = [
         ("src/lib/visa/libvisa.so.21.0.0", "libvisa.so"),
@@ -266,8 +269,8 @@ mod bindgen {
                 wpilib_sys_dir().join(INCLUDE_DIR).display()
             ))
             .clang_arg("-xc++")
-            .clang_arg("-nostdinc")
-            .clang_arg("-nostdinc++")
+            // .clang_arg("-nostdinc")
+            // .clang_arg("-nostdinc++")
             .clang_arg("-std=c++17");
         println!("builder_args: {:?}", bindings.command_line_flags());
         let out = bindings.generate().expect("Unable to generate bindings");
