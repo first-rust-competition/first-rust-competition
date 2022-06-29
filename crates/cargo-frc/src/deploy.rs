@@ -52,9 +52,9 @@ pub fn deploy_command(matches: &ArgMatches<'_>, config: &FrcConfig) -> Result<()
 
 fn make_addresses(team_number: u64) -> Vec<String> {
     vec![
+        "172.22.11.2".to_string(),
         format!("roborio-{}-FRC.local", team_number),
         format!("10.{}.{}.2", team_number / 100, team_number % 100),
-        "172.22.11.2".to_string(),
         // The following are addresses that exist in uncommon development environments
         // Some teams run a shop wifi network that acts as a practice field.
         // This setup involves the following DNS entries
