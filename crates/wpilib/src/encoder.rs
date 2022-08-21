@@ -28,7 +28,7 @@ License version 3 as published by the Free Software Foundation. See
 <https://www.gnu.org/licenses/> for a copy.
 */
 
-//! HAL-based encoders.
+// TODO: documentation
 
 use wpilib_sys::*;
 

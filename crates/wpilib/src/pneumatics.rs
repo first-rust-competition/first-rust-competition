@@ -109,7 +109,7 @@ impl Solenoid {
         let module_id = module.id();
 
         let handle = hal_call!(HAL_InitializeCTREPCM(
-            HAL_GetPortWithModule(module_id, channel,),
+            HAL_GetPortWithModule(module_id, channel),
             std::ptr::null()
         ))?;
 

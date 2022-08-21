@@ -24,3 +24,9 @@
 ## Getting started
 
 To get started with `wpilib-rs`, simply depend on `wpilib`, and read through our documentation.
+
+## License
+
+The contents of this repository are distributed under the terms of both the MIT license and the Apache License (Version 2.0). By contributing, you agree to license your contribution under these terms.
+
+See [LICENSE-APACHE](LICENSE-APACHE), [LICENSE-MIT](LICENSE-MIT), for details.
