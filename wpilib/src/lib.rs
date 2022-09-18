@@ -5,9 +5,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-extern crate lazy_static;
-extern crate wpilib_sys;
-
 mod analog_input;
 pub use self::analog_input::AnalogInput;
 mod pdp;
