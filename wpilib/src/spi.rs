@@ -9,7 +9,7 @@
 //!
 //! Currently does not implement an accumulator.
 
-use std::io;
+use std::{io, time};
 use wpilib_sys::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -22,13 +22,19 @@ pub enum Port {
     MXP = HAL_SPIPort::HAL_SPI_kMXP,
 }
 
+/// Settings for `Spi::set_opts`. These all default to false.
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct SpiOptions {
+    pub msb_first: bool,
+    pub sample_on_trailing: bool,
+    pub clk_idle_high: bool,
+}
+
 /// SPI bus interface. Intended to be used by sensor (and other SPI device) drivers.
 #[derive(Debug)]
 pub struct Spi {
     port: HAL_SPIPort::Type,
-    msb_first: bool,
-    sample_on_trailing: bool,
-    clk_idle_high: bool,
+    opts: SpiOptions,
 }
 
 impl Spi {
@@ -38,9 +44,7 @@ impl Spi {
         usage::report(usage::resource_types::SPI, port as _);
         Ok(Spi {
             port,
-            msb_first: false,
-            sample_on_trailing: false,
-            clk_idle_high: false,
+            opts: SpiOptions::default(),
         })
     }
 
@@ -48,46 +52,51 @@ impl Spi {
         unsafe { HAL_SetSPISpeed(self.port, hz as i32) }
     }
 
-    #[inline]
-    fn update_spi_opts(&mut self) {
+    pub fn set_opts(&mut self, opts: SpiOptions) {
         unsafe {
             HAL_SetSPIOpts(
                 self.port,
-                self.msb_first as HAL_Bool,
-                self.sample_on_trailing as HAL_Bool,
-                self.clk_idle_high as HAL_Bool,
-            );
+                opts.msb_first as HAL_Bool,
+                opts.sample_on_trailing as HAL_Bool,
+                opts.clk_idle_high as HAL_Bool,
+            )
         }
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_msb_first(&mut self) {
-        self.msb_first = true;
-        self.update_spi_opts();
+        self.opts.msb_first = true;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_lsb_first(&mut self) {
-        self.msb_first = false;
-        self.update_spi_opts();
+        self.opts.msb_first = false;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_sample_data_on_leading_edge(&mut self) {
-        self.sample_on_trailing = false;
-        self.update_spi_opts();
+        self.opts.sample_on_trailing = false;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_sample_data_on_trailing_edge(&mut self) {
-        self.sample_on_trailing = true;
-        self.update_spi_opts();
+        self.opts.sample_on_trailing = true;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_clock_active_low(&mut self) {
-        self.clk_idle_high = true;
-        self.update_spi_opts();
+        self.opts.clk_idle_high = true;
+        self.set_opts(self.opts)
     }
 
+    #[deprecated(since = "0.5.0", note = "use `set_opts` directly instead")]
     pub fn set_clock_active_high(&mut self) {
-        self.clk_idle_high = false;
-        self.update_spi_opts();
+        self.opts.clk_idle_high = false;
+        self.set_opts(self.opts)
     }
 
     pub fn set_chip_select_active_high(&mut self) -> HalResult<()> {
@@ -141,6 +150,23 @@ impl Spi {
     }
 }
 
+impl io::Read for Spi {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.read(false, buf)
+    }
+}
+
+#[cfg(feature = "embedded-hal")]
+impl embedded_hal::blocking::spi::Transfer<u8> for Spi {
+    type Error = io::Error;
+
+    fn transfer<'w>(&mut self, words: &'w mut [u8]) -> io::Result<&'w [u8]> {
+        let ptr = words.as_mut_ptr();
+        let size = unsafe { self.transaction_into(words, ptr) }?;
+        Ok(&words[..size])
+    }
+}
+
 /// Automatic SPI transfer engine.
 #[derive(Debug)]
 pub struct AutoSpi(Spi);
@@ -171,8 +197,8 @@ impl AutoSpi {
         ))
     }
 
-    pub fn start_rate(&mut self, period: f64) -> HalResult<()> {
-        hal_call!(HAL_StartSPIAutoRate(self.0.port, period))
+    pub fn start_rate(&mut self, period: time::Duration) -> HalResult<()> {
+        hal_call!(HAL_StartSPIAutoRate(self.0.port, period.as_secs_f64()))
     }
 
     pub fn pause(&mut self) -> HalResult<()> {
@@ -194,15 +220,19 @@ impl AutoSpi {
      * The length of each received data sequence is the same as the combined
      * size of the data and `zero_size` set in `set_transmit_data`.
      *
-     * Blocks until the buffer is filled or timeout (s, ms resolution) expires.
+     * Blocks until the buffer is filled or timeout (ms resolution) expires.
      * May be called with an empty buffer to retrieve how many words are available.
      */
-    pub fn read_received_data(&mut self, buffer: &mut [u32], timeout: f64) -> HalResult<i32> {
+    pub fn read_received_data(
+        &mut self,
+        buffer: &mut [u32],
+        timeout: time::Duration,
+    ) -> HalResult<i32> {
         hal_call!(HAL_ReadSPIAutoReceivedData(
             self.0.port,
             buffer.as_mut_ptr(),
             buffer.len() as _,
-            timeout
+            timeout.as_secs_f64()
         ))
     }
 
