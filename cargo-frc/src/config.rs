@@ -5,6 +5,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use crate::toolchain::Toolchain;
 use crate::util::str_map;
 use serde_json::Value;
 use std::path::PathBuf;
@@ -15,6 +16,7 @@ pub struct FrcConfig {
     pub rio_address_override: Option<String>,
     pub target_dir: PathBuf,
     pub executable: PathBuf,
+    pub toolchain_year: Option<Toolchain>,
 }
 
 pub fn get_config() -> Result<FrcConfig, String> {
@@ -34,7 +36,7 @@ pub fn get_config() -> Result<FrcConfig, String> {
         Value::String(ref x) => Ok(x),
         _ => Err("Could not read manifest_path from Cargo.toml."),
     }?);
-    target_dir.pop(); //remove Cargo.toml from the path
+    target_dir.pop(); // remove Cargo.toml from the path
     let frc = manifest
         .get("metadata")
         .ok_or(err)?
@@ -91,11 +93,21 @@ pub fn get_config() -> Result<FrcConfig, String> {
         error!("Neither a team number or rio address was specified.");
     };
 
+    debug!("year val: {:?}", frc.get("year"));
+    // debug!("team-number val: {:?}", frc.get("team-number"));
+
+    let toolchain_year = frc
+        .get("year")
+        .and_then(|v| v.as_u64())
+        .map(|i| i.to_string())
+        .and_then(|s| Toolchain::from_year(s.as_str()));
+
     let tmp = FrcConfig {
         team_number,
         rio_address_override,
         target_dir,
         executable,
+        toolchain_year,
     };
     debug!("Using config: {:?}.", tmp);
 

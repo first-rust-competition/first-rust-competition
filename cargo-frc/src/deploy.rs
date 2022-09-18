@@ -6,6 +6,7 @@
 // except according to those terms.
 
 use super::config::FrcConfig;
+use crate::build::cargo_build;
 use crate::util::*;
 use clap::ArgMatches;
 use ref_slice::*;
@@ -184,33 +185,7 @@ fn ssh<T: AsRef<OsStr>>(target_address: &T, command: &str) -> Result<(), String>
     Ok(())
 }
 
-const DEPLOY_TARGET_TRIPLE: &str = "arm-unknown-linux-gnueabi";
-
-fn cargo_build(matches: &ArgMatches<'_>, config: &FrcConfig) -> Result<(), String> {
-    info!("Building the project...");
-    let mut args = vec![
-        "build",
-        "--quiet",
-        "--target",
-        DEPLOY_TARGET_TRIPLE,
-        "--bin",
-    ];
-    args.push(
-        config
-            .executable
-            .to_str()
-            .ok_or("Executable name is not valid Unicode.")?,
-    );
-    if matches.is_present("release") {
-        args.push("--release");
-    }
-    debug!("Using cargo args {:?}", args);
-    let exit_code = subprocess::Exec::cmd("cargo")
-        .args(&args)
-        .join()
-        .map_err(str_map("'cargo build' subprocess failed"))?;
-    handle_subprocess_exit("cargo build", exit_code)
-}
+const DEPLOY_TARGET_TRIPLE: &str = crate::build::ROBORIO_TARGET_TRIPLE;
 
 const LIBS_TO_DEPLOY: &[&str] = &["wpiHal", "wpiutil" /* "ntcore.so", "cscore"*/];
 
