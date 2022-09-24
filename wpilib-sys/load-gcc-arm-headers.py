@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Copyright 2018 First Rust Competition Developers.
 # Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
@@ -27,7 +27,7 @@ def main():
     for x in include_dirs:
         x = x.strip()
         #call('cp -R {0}/* {1}'.format(x, "./include"), shell=True)
-        print x
+        print(x)
 
 
 if __name__ == "__main__":

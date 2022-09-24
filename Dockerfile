@@ -11,7 +11,7 @@
 # * git
 # * libclang / clang / llvm
 # * OpenJDK 11
-# * Python 2.7
+# * Python 3
 # * arm-frc2019-linux-gnueabi-gcc/g++
 #
 # Check the apt-get commands for the canonical list
@@ -30,7 +30,7 @@ RUN set -eux; \
     llvm-7-dev \
     libclang-7-dev \
     clang-7 \
-    python \
+    python3 \
     ;
 
 # add the frc2019 compiler
