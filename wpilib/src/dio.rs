@@ -30,57 +30,125 @@ option. This file may not be copied, modified, or distributed
 except according to those terms.
 */
 
-use lazy_static::lazy_static;
+//! Digital I/O.
+
+use std::mem;
 use wpilib_sys::usage::{instances, resource_types};
 use wpilib_sys::*;
 
-lazy_static! {
-    /// The number of DIOs on the RoboRIO.
-    static ref NUM_DIGITAL_CHANNELS: i32 = unsafe { HAL_GetNumDigitalChannels() };
-}
 #[cfg(feature = "embedded-hal")]
 use embedded_hal::digital::v2::OutputPin;
 
-/// A digital output used to control lights, etc from the RoboRIO.
-#[allow(dead_code)]
+/// The number of DIOs on the RoboRIO.
+fn num_digital_channels() -> i32 {
+    unsafe { HAL_GetNumDigitalChannels() }
+}
+
 #[derive(Debug)]
-pub struct DigitalOutput {
+/// A DIO pin.
+pub struct DigitalPin<MODE> {
     channel: i32,
     handle: HAL_DigitalHandle,
-    pwm: Option<HAL_DigitalPWMHandle>,
+    mode: MODE,
+}
+
+#[derive(Debug)]
+pub struct Input;
+#[derive(Debug)]
+pub struct Output;
+
+const IS_INPUT: bool = true;
+
+/**
+ * Class to read a digital input.
+ *
+ * This class will read digital inputs and return the current value on the
+ * channel. Other devices such as encoders, gear tooth sensors, etc. that are
+ * implemented elsewhere will automatically allocate digital inputs and outputs
+ * as required. This class is only for devices like switches etc. that aren't
+ * implemented anywhere else.
+ */
+pub type DigitalInput = DigitalPin<Input>;
+/// A digital output used to control lights, etc from the RoboRIO.
+pub type DigitalOutput = DigitalPin<Output>;
+
+// TODO: implement the rest of the methods
+impl DigitalInput {
+    /// Creates a new DIO pin in input mode.
+    pub fn new(channel: i32) -> HalResult<Self> {
+        let handle = hal_call!(HAL_InitializeDIOPort(
+            HAL_GetPort(channel),
+            IS_INPUT as HAL_Bool
+        ))?;
+
+        usage::report(resource_types::DigitalInput, channel as instances::Type);
+
+        Ok(DigitalPin {
+            channel,
+            handle,
+            mode: Input,
+        })
+    }
+
+    /// Put this pin in output mode.
+    pub fn into_output(self) -> HalResult<DigitalOutput> {
+        let handle = self.handle;
+        let channel = self.channel;
+
+        hal_call!(HAL_SetDIODirection(handle, !IS_INPUT as HAL_Bool))?;
+        usage::report(resource_types::DigitalOutput, channel as instances::Type);
+
+        mem::forget(self);
+        Ok(DigitalPin {
+            channel,
+            handle,
+            mode: Output,
+        })
+    }
 }
 
 impl DigitalOutput {
-    /// Create a new digital output on the specificed channel, returning an error if initialization
-    /// fails.
-    #[allow(clippy::new_ret_no_self)]
+    /// Creates a new DIO pin in output mode.
     pub fn new(channel: i32) -> HalResult<Self> {
         let handle = hal_call!(HAL_InitializeDIOPort(
-            HAL_GetPort(channel as i32),
-            false as HAL_Bool // false for output
+            HAL_GetPort(channel),
+            !IS_INPUT as HAL_Bool
         ))?;
 
         usage::report(resource_types::DigitalOutput, channel as instances::Type);
 
-        Ok(DigitalOutput {
+        Ok(DigitalPin {
             channel,
             handle,
-            pwm: None,
+            mode: Output,
         })
-    }
-
-    /// Set the PWM rate for this output, from 0.6Hz to 19kHz. Will return an error if PWM has not
-    /// been enabled. All digital channels will use the same PWM rate.
-    pub fn set_pwm_rate(rate: f64) -> HalResult<()> {
-        hal_call!(HAL_SetDigitalPWMRate(rate))
     }
 
     /// Set the value to output.
     pub fn set(&mut self, value: bool) -> HalResult<()> {
-        hal_call!(HAL_SetDIO(self.handle, value as i32))
+        hal_call!(HAL_SetDIO(self.handle, value as HAL_Bool))
     }
 
-    /// Get the previously-written output.
+    /// Put this pin in input mode.
+    pub fn into_input(self) -> HalResult<DigitalInput> {
+        let handle = self.handle;
+        let channel = self.channel;
+
+        hal_call!(HAL_SetDIODirection(handle, IS_INPUT as HAL_Bool))?;
+        usage::report(resource_types::DigitalInput, channel as instances::Type);
+
+        mem::forget(self);
+        Ok(DigitalPin {
+            channel,
+            handle,
+            mode: Input,
+        })
+    }
+}
+
+/// Methods common to both input and output modes.
+impl<MODE> DigitalPin<MODE> {
+    /// Get the current value of the pin.
     pub fn get(&self) -> HalResult<bool> {
         Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
     }
@@ -94,7 +162,10 @@ impl DigitalOutput {
     pub fn handle(&self) -> HAL_DigitalHandle {
         self.handle
     }
+}
 
+/// Output mode methods.
+impl DigitalOutput {
     /// Write a pulse to this output.
     pub fn pulse(&mut self, length: f64) -> HalResult<()> {
         hal_call!(HAL_Pulse(self.handle, length))
@@ -106,37 +177,19 @@ impl DigitalOutput {
     }
 
     /// Enable PWM for this output.
-    pub fn enable_pwm(&mut self, initial_duty_cycle: f64) -> HalResult<()> {
+    pub fn enable_pwm(self, initial_duty_cycle: f64) -> HalResult<DigitalPwm> {
         let pwm = hal_call!(HAL_AllocateDigitalPWM())?;
         hal_call!(HAL_SetDigitalPWMDutyCycle(pwm, initial_duty_cycle))?;
         hal_call!(HAL_SetDigitalPWMOutputChannel(pwm, self.channel))?;
-        self.pwm = Some(pwm);
-        Ok(())
-    }
-
-    /// Turn off PWM for this output.
-    pub fn disable_pwm(&mut self) -> HalResult<()> {
-        if let Some(pwm) = self.pwm {
-            hal_call!(HAL_SetDigitalPWMOutputChannel(pwm, *NUM_DIGITAL_CHANNELS))?;
-            hal_call!(HAL_FreeDigitalPWM(pwm))?;
-            self.pwm = None;
-        }
-        Ok(())
-    }
-
-    /// Set a new duty cycle to use in PWM on this output.
-    pub fn update_duty_cycle(&mut self, duty_cycle: f64) -> HalResult<()> {
-        if let Some(pwm) = self.pwm {
-            hal_call!(HAL_SetDigitalPWMDutyCycle(pwm, duty_cycle))
-        } else {
-            Ok(())
-        }
+        Ok(DigitalPwm {
+            handle: DigitalPwmHandle(pwm),
+            pin: self,
+        })
     }
 }
 
-impl Drop for DigitalOutput {
+impl<MODE> Drop for DigitalPin<MODE> {
     fn drop(&mut self) {
-        let _ = self.disable_pwm();
         unsafe { HAL_FreeDIOPort(self.handle) }
     }
 }
@@ -154,51 +207,52 @@ impl OutputPin for DigitalOutput {
     }
 }
 
-/**
- * Class to read a digital input.
- *
- * This class will read digital inputs and return the current value on the
- * channel. Other devices such as encoders, gear tooth sensors, etc. that are
- * implemented elsewhere will automatically allocate digital inputs and outputs
- * as required. This class is only for devices like switches etc. that aren't
- * implemented anywhere else.
- */
-#[derive(Debug)]
-pub struct DigitalInput {
-    channel: i32,
-    handle: HAL_DigitalHandle,
+/// Digital PWM output.
+///
+/// PWM output will be disabled when this is dropped.
+///
+/// Use [`DigitalOutput::enable_pwm`] to get an instance of this.
+///
+/// [`DigitalOutput::enable_pwm`]: struct.DigitalOutput.html#method.enable_pwm
+pub struct DigitalPwm {
+    // this is ordered for drop order correctness
+    handle: DigitalPwmHandle,
+    pin: DigitalOutput,
 }
 
-// TODO: implement the rest of the methods
-impl DigitalInput {
-    #[allow(clippy::new_ret_no_self)]
-    pub fn new(channel: i32) -> HalResult<Self> {
-        let handle = hal_call!(HAL_InitializeDIOPort(
-            HAL_GetPort(channel as i32),
-            true as HAL_Bool // true for input
-        ))?;
+/// Internal wrapper for a digital PWM handle with our Drop impl.
+struct DigitalPwmHandle(HAL_DigitalPWMHandle);
 
-        usage::report(resource_types::DigitalInput, channel as instances::Type);
-
-        Ok(DigitalInput { channel, handle })
+impl DigitalPwm {
+    /// Set a new duty cycle to use in PWM on this output.
+    pub fn update_duty_cycle(&mut self, duty_cycle: f64) -> HalResult<()> {
+        hal_call!(HAL_SetDigitalPWMDutyCycle(self.handle.0, duty_cycle))
     }
 
-    /// Get the value from the digital input channel from the FPGA.
-    pub fn get(&self) -> HalResult<bool> {
-        Ok(hal_call!(HAL_GetDIO(self.handle))? != 0)
+    /// Set the PWM rate for digital PWM outputs, from 0.6Hz to 19kHz.
+    /// All digital channels will use the same PWM rate.
+    /// Will return an error if PWM has not been enabled.
+    pub fn set_pwm_rate(rate: f64) -> HalResult<()> {
+        hal_call!(HAL_SetDigitalPWMRate(rate))
     }
 
-    pub fn handle(&self) -> HAL_DigitalHandle {
-        self.handle
+    /// Get a reference to the underlying DigitalOutput.
+    pub fn pin(&self) -> &DigitalOutput {
+        &self.pin
     }
 
-    pub fn channel(&self) -> i32 {
-        self.channel
+    /// Disables PWM output, returning the underlying DigitalOutput.
+    pub fn disable(self) -> DigitalOutput {
+        self.pin
     }
 }
 
-impl Drop for DigitalInput {
+impl Drop for DigitalPwmHandle {
     fn drop(&mut self) {
-        unsafe { HAL_FreeDIOPort(self.handle) }
+        let _ = hal_call!(HAL_SetDigitalPWMOutputChannel(
+            self.0,
+            num_digital_channels(),
+        ));
+        let _ = hal_call!(HAL_FreeDigitalPWM(self.0));
     }
 }
